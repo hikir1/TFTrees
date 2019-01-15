@@ -40,7 +40,7 @@ public class TruthTrees {
 	public static final String errorFrameName = "Truth Trees Error";
 	public static final String errorMessageErrorLogFile = "Error writing to log file";
 	public static final String errorMessageSystemLookAndFeel = "Error setting system look and feel";
-	
+
 	public static void popupException(Exception e, String errorMessage)
 	{
 		// get error string
@@ -100,6 +100,7 @@ public class TruthTrees {
 		logException(e, errorMessage);
 		popupException(e, errorMessage);
 	}
+
 	
 	public static void main(String[] args) {
 		try {
@@ -112,7 +113,6 @@ public class TruthTrees {
 		
 		final JFrame frame = new JFrame("Truth Tree");
 		frame.setLayout(new BorderLayout());
-		
 		
 		JMenuBar menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
@@ -144,7 +144,32 @@ public class TruthTrees {
 					JOptionPane.showMessageDialog(null, "The tree is invalid!\n"+ret);
 			}
 		});
-		
+
+    JMenuItem checkFolderButton = new JMenuItem("Check Tree Folder");
+
+    treeMenu.add(checkFolderButton);
+    checkFolderButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        ArrayList<File> files = FileManager.listFolderFilesStart((TreePanel)frame.getContentPane().getComponent(0));
+        System.out.println("test");
+        if (files != null)
+        {
+          System.out.println("test");
+          for (int i = 0; i < files.size(); i ++)
+          {
+            System.out.println(files.get(i));
+            TreePanel newPanel = FileManager.loadFromFile(files.get(i));
+            String ret = newPanel.check();
+            if (ret == null)
+              JOptionPane.showMessageDialog(null, "The tree in file "+files.get(i).getPath()+" is correct!");	
+            else
+              JOptionPane.showMessageDialog(null, "The tree in file "+files.get(i).getPath()+" is invalid!\n"+ret);
+          }
+        }
+      }
+    });
+
 		JMenuItem checkLineButton = new JMenuItem("Verify Current Line");
 		
 		treeMenu.add(checkLineButton);
@@ -160,7 +185,9 @@ public class TruthTrees {
 					JOptionPane.showMessageDialog(null, ret);
 			}
 		});
-		
+
+    treeMenu.addSeparator();
+
 		JMenuItem saveButton = new JMenuItem("Save");
 		
 		fileMenu.add(saveButton);
@@ -174,6 +201,19 @@ public class TruthTrees {
 			}
 		});
 		
+		JMenuItem saveAsButton = new JMenuItem("Save As");
+		
+		fileMenu.add(saveAsButton);
+		saveAsButton.setAccelerator(KeyStroke.getKeyStroke('S', InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+		saveAsButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FileManager.saveAsFile((TreePanel)frame.getContentPane().getComponent(0));
+				
+			}
+		});
+
 		JMenuItem undoButton = new JMenuItem("Undo");
 		
 		editMenu.add(undoButton);
@@ -217,6 +257,29 @@ public class TruthTrees {
 				}
 			}
 		});
+		JMenuItem addLineAfterButton = new JMenuItem("Add Line After");
+		
+		treeMenu.add(addLineAfterButton);
+		addLineAfterButton.setAccelerator(KeyStroke.getKeyStroke('A', InputEvent.CTRL_MASK));
+		addLineAfterButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				((TreePanel)frame.getContentPane().getComponent(0)).addLineAfter();
+			}
+    });
+
+		JMenuItem addLineBeforeButton = new JMenuItem("Add Line Before");
+		
+		treeMenu.add(addLineBeforeButton);
+		addLineBeforeButton.setAccelerator(KeyStroke.getKeyStroke('B', InputEvent.CTRL_MASK));
+		addLineBeforeButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				((TreePanel)frame.getContentPane().getComponent(0)).addLineBefore();
+			}
+    });
 		
 		JMenuItem deleteButton = new JMenuItem("Delete Selected Line");
 		
@@ -297,6 +360,30 @@ public class TruthTrees {
 		
 		helpMenu.add(aboutButton);
 
+		JMenuItem usageButton = new JMenuItem("Usage");
+		usageButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(null,
+				  new JLabel("<html><body><p style=\"width: 500px;\">"+
+            "How to Use Truth Trees " + version + "<br><br>"+
+            "You can Select a cell by left-clicking it, and it will turn green.<br><br>"+
+            "Symbols to be used can be found under Help. Symbols will show up in their proper logical form once you click outside the cell. At that time, the cell will also resize if needed to show the whole statement.<br><br>" +
+            "To add further premises, use CTRL-P, or use the menu item under Tree.<br><br>"+
+            "For the application of the rules, there are the following options:<br></p>"+
+            "<ul style=\"padding-left:20px; width: 500px;\">"+
+            "<li>Add line. This is for the decomposition of statements that do not branch, e.g. ~~P. Fill in the resulting statement in the newly created cell, and then Select the cell where the statement came from (so it is green), and then right-click on the statement(s) that were the result of decomposing the selected statement (they will turn light blue)</li>"+
+            "<li>Add branch. You only add one branch at a time. The program does not assume that branching will also result in exactly two branches, so that it can handle general disjunctions with more than 2 disjuncts (each becomes its own branch). So, create as many branches as needed, and again fill in the appropriate statements in the cells. Then Select the statement that lead to the branching, and right-click the resulting statements … and ALSO right-click the branch structure itself.</li>"+
+            "<li>Terminate. This is to indicate that a branch is closed (X) or finished and open (O). Right-click to switch between X and O. If you select X, you will need to say where the X comes from by rightclicking those cells (which will turn blue)</li></ul>"+
+            "<p style=\"width: 500px;\">There is also an option in the Tree menu to check all TruthTree files in a folder. To use, place all files into a folder labeled \"grading\" in the same location as the application. Subfolders are allowed. Non TruthTree files will be ignored.</p></body></html>"),
+				  "About TFTrees",
+				  JOptionPane.PLAIN_MESSAGE);
+			}
+		});
+
+    helpMenu.add(usageButton);
+		
 		frame.pack();
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

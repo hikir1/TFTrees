@@ -62,7 +62,7 @@ import perl.aaron.TruthTrees.logic.Statement;
 
 /**
  * An extension of JPanel for displaying and interacting with a sequence of TreeLines
- * @author Aaron Perl
+ * @author Aaron Perl, Sarah Mogielnicki
  *
  */
 public class TreePanel extends JPanel {
@@ -155,7 +155,6 @@ public class TreePanel extends JPanel {
 				repaint();
 			}
 		});
-		moveComponents();
 	}
 	
 	private void recordState()
@@ -329,6 +328,10 @@ public class TreePanel extends JPanel {
 		}
 	}
 	
+	/**
+	 * Makes a new BranchLine that is a premise, and sets its statement to s
+	 * @param s The premise that is added
+	 */	
 	public void addPremise(Statement s)
 	{
 		recordState();
@@ -342,16 +345,29 @@ public class TreePanel extends JPanel {
 		}
 	}
 	
+	/**
+	 * Makes a new BranchLine that is a premise, with no statement
+	 */	
 	public void addPremise()
 	{
 		addPremise(null);
 	}
 	
+	/**
+	 * Checks that the line is decomposed properly
+	 * @param l The BranchLine that is being checked
+	 * @return null if decomposed properly, an error message otherwise
+	 */
 	private String checkLine(BranchLine l)
 	{
 		return l.verifyDecomposition();
 	}
 
+	/**
+	 * Checks all the lines in a branch to see if they are decomposed properly
+	 * @param b Branch being checked
+	 * @return null if decomposed properly, an error message otherwise
+	 */
 	private String checkBranch(Branch b)
 	{
 		for (int i = 0; i < b.numLines(); i++)
@@ -370,16 +386,28 @@ public class TreePanel extends JPanel {
 		return null;
 	}
 	
-	public String checkCompletion()
+	/**
+	 * Checks that the tree is complete (by checking that no branches are open
+	 * and that all of the branches are closed).
+	 * @return 0 if all branches close with no open branches, 1 if all branches terminate but at least one is marked open, -1 otherwise
+	 */
+	public int checkCompletion()
 	{
 		boolean isOpen = checkForOpenBranch(root);
 		boolean allClosed = checkForAllClosed(root);
-		if (isOpen || allClosed)
-			return null;
+		if ( !isOpen && allClosed)
+			return 0;
+		else if( !allClosed && !isOpen )
+			return -1;
 		else
-			return "Not all branches are closed and no branch has been marked as open!";
+			return 1;
 	}
 	
+	/**
+	 * Recursively checks if b or any of its children are open
+	 * @param b the Branch that is being checked
+	 * @return true if b or any of its children are open
+	 */
 	private boolean checkForOpenBranch(Branch b)
 	{
 		if (b.isOpen())
@@ -392,6 +420,11 @@ public class TreePanel extends JPanel {
 		return false;
 	}
 	
+	/**
+	 * Recursively checks if b and all if its children are closed
+	 * @param b the Branch being checked for closed
+	 * @return false if b or one of its children is not closed, true otherwise
+	 */
 	private boolean checkForAllClosed(Branch b)
 	{
 		if (b.getBranches().size() == 0 && !b.isClosed())
@@ -404,20 +437,65 @@ public class TreePanel extends JPanel {
 		return true;
 	}
 	
-	public String check()
+	/**
+	 * Recursively checks if b and all if its children are have verified Terminators
+	 * @param b the Branch being checked for verified terminators
+	 * @return false if b or one of its children has a terminator that is not verified, 
+	 * 	true otherwise
+	 */
+	private boolean verifyTerminators(Branch b)
 	{
-		String checkRet = checkBranch(premises);
-		if (checkRet != null)
-			return checkRet;
-		String branchVal = checkBranch(root);
-		if (branchVal != null)
-			return branchVal;
-		String completionVal = checkCompletion();
-		if (completionVal != null)
-			return completionVal;
-		return null;
+		if (b.getBranches().size() == 0 && !b.verifyTerminations())
+			return false;
+		for (Branch child : b.getBranches())
+		{
+			if (!verifyTerminators(child))
+				return false;
+		}
+		return true;
 	}
 	
+	/**
+	 * Runs all of the "check" methods on the whole tree.
+	 * @return null if tree is correct and complete, error message otherwise
+	 */
+	public String check()
+	{
+		String returnVal = "";
+		
+		int completionVal = checkCompletion();
+		boolean verifyEndings = verifyTerminators(root);
+		if (completionVal == 0)
+			if(verifyEndings)
+				return null;
+			else
+				return "There are Branch Terminators that are not referencing correct lines";
+		else if(completionVal == 1)
+			if(verifyEndings)
+				return null;
+			else
+				return "There are Branch Terminators that are not referencing correct lines";
+		else if(completionVal == -1)
+			returnVal = returnVal + "Not all branches are closed and no branch has been marked as open!";
+		
+		String checkRet = checkBranch(premises);
+		if (checkRet != null)
+			returnVal = returnVal + checkRet;
+		
+		String branchVal = checkBranch(root);
+		if (branchVal != null)
+			returnVal = returnVal + branchVal;
+		
+		if(returnVal.equals(""))
+			return null;
+		else
+			return returnVal;
+	}
+	
+	/**
+	 * Checks the selected line.
+	 * @return null if the line is fine, and an error message otherwise
+	 */
 	public String checkSelectedLine()
 	{
 		if (editLine != null)
@@ -425,11 +503,23 @@ public class TreePanel extends JPanel {
 		return "No statement is currently selected!";
 	}
 	
+	/**
+	 * 
+	 * @param parent
+	 * @return
+	 */
 	public Branch addBranch(Branch parent)
 	{
 		return addBranch(parent, true);
 	}
 	
+	/**
+	 * Makes a new Branch and adds it to the parent branch. Adds the first line
+	 * to the branch if addFirstLine is true.
+	 * @param parent the root branch for this branch
+	 * @param addFirstLine if true, the method will add a line to the new branch
+	 * @return the new branch that was added
+	 */
 	public Branch addBranch(Branch parent, boolean addFirstLine)
 	{
 		recordState();
@@ -449,6 +539,10 @@ public class TreePanel extends JPanel {
 		return newBranch;
 	}
 	
+	/**
+	 * Makes all the buttons for the branch
+	 * @param b Branch that will get the buttons
+	 */
 	private void makeButtonsForBranch(Branch b)
 	{
 		final Branch myBranch = b;
@@ -525,6 +619,11 @@ public class TreePanel extends JPanel {
 		terminateMap.put(b, terminateButton);
 	}
 	
+	/**
+	 * Checks if Branch b is selected.
+	 * @param b the Branch that is being checked for selection
+	 * @return true if b is selected, false otherwise
+	 */
 	private boolean isSelected(BranchLine b)
 	{
 		if (selectedLines != null)
@@ -532,6 +631,7 @@ public class TreePanel extends JPanel {
 		return false;
 	}
 	
+
 	private void toggleSelected(BranchLine b, Set<BranchLine> curSelected)
 	{
 		if (curSelected.contains(b))
@@ -659,16 +759,34 @@ public class TreePanel extends JPanel {
 		return new Dimension(800, 600);
 	}
 	
+	/**
+	 * Adds a BranchLine that is not a terminator
+	 * @param b the Branch that the BranchLine is added to
+	 * @return the BranchLine that was added
+	 */
 	private BranchLine addLine(final Branch b)
 	{
 		return addLine(b, false);
 	}
 	
+	/**
+	 * Adds a BranchLine that may or may not be a terminator
+	 * @param b the Branch that the BranchLine is added to 
+	 * @param isTerminator is true if if this BranchLine is a terminator
+	 * @return the BranchLine that was added
+	 */
 	private BranchLine addLine(final Branch b, final boolean isTerminator)
 	{
 		return addLine(b, isTerminator, true);
 	}
 	
+	/**
+	 * Adds a new branch line, which can be a terminator.
+	 * @param b the Branch to which the line is being added
+	 * @param isTerminator true if the line is a terminator
+	 * @param isClose
+	 * @return the BranchLine that was added
+	 */
 	private BranchLine addLine(final Branch b, final boolean isTerminator, final boolean isClose)
 	{
 		recordState();
@@ -686,6 +804,44 @@ public class TreePanel extends JPanel {
 		moveComponents();
 		return newLine;
 	}
+
+  public void addLineBefore()
+  {
+    if (editLine != null)
+    {
+      System.out.println("Adding line before "+editLine);
+      for (int i = 0; i < editLine.getParent().numLines(); i++)
+      {
+        if (editLine.getParent().getLine(i) == editLine)
+        {
+          final BranchLine newline;
+          newline = editLine.getParent().addStatement(null, i);
+          makeTextFieldForLine(newline, editLine.getParent(), false);
+          moveComponents();
+          return;
+        }
+      }
+    }
+  }
+
+  public void addLineAfter()
+  {
+    if (editLine != null && !(editLine instanceof BranchTerminator))
+    {
+      System.out.println("Adding line after "+editLine);
+      for (int i = 0; i < editLine.getParent().numLines(); i++)
+      {
+        if (editLine.getParent().getLine(i) == editLine)
+        {
+          final BranchLine newline;
+          newline = editLine.getParent().addStatement(null, i+1);
+          makeTextFieldForLine(newline, editLine.getParent(), false);
+          moveComponents();
+          return;
+        }
+      }
+    }
+  }
 	
 	private void makeTextFieldForLine(final BranchLine line, final Branch b, final boolean isTerminator)
 	{
@@ -727,6 +883,14 @@ public class TreePanel extends JPanel {
 					super.insertString(fb, offset, "\u2200", attr);
 				else if (string.equals("/"))
 					super.insertString(fb, offset, "\u2203", attr);
+				else if (string.equals("|"))
+					super.insertString(fb, offset, "\u2228", attr);
+				else if (string.equals("&"))
+					super.insertString(fb, offset, "\u2227", attr);
+				else if (string.equals("~"))
+					super.insertString(fb, offset, "\u00AC", attr);
+				else if (string.equals("!"))
+					super.insertString(fb, offset, "\u00AC", attr);
 				else
 					super.insertString(fb, offset, string, attr);
 			}
@@ -747,6 +911,14 @@ public class TreePanel extends JPanel {
 					super.replace(fb, offset, length, "\u2200", attrs);
 				else if (text.equals("/"))
 					super.replace(fb, offset, length, "\u2203", attrs);
+				else if (text.equals("|"))
+					super.replace(fb, offset, length, "\u2228", attrs);
+				else if (text.equals("&"))
+					super.replace(fb, offset, length, "\u2227", attrs);
+				else if (text.equals("~"))
+					super.replace(fb, offset, length, "\u00AC", attrs);
+				else if (text.equals("!"))
+					super.replace(fb, offset, length, "\u00AC", attrs);
 				else
 					super.replace(fb, offset, length, text, attrs);
 				
@@ -819,11 +991,15 @@ public class TreePanel extends JPanel {
 			
 			@Override
 			public void keyPressed(KeyEvent e) {
+        line.typing = true;
 				if (e.getKeyChar() == KeyEvent.VK_ENTER)
 				{
+          line.typing = false;
 					TreePanel.this.requestFocus();
 				}
 				TreePanel.this.dispatchEvent(e);
+        line.currentTyping = newField.getText();
+        moveComponents();
 			}
 		});
 		// Parse the statement when focus is lost
@@ -831,6 +1007,7 @@ public class TreePanel extends JPanel {
 			
 			@Override
 			public void focusLost(FocusEvent e) {
+        line.typing = false;
 				Statement newStatement = ExpressionParser.parseExpression(newField.getText());
 				if (newStatement != null)
 				{
@@ -870,6 +1047,12 @@ public class TreePanel extends JPanel {
 		newField.setEditable(false);
 	}
 	
+	/**
+	 * Adds a statement to a Branch
+	 * @param b the Branch to which the Statement is added
+	 * @param s the Statement added to the Branch
+	 * @return the BranchLine (which contains Statement s) added to Branch b
+	 */
 	public BranchLine addStatement(Branch b, Statement s)
 	{
 		BranchLine newLine = addLine(b);
@@ -880,16 +1063,30 @@ public class TreePanel extends JPanel {
 	}
 	
 	// temporary
+	/**
+	 * Adds a statement to the root of the tree
+	 * @param s the Statement added to the tree
+	 */
 	public void addStatement(Statement s)
 	{
 		addStatement(root, s);
 	}
 	
+	/**
+	 * Adds a closed BranchTerminator to a branch
+	 * @param b the Branch to which the BranchTerminator is added
+	 * @return the BranchTerminator line that was added
+	 */
 	public BranchTerminator addTerminator(Branch b)
 	{
 		return (BranchTerminator) addLine(b, true, true);
 	}
 	
+	/**
+	 * Adds an open BranchTerminator to a branch
+	 * @param b the Branch to which the BranchTerminator is added
+	 * @return the BranchTerminator line that was added
+	 */
 	public BranchTerminator addOpenTerminator(Branch b)
 	{
 		return (BranchTerminator) addLine(b, true, false);
@@ -969,11 +1166,19 @@ public class TreePanel extends JPanel {
 		g2d.drawString(toDraw, textX, textY);
 	}
 	
+	/**
+	 * Gets the root of the tree
+	 * @return the Branch that is root of the tree
+	 */
 	public Branch getRootBranch()
 	{
 		return root;
 	}
 	
+	/**
+	 * Sets the root of the tree
+	 * @param newRoot the Branch that is to be the new root of the tree
+	 */
 	public void setRoot(Branch newRoot)
 	{
 		root = newRoot;

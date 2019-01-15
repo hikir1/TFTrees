@@ -21,7 +21,7 @@ public class Branch {
 	public static final int BRANCH_SEPARATION = 10;
 	public static final int VERTICAL_GAP = 20;
 	public static final int LABEL_BORDER = 5;
-	public static final int MIN_WIDTH = 80;
+	public static final int MIN_WIDTH = 100;
 	private List<BranchLine> lines;
 	private Set<Branch> branches;
 	private Branch root;
@@ -30,7 +30,7 @@ public class Branch {
 	private BranchLine widestLine;
 	private int width;
 	private BranchLine decomposedFrom;
-	
+
 	/**
 	 * Constructs a branch stemming from the given root Branch
 	 * @param root The root Branch to stem from (may be null)
@@ -47,7 +47,7 @@ public class Branch {
 			root.addBranch(this);
 		}
 	}
-	
+
 	/**
 	 * Returns the BranchLine at the given index
 	 * @param index The index of the line to get
@@ -189,7 +189,7 @@ public class Branch {
 	/**
 	 * Adds a Branch to the set of Branches stemming from this Branch
 	 * (Automatically called by constructor)
-	 * @param b
+	 * @param b the Branch to be added
 	 */
 	public void addBranch(Branch b)
 	{
@@ -303,7 +303,7 @@ public class Branch {
 		else
 			return 0;
 	}
-	
+
 	/**
 	 * Calculates and sets the widest line in this branch
 	 */
@@ -338,6 +338,23 @@ public class Branch {
 		{
 			if (lines.get(i) instanceof BranchTerminator &&
 					((BranchTerminator)lines.get(i)).isClose())
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns whether the or not this branch has all of its
+	 * branch terminations verified
+	 * @return True if the branch has a BranchTerminator that is verified
+	 */
+	public boolean verifyTerminations()
+	{
+		for (int i = lines.size() - 1; i >= 0; i--) // start from the end, since it should be the last line
+		{
+			//String verifyResult = ((BranchTerminator)(lines.get(i))).verifyDecomposition();
+			if (lines.get(i) instanceof BranchTerminator &&
+					((BranchTerminator)(lines.get(i))).verifyDecomposition() == null)
 				return true;
 		}
 		return false;
