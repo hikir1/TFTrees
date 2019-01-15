@@ -8,6 +8,9 @@ Ben Shaw
 Joel Bassett
 Sarah Mogielnicki
 
+2018
+Alex Mcnair
+
 ## About
 A formal proof interface for creating truth trees
 

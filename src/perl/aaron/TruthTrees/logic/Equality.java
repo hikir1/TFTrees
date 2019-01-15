@@ -65,6 +65,7 @@ public class Equality extends Statement implements Decomposable {
 		return vars;
 	}
 
+	
 	@Override
 	public Binding determineBinding(Statement unbound) {
 		// TODO Implement this

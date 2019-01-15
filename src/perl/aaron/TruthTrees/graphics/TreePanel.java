@@ -27,7 +27,9 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,6 +60,9 @@ import perl.aaron.TruthTrees.Branch;
 import perl.aaron.TruthTrees.BranchLine;
 import perl.aaron.TruthTrees.BranchTerminator;
 import perl.aaron.TruthTrees.ExpressionParser;
+import perl.aaron.TruthTrees.logic.Conjunction;
+import perl.aaron.TruthTrees.logic.Decomposable;
+import perl.aaron.TruthTrees.logic.Negation;
 import perl.aaron.TruthTrees.logic.Statement;
 
 /**
@@ -438,6 +443,35 @@ public class TreePanel extends JPanel {
 	}
 	
 	/**
+	 * Recursively checks if the branch b has a valid open terminator
+	 * @param b the branch being checked for a valid open branch
+	 * @return true if b has a valid open terminator, false otherwise
+	 */
+	private boolean verifyOpenTerminator(Branch b)
+	{
+		// If there are no open branches anywhere return false
+		if (!checkForOpenBranch(b)) {
+			return false;
+		}
+		
+		if (b.getBranches().size() == 0 && b.isOpen()) {
+			return b.verifyTerminations();
+		}
+		
+		if (b.getBranches().size() == 0 && !b.isOpen())
+			return false;
+		
+		for (Branch child : b.getBranches()) {
+			if (checkForOpenBranch(child)) {
+				return verifyOpenTerminator(child);
+			}
+		}
+		
+		return false;
+		
+	}
+	
+	/**
 	 * Recursively checks if b and all if its children are have verified Terminators
 	 * @param b the Branch being checked for verified terminators
 	 * @return false if b or one of its children has a terminator that is not verified, 
@@ -445,15 +479,168 @@ public class TreePanel extends JPanel {
 	 */
 	private boolean verifyTerminators(Branch b)
 	{
-		if (b.getBranches().size() == 0 && !b.verifyTerminations())
-			return false;
-		for (Branch child : b.getBranches())
-		{
-			if (!verifyTerminators(child))
+		boolean hasOpen = checkForOpenBranch(b);
+		
+		if (hasOpen) { //If there are open branches in the current level or below
+			
+			// Check that the open branch is valid
+			boolean validOpen = verifyOpenTerminator(b);
+			if (validOpen) {
+				return true;
+			}
+			else {
 				return false;
+			}
 		}
+		else { //No open branches in tree, proceed as normal
+			if (b.getBranches().size() == 0 && !b.verifyTerminations()) {
+				return false;
+			}
+			
+			for (Branch child: b.getBranches()) {
+				if (!verifyTerminators(child)) {
+					return false;
+				}
+			}
+		}
+		
 		return true;
 	}
+	
+	
+	/**
+	 * Walks through the tree and returns a set of the bottom branches that contain an open terminator
+	 * @param b Branch to start searching at
+	 * @param open Empty set of Branches (for recursion)
+	 * @return The set of all branches with an open terminator
+	 */
+	private Set<Branch> findOpenBranches(Branch b, Set<Branch> open) {
+		boolean hasOpen = checkForOpenBranch(b);
+		if (hasOpen) {
+			
+			if (b.getBranches().size() > 0) {
+				// Has children
+				for (Branch child : b.getBranches()) {
+					
+					if (checkForOpenBranch(child)) { //Recurse into children with open branches
+						return findOpenBranches(child, open);
+					}
+				}
+			} else {
+				// No children
+				open.add(b);
+				return open;
+			}
+		} else {
+			// No open branch
+			open.add(b);
+			return open;
+		}
+		return open;
+	}
+	
+	
+	
+	
+	private String verifyPremisesOpenBranch(Branch b) {
+		String error = "";
+		int linec = b.numLines();
+		Set<Branch> openBranches = new HashSet<Branch>();
+		openBranches = findOpenBranches(root, openBranches);
+		
+		HashMap<BranchLine, Boolean> premiseMap = new HashMap<BranchLine, Boolean>();
+		
+		// Initialize map of all premises to false
+		for (int i=0; i<linec; ++i) {
+			if (b.getLine(i).getStatement() instanceof Decomposable && !(b.getLine(i).getStatement() instanceof Negation)) {
+				premiseMap.put(b.getLine(i), false);
+			}
+		}
+		
+		// Loop through each premise and check if it's decomposition is a parent of the open termination
+		for (int i=0; i<linec; ++i) {
+			
+			BranchLine line = b.getLine(i);
+			
+			Set<Branch> targetBranches = line.getSelectedBranches();
+			Set<BranchLine> targetLines = line.getSelectedLines();
+			
+			// For cases such as conjunctions where the decomposition results in new lines add the parent to be checked
+			if (line.getStatement() instanceof Conjunction) {
+				for (BranchLine t : targetLines) {
+					targetBranches.add(t.getParent());
+				}
+			}
+			
+			// Loop through each of the selected branches where the premise is decomposed 
+			for (Branch t : targetBranches) {
+				
+				// Only look at cases where the target has an open terminator below it
+				if (checkForOpenBranch(t)) {
+				
+					// Check if the selected branch is a parent of the open branch
+					for (Branch openBranch : openBranches) {
+						if (openBranch.isChildOf(t)) {
+							if (line.getStatement() instanceof Decomposable && !(line.getStatement() instanceof Negation)) {
+								// Mark that this premise is decomposed 
+								premiseMap.put(line, true);
+							}
+						}
+					}
+				}
+			}
+		}
+		for (BranchLine l : premiseMap.keySet()) {
+			if (premiseMap.get(l) == false) {
+				error += "Premise " + l.getStatement() + " is not decomposed in the open branch.\n";
+			}
+		}
+		return error;
+	}
+
+	/**
+	 * Checks for any unexpected constants in a branch 
+	 * @param b Branch to be checked
+	 * @return Empty string if ok, error message if problem
+	 */
+	public String checkBranchConstants(Branch b) {
+		
+		String ret = "";
+		
+		if (b.numLines() > 0) {
+			
+			for (int i = 0; i < b.numLines(); ++i) {
+				BranchLine line = b.getLine(i);
+				
+				String vRet = line.verifyOpenDecomposition();
+				if (vRet != null) {
+					ret += vRet;
+				}
+			}
+			
+//			Set<String> preConsts = new LinkedHashSet<String>();
+//			Set<String> thisConsts = new LinkedHashSet<String>();
+//			System.out.println(b.getConstants().size());
+//			
+//			preConsts.addAll(b.getConstantsBefore(b.getLine(0)));
+//			thisConsts.addAll(b.getConstantsThis());
+//			System.out.println("Before: " + String.join(", ", b.getConstantsBefore(b.getLine(0))) + "\n");
+//			System.out.println("This: " + thisConsts.toString() + "\n");
+//			thisConsts.removeAll(preConsts);
+//			
+//			if (preConsts.size() > 0) {
+//				for (String c : thisConsts) {
+//					ret += "Unexpected constant " + c + " in tree.\n";
+//				}
+//			}
+		}
+		
+		for (Branch child: b.getBranches()) {
+			ret += checkBranchConstants(child);
+		}
+		return ret;
+	}
+
 	
 	/**
 	 * Runs all of the "check" methods on the whole tree.
@@ -464,19 +651,42 @@ public class TreePanel extends JPanel {
 		String returnVal = "";
 		
 		int completionVal = checkCompletion();
+		System.out.println("completetionVal: " + completionVal);
 		boolean verifyEndings = verifyTerminators(root);
-		if (completionVal == 0)
+		
+		if (completionVal == 0) //No open branches
 			if(verifyEndings)
 				return null;
 			else
-				return "There are Branch Terminators that are not referencing correct lines";
-		else if(completionVal == 1)
-			if(verifyEndings)
-				return null;
+				return "There are Branch Terminators that are not referencing correct lines.\n";
+		
+		else if(completionVal == 1) //At least one open branch
+			if(verifyEndings) {
+				
+				String checkRet = verifyPremisesOpenBranch(premises);
+				if (checkRet != null)
+					returnVal = returnVal + checkRet;
+				
+				String varRet = checkBranchConstants(root);
+				if (!varRet.equals(""))
+					returnVal = returnVal + varRet;
+					
+				
+				
+//				String branchVal = checkBranch(root);
+//				if (branchVal != null)
+//					returnVal = returnVal + "root!! " + branchVal;
+				
+				if(returnVal.equals(""))
+					return null;
+				else
+					return returnVal;
+			}
 			else
-				return "There are Branch Terminators that are not referencing correct lines";
+				return "Not all premises are decomposed on open branch OR Invalid usage of open branch.";
+		
 		else if(completionVal == -1)
-			returnVal = returnVal + "Not all branches are closed and no branch has been marked as open!";
+			returnVal = returnVal + "Not all branches are closed and no branch has been marked as open!\n";
 		
 		String checkRet = checkBranch(premises);
 		if (checkRet != null)

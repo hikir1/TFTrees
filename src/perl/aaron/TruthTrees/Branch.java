@@ -350,9 +350,13 @@ public class Branch {
 	 */
 	public boolean verifyTerminations()
 	{
+		System.out.println("Branch - Lines Size: " + lines.size());
 		for (int i = lines.size() - 1; i >= 0; i--) // start from the end, since it should be the last line
 		{
-			//String verifyResult = ((BranchTerminator)(lines.get(i))).verifyDecomposition();
+//			System.out.println("Branch - On Line: " + lines.get(i).toString());
+//			if (lines.get(i) instanceof BranchTerminator ) {
+//				System.out.println("Decomposed: " + ((BranchTerminator)(lines.get(i))).verifyDecomposition());
+//			}
 			if (lines.get(i) instanceof BranchTerminator &&
 					((BranchTerminator)(lines.get(i))).verifyDecomposition() == null)
 				return true;
@@ -430,7 +434,7 @@ public class Branch {
 	 * Returns the set of all constants in this branch, not including parents or children
 	 * @return The set of all constants in this branch
 	 */
-	private Set<String> getConstantsThis() {
+	public Set<String> getConstantsThis() {
 		Set<String> constants = new LinkedHashSet<String>();
 		for (BranchLine line : lines)
 		{
@@ -479,6 +483,10 @@ public class Branch {
 		decomposedFrom = line;
 	}
 	
+	/**
+	 * Returns the BranchLine that this branch is decomposed from
+	 * @return A {@link perl.aaron.TruthTrees.BrachLine BranchLine} object
+	 */
 	public BranchLine getDecomposedFrom()
 	{
 		return decomposedFrom;

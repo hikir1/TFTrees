@@ -1,1 +1,7 @@
 bin/
+/plans/
+/edits/
+/examples/
+/grading/
+*.swp
+*.jar

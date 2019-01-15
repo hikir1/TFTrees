@@ -35,7 +35,7 @@ import perl.aaron.TruthTrees.logic.Statement;
 
 public class TruthTrees {
 	
-	public static final String version = "1.2";
+	public static final String version = "1.3";
 	public static final String errorLogDir = "logs/";
 	public static final String errorFrameName = "Truth Trees Error";
 	public static final String errorMessageErrorLogFile = "Error writing to log file";
@@ -152,10 +152,8 @@ public class TruthTrees {
       @Override
       public void actionPerformed(ActionEvent e) {
         ArrayList<File> files = FileManager.listFolderFilesStart((TreePanel)frame.getContentPane().getComponent(0));
-        System.out.println("test");
         if (files != null)
         {
-          System.out.println("test");
           for (int i = 0; i < files.size(); i ++)
           {
             System.out.println(files.get(i));

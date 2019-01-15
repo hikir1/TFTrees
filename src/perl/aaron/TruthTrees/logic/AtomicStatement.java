@@ -18,6 +18,7 @@ public class AtomicStatement extends Statement implements Composable {
 	{
 		_symbol = symbol;
 	}
+	
 	/**
 	 * Returns the statement's symbol
 	 * @return The character representing the statement
@@ -26,14 +27,17 @@ public class AtomicStatement extends Statement implements Composable {
 	{
 		return _symbol;
 	}
+	
 	public String toString()
 	{
 		return _symbol;
 	}
+	
 	public String toStringParen()
 	{
 		return _symbol;
 	}
+	
 	public boolean equals(Object other)
 	{
 		if (!(other instanceof AtomicStatement))
@@ -41,6 +45,7 @@ public class AtomicStatement extends Statement implements Composable {
 		AtomicStatement otherAS = (AtomicStatement) other;
 		return (otherAS.getSymbol().equals(_symbol));
 	}
+	
 	public boolean equals(Statement other) {
 		if (!(other instanceof AtomicStatement))
 			return false;
@@ -48,9 +53,6 @@ public class AtomicStatement extends Statement implements Composable {
 	}
 	
 	public boolean verifyDecomposition(List<List<Statement>> branches, Set<String> constants, Set<String> constantsBefore) {
-		
-		
-		
 		
 		return true;
 		
@@ -60,18 +62,29 @@ public class AtomicStatement extends Statement implements Composable {
 	public Set<String> getVariables() {
 		return Collections.emptySet();
 	}
+	
 	@Override
 	public Set<String> getConstants() {
 		return Collections.emptySet();
 	}
+	
 	@Override
 	public Binding determineBinding(Statement unbound) {
 		if (unbound.equals(this)) return Binding.EMPTY_BINDING;
 		else return null;
 	}
+	
 	@Override
 	public String verifyComposition(Set<BranchLine> selectedBranchLines) {
-		//System.out.println("Wtf");
+		
+		
+		try {
+			throw new Exception();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		
 		if (selectedBranchLines.size() == 2) {
 			
@@ -107,25 +120,19 @@ public class AtomicStatement extends Statement implements Composable {
 						//System.out.println("we good negations");
 						return "composable";
 					}
-					
-				}
-				
-				
-				
+				}			
 			}
 			
 			return "Statement \"" + toString() + "\" cannot be composed like this";
 			
 		}
 		
-		
+		System.out.println(selectedBranchLines.size());
 		if (selectedBranchLines.size() != 0) {
 			return "Statement \"" + toString() + "\" cannot be composed like this";
 			
 		}
 	
-		
-		
 		
 		return "X";
 

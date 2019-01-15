@@ -40,14 +40,17 @@ public abstract class Statement {
 	{
 		return "("+toString()+")";
 	}
+	
 	/**
 	 * Returns the list of unbound variables in this statement
 	 */
 	public abstract Set<String> getVariables();
+	
 	/**
 	 * Returns the list of constants in this statement
 	 */
 	public abstract Set<String> getConstants();
+	
 	/**
 	 * Attempts to determine a binding that would make the unbound statement equivalent to this one.
 	 * @param unbound A statement containing an unbound variable that will be bound
