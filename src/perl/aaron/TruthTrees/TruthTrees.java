@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -34,6 +35,7 @@ import perl.aaron.TruthTrees.logic.Statement;
 
 public class TruthTrees {
 	
+	public static final String version = "1.2";
 	public static final String errorLogDir = "logs/";
 	public static final String errorFrameName = "Truth Trees Error";
 	public static final String errorMessageErrorLogFile = "Error writing to log file";
@@ -114,19 +116,23 @@ public class TruthTrees {
 		
 		JMenuBar menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
+		JMenu editMenu = new JMenu("Edit");
 		JMenu treeMenu = new JMenu("Tree");
+		JMenu helpMenu = new JMenu("Help");
 		TreePanel treePanel = new TreePanel();
 		
 		frame.getContentPane().add(treePanel, BorderLayout.CENTER);
 		System.out.println(frame.getContentPane().getComponent(0) == treePanel);
 		frame.setJMenuBar(menuBar);
 		menuBar.add(fileMenu);
+		menuBar.add(editMenu);
 		menuBar.add(treeMenu);
+		menuBar.add(helpMenu);
 		
 		JMenuItem checkButton = new JMenuItem("Check Tree");
 		
 		treeMenu.add(checkButton);
-		checkButton.setAccelerator(KeyStroke.getKeyStroke('C', InputEvent.CTRL_MASK));
+		checkButton.setAccelerator(KeyStroke.getKeyStroke('T', InputEvent.CTRL_MASK));
 		checkButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -136,6 +142,22 @@ public class TruthTrees {
 					JOptionPane.showMessageDialog(null, "The tree is correct!");				
 				else
 					JOptionPane.showMessageDialog(null, "The tree is invalid!\n"+ret);
+			}
+		});
+		
+		JMenuItem checkLineButton = new JMenuItem("Verify Current Line");
+		
+		treeMenu.add(checkLineButton);
+		checkLineButton.setAccelerator(KeyStroke.getKeyStroke('L', InputEvent.CTRL_MASK));
+		checkLineButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String ret = ((TreePanel)frame.getContentPane().getComponent(0)).checkSelectedLine();
+				if (ret == null)
+					JOptionPane.showMessageDialog(null, "This line is correctly decomposed!");				
+				else
+					JOptionPane.showMessageDialog(null, ret);
 			}
 		});
 		
@@ -149,6 +171,30 @@ public class TruthTrees {
 			public void actionPerformed(ActionEvent e) {
 				FileManager.saveFile((TreePanel)frame.getContentPane().getComponent(0));
 				
+			}
+		});
+		
+		JMenuItem undoButton = new JMenuItem("Undo");
+		
+		editMenu.add(undoButton);
+		undoButton.setAccelerator(KeyStroke.getKeyStroke('Z', InputEvent.CTRL_MASK));
+		undoButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				((TreePanel)frame.getContentPane().getComponent(0)).undoState();
+			}
+		});
+		
+		JMenuItem redoButton = new JMenuItem("Redo");
+		
+		editMenu.add(redoButton);
+		redoButton.setAccelerator(KeyStroke.getKeyStroke('Y', InputEvent.CTRL_MASK));
+		redoButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				((TreePanel)frame.getContentPane().getComponent(0)).redoState();
 			}
 		});
 		
@@ -185,6 +231,20 @@ public class TruthTrees {
 			}
 		});
 		
+		JMenuItem deleteBranchButton = new JMenuItem("Delete Current Branch");
+		
+		treeMenu.add(deleteBranchButton);
+		deleteBranchButton.setAccelerator(KeyStroke.getKeyStroke('D', InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+		deleteBranchButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int dialogResult = JOptionPane.showConfirmDialog(null, "Would you like to delete the current branch?");
+				if (dialogResult == JOptionPane.YES_OPTION)
+					((TreePanel)frame.getContentPane().getComponent(0)).deleteCurrentBranch();
+			}
+		});
+		
 		JMenuItem premiseButton = new JMenuItem("Add Premise");
 		
 		treeMenu.add(premiseButton);
@@ -197,6 +257,45 @@ public class TruthTrees {
 				((TreePanel)frame.getContentPane().getComponent(0)).addPremise();
 			}
 		});
+		
+		JMenuItem symbolsButton = new JMenuItem("Symbols");
+		symbolsButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(null,
+				new JLabel("<html><body>" +
+				  "\u2228 : |<br>" +
+			      "\u2227 : &<br>" +
+			      "\u2192 : $<br>" +
+			      "\u2194 : %<br>" +
+			      "\u00AC : ~,!<br>" +
+			      "\u2200 : @<br>" +
+			      "\u2203 : /" +
+			    "</html></body>", JLabel.CENTER),
+				"Logical Symbols",
+				JOptionPane.PLAIN_MESSAGE);
+			}
+		});
+		helpMenu.add(symbolsButton);
+		
+		JMenuItem aboutButton = new JMenuItem("About");
+		aboutButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(null,
+				  new JLabel("<html><body>" +
+				    "TFTrees : Copyright Aaron Perl 2016<br>"+
+				    "Version " + version + "<br>" +
+				    "Repository : https://github.com/AaronPerl/TFTrees" +
+				  "</body></html>"),
+				  "About TFTrees",
+				  JOptionPane.PLAIN_MESSAGE);
+			}
+		});
+		
+		helpMenu.add(aboutButton);
 
 		frame.pack();
 		frame.setVisible(true);

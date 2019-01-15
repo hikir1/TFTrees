@@ -2,7 +2,9 @@ package perl.aaron.TruthTrees.logic;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Disjunction extends LogicalOperator {
 	/**
@@ -28,7 +30,7 @@ public class Disjunction extends LogicalOperator {
 		return statementString + statementsAL.get(statementsAL.size()-1).toStringParen();
 	}
 
-	public boolean verifyDecomposition(List<List<Statement>> branches)
+	public boolean verifyDecomposition(List<List<Statement>> branches, Set<String> constants, Set<String> constantsBefore)
 	{
 		if (branches.size() != statements.size()) // there must be one branch per disjunct
 			return false;
@@ -69,5 +71,25 @@ public class Disjunction extends LogicalOperator {
 				return false;
 		}
 			return true;
+	}
+
+	@Override
+	public Set<String> getVariables() {
+		Set<String> union = new LinkedHashSet<String>();
+		for (Statement curStatement : statements)
+		{
+			union.addAll(curStatement.getVariables());
+		}
+		return union;
+	}
+
+	@Override
+	public Set<String> getConstants() {
+		Set<String> union = new LinkedHashSet<String>();
+		for (Statement curStatement : statements)
+		{
+			union.addAll(curStatement.getConstants());
+		}
+		return union;
 	}
 }

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Tree>
+    <BranchLine content="∀x (F(x) → G(x))" index="0">
+        <Decomposition lineIndex="5"/>
+    </BranchLine>
+    <BranchLine content="∃x ¬G(x)" index="1">
+        <Decomposition lineIndex="4"/>
+    </BranchLine>
+    <BranchLine content="¬∃x ¬F(x)" index="2">
+        <Decomposition lineIndex="3"/>
+    </BranchLine>
+    <Branch index="0">
+        <BranchLine content="∀x ¬¬F(x)" index="3">
+            <Decomposition lineIndex="6"/>
+        </BranchLine>
+        <BranchLine content="¬G(a)" index="4"/>
+        <BranchLine content="F(a) → G(a)" index="5">
+            <Decomposition branchIndex="0"/>
+            <Decomposition lineIndex="8"/>
+            <Decomposition lineIndex="10"/>
+        </BranchLine>
+        <BranchLine content="¬¬F(a)" index="6">
+            <Decomposition lineIndex="7"/>
+        </BranchLine>
+        <BranchLine content="F(a)" index="7"/>
+        <Branch index="1">
+            <BranchLine content="¬F(a)" index="8"/>
+            <Terminator index="9">
+                <Decomposition lineIndex="8"/>
+                <Decomposition lineIndex="7"/>
+            </Terminator>
+        </Branch>
+        <Branch index="1">
+            <BranchLine content="G(a)" index="10"/>
+            <Terminator index="11">
+                <Decomposition lineIndex="10"/>
+                <Decomposition lineIndex="4"/>
+            </Terminator>
+        </Branch>
+    </Branch>
+</Tree>

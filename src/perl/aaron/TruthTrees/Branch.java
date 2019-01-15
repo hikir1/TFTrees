@@ -29,6 +29,7 @@ public class Branch {
 	private FontMetrics fm;	
 	private BranchLine widestLine;
 	private int width;
+	private BranchLine decomposedFrom;
 	
 	/**
 	 * Constructs a branch stemming from the given root Branch
@@ -181,7 +182,7 @@ public class Branch {
 	 */
 	public void addTerminator(BranchTerminator terminator)
 	{
-		if (!isTerminated())
+		if (!isClosed())
 			lines.add(terminator);
 	}
 	
@@ -297,7 +298,10 @@ public class Branch {
 				calculateWidestLine();
 			else
 				return MIN_WIDTH;
-		return Math.max(widestLine.getWidth(fm) + 2 * Branch.LABEL_BORDER, MIN_WIDTH);
+		if (widestLine != null)
+			return Math.max(widestLine.getWidth(fm) + 2 * Branch.LABEL_BORDER, MIN_WIDTH);
+		else
+			return 0;
 	}
 	
 	/**
@@ -325,16 +329,141 @@ public class Branch {
 	}
 	
 	/**
-	 * Returns whether or not this branch has been terminated
-	 * @return True if the branch has a BranchTerminator
+	 * Returns whether or not this branch has been closed
+	 * @return True if the branch has a BranchTerminator set to close
 	 */
-	public boolean isTerminated()
+	public boolean isClosed()
 	{
 		for (int i = lines.size() - 1; i >= 0; i--) // start from the end, since it should be the last line
 		{
-			if (lines.get(i) instanceof BranchTerminator)
+			if (lines.get(i) instanceof BranchTerminator &&
+					((BranchTerminator)lines.get(i)).isClose())
 				return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Returns whether or not this branch is open
+	 * @return True if the branch has a BranchTerminator set to open
+	 */
+	public boolean isOpen()
+	{
+		for (int i = lines.size() - 1; i >= 0; i--) // start from the end, since it should be the last line
+		{
+			if (lines.get(i) instanceof BranchTerminator &&
+					!((BranchTerminator)lines.get(i)).isClose())
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns a recursive deep copy of this branch
+	 * @return The copy of this branch
+	 */
+	public Branch deepCopy()
+	{
+		return deepCopy(null);
+	}
+	
+	private Branch deepCopy(Branch parent)
+	{
+		Branch copy = new Branch(parent);
+		copy.setFontMetrics(fm);
+		for (BranchLine l : lines)
+		{
+			copy.addStatement(l.getStatement());
+		}
+		for (Branch b : branches)
+		{
+			copy.addBranch(b.deepCopy(copy));
+		}
+		return copy;
+	}
+	
+	/**
+	 * @param parent The parent to check if this branch is a descendant of
+	 * @return True iff this branch is a descendant of the given branch
+	 */
+	public boolean isChildOf(Branch parent)
+	{
+		Branch curAncestor = this;
+		while (curAncestor != null)
+		{
+			if (parent == curAncestor) return true;
+			curAncestor = curAncestor.getRoot();
+		}
+		return false;
+	}
+
+	/**
+	 * Returns the set of all constants in this branch, ancestor branches and descendent branches
+	 * @return The set of all constants in this branch, ancestor branches and descendent branches
+	 */
+	public Set<String> getConstants() {
+		Set<String> constants = new LinkedHashSet<String>();
+		constants.addAll(getConstantsThis());
+		constants.addAll(getConstantsChildren());
+		constants.addAll(getConstantsBefore(null));
+		return constants;
+	}
+	
+	/** 
+	 * Returns the set of all constants in this branch, not including parents or children
+	 * @return The set of all constants in this branch
+	 */
+	private Set<String> getConstantsThis() {
+		Set<String> constants = new LinkedHashSet<String>();
+		for (BranchLine line : lines)
+		{
+			if (line.getStatement() != null)
+				constants.addAll(line.getStatement().getConstants());
+		}
+		return constants;
+	}
+	
+	/**
+	 * Returns the set of all constants in children branches of this branch (including all descendents)
+	 * @return The set of all constants in children branches of this branch
+	 */
+	private Set<String> getConstantsChildren() {
+		Set<String> constants = new LinkedHashSet<String>();
+		for (Branch b : branches)
+		{
+			constants.addAll(b.getConstantsThis());
+			constants.addAll(b.getConstantsChildren());
+		}
+		return constants;
+	}
+
+	/**
+	 * Returns the set of all constants in this branch (and parent branches) before the given line
+	 * @param last The line to stop collecting constants at
+	 * @return The set of all constants in this branch (and parent branches) before the given line
+	 */
+	public Set<String> getConstantsBefore(BranchLine last) {
+		Set<String> constants = new LinkedHashSet<String>();
+		for (BranchLine line : lines)
+		{
+			if (line == last) break;
+			if (line.getStatement() != null)
+				constants.addAll(line.getStatement().getConstants());
+		}
+		if (root != null)
+		{
+			constants.addAll(root.getConstantsBefore(null));
+		}
+		return constants;
+	}
+	
+	public void setDecomposedFrom(BranchLine line)
+	{
+		decomposedFrom = line;
+	}
+	
+	public BranchLine getDecomposedFrom()
+	{
+		return decomposedFrom;
 	}
 }

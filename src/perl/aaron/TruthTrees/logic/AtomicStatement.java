@@ -1,5 +1,8 @@
 package perl.aaron.TruthTrees.logic;
 
+import java.util.Collections;
+import java.util.Set;
+
 public class AtomicStatement extends Statement {
 	private String _symbol;
 	/**
@@ -37,5 +40,18 @@ public class AtomicStatement extends Statement {
 		if (!(other instanceof AtomicStatement))
 			return false;
 		return ((AtomicStatement)other).getSymbol().equals(_symbol);
+	}
+	@Override
+	public Set<String> getVariables() {
+		return Collections.emptySet();
+	}
+	@Override
+	public Set<String> getConstants() {
+		return Collections.emptySet();
+	}
+	@Override
+	public Binding determineBinding(Statement unbound) {
+		if (unbound.equals(this)) return Binding.EMPTY_BINDING;
+		else return null;
 	}
 }

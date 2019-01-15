@@ -10,6 +10,7 @@ import java.util.Set;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -32,6 +33,7 @@ import perl.aaron.TruthTrees.graphics.TreePanel;
 import perl.aaron.TruthTrees.logic.Statement;
 
 public class FileManager {
+	private static final String EXTENSION = "tft";
 	public static TreePanel loadFile(TreePanel parent)
 	{
 		final JFileChooser fileChooser = new JFileChooser();
@@ -47,9 +49,18 @@ public class FileManager {
 	public static void saveFile(TreePanel parent)
 	{
 		final JFileChooser fileChooser = new JFileChooser();
+		FileNameExtensionFilter tftFilter = new FileNameExtensionFilter(
+		  EXTENSION + " files(*." + EXTENSION + ")",
+		  EXTENSION);
+		
+		fileChooser.addChoosableFileFilter(tftFilter);
+		fileChooser.setFileFilter(tftFilter);
+		
 		if (fileChooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION)
 		{
 			File file = fileChooser.getSelectedFile();
+			if (fileChooser.getFileFilter() == tftFilter && !file.getName().endsWith("." + EXTENSION))
+				file = new File(file.getAbsolutePath() + "." + EXTENSION);
 			System.out.println(file.getName());
 			saveToFile(parent.getRootBranch(), file, parent);
 		}
@@ -64,7 +75,18 @@ public class FileManager {
 		Element curElement = (Element) node;
 		BranchLine newLine;
 		if (node.getNodeName().equals("Terminator"))
-			newLine = panel.addTerminator(curBranch);
+		{
+			String isClose = curElement.getAttribute("close");
+			if (isClose.equals("") || isClose.equals("true"))
+			{
+				newLine = panel.addTerminator(curBranch);
+			}
+			else
+			{
+				System.out.println("Open terminator");
+				newLine = panel.addOpenTerminator(curBranch);
+			}
+		}
 		else
 		{
 			String content = curElement.getAttribute("content");
@@ -175,6 +197,8 @@ public class FileManager {
 					selectedBranches.add(curDecomp);
 				}
 			}
+			newPanel.deleteFirstPremise();
+			newPanel.moveComponents();
 			return newPanel;
 		}
 		catch (ParserConfigurationException | SAXException | IOException e)
@@ -191,7 +215,11 @@ public class FileManager {
 			BranchLine curLine = curBranch.getLine(i);
 			Element curLineElement;
 			if (curLine instanceof BranchTerminator)
+			{
 				curLineElement = doc.createElement("Terminator");
+				curLineElement.setAttribute("close",
+						Boolean.toString(((BranchTerminator)curLine).isClose()));
+			}
 			else
 			{
 				curLineElement = doc.createElement("BranchLine");
