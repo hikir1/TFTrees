@@ -29,7 +29,7 @@ public abstract class LogicalOperator extends Statement implements Decomposable 
 					Binding curBinding = statements.get(i).determineBinding(unboundOp.statements.get(i));
 					if (curBinding == null)
 					{
-						System.out.println("Invalid binding between\n\t" + statements.get(i).toString() + "\n\t" + unbound.toString());
+						System.out.println("Invalid binding between\n\t" + statements.get(i).toString() + "\n\t" + unboundOp.statements.get(i).toString());
 						return null;
 					}
 					if (b == null || b.equals(Binding.EMPTY_BINDING))

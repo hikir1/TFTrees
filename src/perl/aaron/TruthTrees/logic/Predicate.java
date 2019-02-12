@@ -84,7 +84,7 @@ public class Predicate extends Statement {
 					{
 						b = curBinding;
 					}
-					else if ((b != curBinding && !b.equals(Binding.EMPTY_BINDING)) || curBinding == null)
+					else if (!b.equals(curBinding) && !curBinding.equals(Binding.EMPTY_BINDING))
 					{
 						return null;
 					}
