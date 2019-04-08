@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,6 +36,8 @@ import perl.aaron.TruthTrees.logic.Decomposable;
 import perl.aaron.TruthTrees.logic.Statement;
 
 public class TruthTrees {
+
+	private static int instances = 0;
 	
 	public static final String version = "1.3";
 	public static final String errorLogDir = "logs/";
@@ -41,76 +45,16 @@ public class TruthTrees {
 	public static final String errorMessageErrorLogFile = "Error writing to log file";
 	public static final String errorMessageSystemLookAndFeel = "Error setting system look and feel";
 
-	public static void popupException(Exception e, String errorMessage)
-	{
-		// get error string
-		StringWriter sw = new StringWriter();
-		e.printStackTrace(new PrintWriter(sw));
-		String errorString = sw.toString().trim();
-		
-		// trim error to 5 lines to prevent large popup dialogs
-		int newlinePos = errorString.indexOf("\n");
-		int newlines = 1;
-		while (newlinePos != -1 && newlines < 5)
-		{
-			newlinePos = errorString.indexOf("\n",newlinePos + 1);
-			newlines++;
-		}
-		
-		// get number of error lines trimmed
-		int newlinesRemaining = 0;
-		int newlinePosNext = newlinePos;
-		while (newlinePosNext != -1)
-		{
-			newlinesRemaining++;
-			newlinePosNext = errorString.indexOf("\n",newlinePosNext + 1);
-		}
-		
-		// string to append to error displaying number of lines trimmed
-		String extraError = "";
-		if (newlinesRemaining > 1)
-			extraError = "\nand " + Integer.toString(newlinesRemaining) + " more...";
-		
-		JOptionPane.showMessageDialog(null, errorMessage+"\n"+errorString.substring(0,newlinePos)+extraError,
-											TruthTrees.errorFrameName,
-											JOptionPane.ERROR_MESSAGE);
-	}
-	
-	public static void logException(Exception e, String errorMessage)
-	{
-		// file name based on timestamp
-		DateFormat format = new SimpleDateFormat("MM-dd-yyyy_HH-mm-ss");
-		String dateString = format.format(new Date());
-		File errorFile = new File(errorLogDir + dateString + ".txt");
-		try
-		{
-			PrintWriter errorpw = new PrintWriter(errorFile);
-			errorpw.println(errorMessage);
-			e.printStackTrace(errorpw);
-			errorpw.close();
-		}
-		catch (FileNotFoundException fileError)
-		{
-			popupException(fileError, errorMessageErrorLogFile);
-		}
-	}
-	
-	public static void logExceptionPopup(Exception e, String errorMessage)
-	{
-		logException(e, errorMessage);
-		popupException(e, errorMessage);
+
+	public static void close() {
+		instances--;
+		System.out.println(instances);
+	  if(instances == 0) {
+		  System.exit(0);
+	  }
 	}
 
-	
-	public static void main(String[] args) {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ClassNotFoundException | InstantiationException
-				| IllegalAccessException | UnsupportedLookAndFeelException e) {
-			logExceptionPopup(e, errorMessageSystemLookAndFeel);
-			System.exit(1);
-		}
-		
+	public static void createNewInstance() {
 		final JFrame frame = new JFrame("Truth Tree");
 		frame.setLayout(new BorderLayout());
 		
@@ -184,7 +128,20 @@ public class TruthTrees {
 			}
 		});
 
-    treeMenu.addSeparator();
+		treeMenu.addSeparator();
+		
+		JMenuItem newButton = new JMenuItem("New");
+		
+		fileMenu.add(newButton);
+		newButton.setAccelerator(KeyStroke.getKeyStroke('N', InputEvent.CTRL_MASK));
+		newButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FileManager.newFile();
+				
+			}
+		});
 
 		JMenuItem saveButton = new JMenuItem("Save");
 		
@@ -384,11 +341,86 @@ public class TruthTrees {
 		
 		frame.pack();
 		frame.setVisible(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent event) {
+				System.out.println(instances);
+					close();
+			}
+	});
+		// frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		treePanel.moveComponents();
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		instances++;
+}
+
+	public static void popupException(Exception e, String errorMessage)
+	{
+		// get error string
+		StringWriter sw = new StringWriter();
+		e.printStackTrace(new PrintWriter(sw));
+		String errorString = sw.toString().trim();
+		
+		// trim error to 5 lines to prevent large popup dialogs
+		int newlinePos = errorString.indexOf("\n");
+		int newlines = 1;
+		while (newlinePos != -1 && newlines < 5)
+		{
+			newlinePos = errorString.indexOf("\n",newlinePos + 1);
+			newlines++;
+		}
+		
+		// get number of error lines trimmed
+		int newlinesRemaining = 0;
+		int newlinePosNext = newlinePos;
+		while (newlinePosNext != -1)
+		{
+			newlinesRemaining++;
+			newlinePosNext = errorString.indexOf("\n",newlinePosNext + 1);
+		}
+		
+		// string to append to error displaying number of lines trimmed
+		String extraError = "";
+		if (newlinesRemaining > 1)
+			extraError = "\nand " + Integer.toString(newlinesRemaining) + " more...";
+		
+		JOptionPane.showMessageDialog(null, errorMessage+"\n"+errorString.substring(0,newlinePos)+extraError,
+											TruthTrees.errorFrameName,
+											JOptionPane.ERROR_MESSAGE);
+	}
+	
+	public static void logException(Exception e, String errorMessage)
+	{
+		// file name based on timestamp
+		DateFormat format = new SimpleDateFormat("MM-dd-yyyy_HH-mm-ss");
+		String dateString = format.format(new Date());
+		File errorFile = new File(errorLogDir + dateString + ".txt");
+		try
+		{
+			PrintWriter errorpw = new PrintWriter(errorFile);
+			errorpw.println(errorMessage);
+			e.printStackTrace(errorpw);
+			errorpw.close();
+		}
+		catch (FileNotFoundException fileError)
+		{
+			popupException(fileError, errorMessageErrorLogFile);
+		}
+	}
+	
+	public static void logExceptionPopup(Exception e, String errorMessage)
+	{
+		logException(e, errorMessage);
+		popupException(e, errorMessage);
+	}
+
+	
+	public static void main(String[] args) {
+		createNewInstance();
 		
 		/*while (true)
 		try {

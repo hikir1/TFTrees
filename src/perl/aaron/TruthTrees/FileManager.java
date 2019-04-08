@@ -34,7 +34,7 @@ import perl.aaron.TruthTrees.logic.Statement;
 
 public class FileManager {
 	private static final String EXTENSION = "tft";
-  private static File SAVEDIR;
+	private static File SAVEDIR;
 
 
   public static ArrayList<File> listFolderFilesStart(TreePanel parent)
@@ -71,7 +71,12 @@ public class FileManager {
       }
     }
     return files;
-  }
+	}
+	
+	public static void newFile()
+	{
+		TruthTrees.createNewInstance();
+	}
   
 	public static TreePanel loadFile(TreePanel parent)
 	{
