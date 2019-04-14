@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -27,9 +29,12 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.event.ChangeListener;
 
 import perl.aaron.TruthTrees.graphics.TreePanel;
 import perl.aaron.TruthTrees.logic.Decomposable;
@@ -38,32 +43,43 @@ import perl.aaron.TruthTrees.logic.Statement;
 public class TruthTrees {
 
 	private static int instances = 0;
-	
+
 	public static final String version = "1.3";
 	public static final String errorLogDir = "logs/";
 	public static final String errorFrameName = "Truth Trees Error";
 	public static final String errorMessageErrorLogFile = "Error writing to log file";
 	public static final String errorMessageSystemLookAndFeel = "Error setting system look and feel";
 
-
 	public static void close() {
 		instances--;
 		System.out.println(instances);
-	  if(instances == 0) {
-		  System.exit(0);
-	  }
+		if (instances == 0) {
+			System.exit(0);
+		}
 	}
 
 	public static void createNewInstance() {
 		final JFrame frame = new JFrame("Truth Tree");
 		frame.setLayout(new BorderLayout());
-		
+
 		JMenuBar menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
 		JMenu editMenu = new JMenu("Edit");
 		JMenu treeMenu = new JMenu("Tree");
 		JMenu helpMenu = new JMenu("Help");
-		TreePanel treePanel = new TreePanel();
+		final TreePanel treePanel = new TreePanel();
+
+		JSlider zoomSlider = new JSlider(1, -10, 10, 0);
+		treePanel.setSlider(zoomSlider);
+		zoomSlider.setMajorTickSpacing(5);
+		zoomSlider.setMinorTickSpacing(1);
+		zoomSlider.setPaintTicks(true);
+		zoomSlider.setSnapToTicks(true);
+		zoomSlider.addChangeListener(treePanel);
+		JPanel zoompanel = new JPanel();
+		zoompanel.setLayout( new BorderLayout() );
+		zoompanel.add( zoomSlider, BorderLayout.EAST );
+		// frame.add(zoompanel);
 		
 		frame.getContentPane().add(treePanel, BorderLayout.CENTER);
 		System.out.println(frame.getContentPane().getComponent(0) == treePanel);
@@ -72,6 +88,8 @@ public class TruthTrees {
 		menuBar.add(editMenu);
 		menuBar.add(treeMenu);
 		menuBar.add(helpMenu);
+
+		frame.getContentPane().add(zoompanel,BorderLayout.EAST);
 		
 		JMenuItem checkButton = new JMenuItem("Check Tree");
 		
@@ -338,7 +356,6 @@ public class TruthTrees {
 		});
 
     helpMenu.add(usageButton);
-		
 		frame.pack();
 		frame.setVisible(true);
 		frame.addWindowListener(new WindowAdapter() {
@@ -347,6 +364,12 @@ public class TruthTrees {
 				System.out.println(instances);
 					close();
 			}
+	});
+
+	frame.addComponentListener(new ComponentAdapter() {
+    public void componentResized(ComponentEvent componentEvent) {
+        treePanel.moveComponents();
+    }
 	});
 		// frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
@@ -417,6 +440,8 @@ public class TruthTrees {
 		logException(e, errorMessage);
 		popupException(e, errorMessage);
 	}
+
+	
 
 	
 	public static void main(String[] args) {
