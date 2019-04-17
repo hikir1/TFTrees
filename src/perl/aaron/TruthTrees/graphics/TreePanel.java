@@ -21,6 +21,7 @@ import java.awt.event.InputMethodEvent;
 import java.awt.event.InputMethodListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -42,14 +43,17 @@ import java.awt.event.ComponentListener;
 import javax.swing.ButtonModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListDataEvent;
@@ -80,7 +84,7 @@ import perl.aaron.TruthTrees.logic.Statement;
  * @author Aaron Perl, Sarah Mogielnicki
  *
  */
-public class TreePanel extends JPanel implements ChangeListener {
+public class TreePanel extends JPanel{
 
 	private static final long serialVersionUID = 2267768929169530856L;
 	private static final int UNDO_STACK_SIZE = 32;
@@ -104,15 +108,10 @@ public class TreePanel extends JPanel implements ChangeListener {
 	private Branch premises;
 	private Deque<Branch> undoStack;
 	private Deque<Branch> redoStack;
+	private int zoomLevel;
 
-	private JSlider zoomSlider;
-	private int zoomLevel = 0;
-	private int minZoomLevel = -10;
-	private int maxZoomLevel = 10;
 	private double zoomMultiplicationFactor = 1.1;
-	private int h = 26;
-	private int w = 26;
-
+	
 	public TreePanel() {
 		this(true);
 	}
@@ -124,6 +123,7 @@ public class TreePanel extends JPanel implements ChangeListener {
 		setLayout(null);
 		center = new Point(0, -50);
 		size = 12f;
+		zoomLevel = 0;
 		maxWidth = 0;
 		editLine = null;
 		selectedLines = null;
@@ -183,10 +183,6 @@ public class TreePanel extends JPanel implements ChangeListener {
 			}
 		});
 		
-	}
-
-	public void setSlider(JSlider slider) {
-		this.zoomSlider = slider;
 	}
 
 	private void recordState() {
@@ -802,7 +798,6 @@ public class TreePanel extends JPanel implements ChangeListener {
 					TreePanel.this.repaint();
 				}
 			}
-
 			@Override
 			public void mouseClicked(MouseEvent e) {
 			}
@@ -823,12 +818,6 @@ public class TreePanel extends JPanel implements ChangeListener {
 		add(lineButton);
 		add(terminateButton);
 		add(decompButton);
-		// Dimension max = new Dimension(100,100);
-		// Dimension min = new Dimension(100,100);
-		// branchButton.setMaximumSize(max); branchButton.setMinimumSize(max);
-		// lineButton.setMaximumSize(max); lineButton.setMinimumSize(max);
-		// terminateButton.setMaximumSize(max); terminateButton.setMinimumSize(max);
-		// decompButton.setMaximumSize(max); decompButton.setMinimumSize(max);
 		addBranchMap.put(b, branchButton);
 		addLineMap.put(b, lineButton);
 		branchMap.put(b, decompButton);
@@ -1445,134 +1434,124 @@ public class TreePanel extends JPanel implements ChangeListener {
 		removeLine(premises.getLine(0));
 	}
 
-	@Override
-	public void stateChanged(ChangeEvent e) {
-		// private Map<Branch, JButton> addBranchMap;
-		// private Map<Branch, JButton> addLineMap;
-		// private Map<Branch, JButton> branchMap;
-		// private Map<Branch, JButton> terminateMap;
-		// private Map<JTextField, BranchLine> lineMap;
+	public String split() {
+		if (editLine != null)
+			return split(editLine);
+		return "No statement is currently selected!";
+	}
 
+	public String split(BranchLine l) {
+		return l.split();
+	}
 
-		int newLevel = -1 * ((JSlider)e.getSource()).getValue();
-		if( newLevel > zoomLevel ) {
-			for( int j = 0; j < (newLevel - zoomLevel); ++j ) {
-				zoomLevel++;
-				double ratio = (1.0 / zoomMultiplicationFactor);
-				Font oldF = getFont();
-				Font newF = oldF.deriveFont( (float)( oldF.getSize2D() * ratio )  );
-				setFont( newF );
-				double tempW = (double)w;
-				double tempH = (double)h;
-				tempW *= ratio;
-				tempH *= ratio;
-				w = (int)Math.ceil( tempW );
-				h = (int)Math.ceil( tempH );
-				// for (JButton button : addBranchMap.values()) {
-				// 	Rectangle bounds = button.getBounds();
-				// 	int height = bounds.height;
-				// 	int width = bounds.width;
-				// 	width *= ratio;
-				// 	height *= ratio;
-				// 	button.setSize(width, height);
-				// 	// button.setBounds(bounds.x, bounds.y, width, height);
-				// }
-				// for (JButton button : addLineMap.values()) {
-				// 	Rectangle bounds = button.getBounds();
-				// 	int height = bounds.height;
-				// 	int width = bounds.width;
-				// 	width *= ratio;
-				// 	height *= ratio;
-				// 	button.setSize(width, height);
-				// 	// button.setBounds(bounds.x, bounds.y, width, height);
-				// }
-				// for (JButton button : branchMap.values()) {
-				// 	Rectangle bounds = button.getBounds();
-				// 	int height = bounds.height;
-				// 	int width = bounds.width;
-				// 	width *= ratio;
-				// 	height *= ratio;
-				// 	button.setSize(width, height);
-				// 	// button.setBounds(bounds.x, bounds.y, width, height);
-				// }
-				// for (JButton button : terminateMap.values()) {
-				// 	Rectangle bounds = button.getBounds();
-				// 	int height = bounds.height;
-				// 	int width = bounds.width;
-				// 	width *= ratio;
-				// 	height *= ratio;
-				// 	button.setSize(width, height);
-				// 	// button.setBounds(bounds.x, bounds.y, width, height);
-				// }
-				for (JTextField text : lineMap.keySet()) {
-					Rectangle bounds = text.getBounds();
-					int height = bounds.height;
-					int width = bounds.width;
-					width *= ratio;
-					height *= ratio;
-					text.setSize(width, height);
-					// button.setBounds(bounds.x, bounds.y, width, height);
-				}
-				this.repaint();
-			}
+	public void zoomIn() {
+		if (zoomLevel >= 3)
+			return;
+		zoomLevel++;
+		double ratio = zoomMultiplicationFactor;
+		Font oldF = getFont();
+		Font newF = oldF.deriveFont( (float)( oldF.getSize2D() * ratio )  );
+		setFont( newF );
+		// for (JButton button : addBranchMap.values()) {
+		// 	Rectangle bounds = button.getBounds();
+		// 	int height = bounds.height;
+		// 	int width = bounds.width;
+		// 	width *= ratio;
+		// 	height *= ratio;
+		// 	button.setSize(width, height);
+		// 	// button.setBounds(bounds.x, bounds.y, width, height);
+		// }
+		// for (JButton button : addLineMap.values()) {
+		// 	Rectangle bounds = button.getBounds();
+		// 	int height = bounds.height;
+		// 	int width = bounds.width;
+		// 	width *= ratio;
+		// 	height *= ratio;
+		// 	button.setSize(width, height);
+		// 	// button.setBounds(bounds.x, bounds.y, width, height);
+		// }
+		// for (JButton button : branchMap.values()) {
+		// 	Rectangle bounds = button.getBounds();
+		// 	int height = bounds.height;
+		// 	int width = bounds.width;
+		// 	width *= ratio;
+		// 	height *= ratio;
+		// 	button.setSize(width, height);
+		// 	// button.setBounds(bounds.x, bounds.y, width, height);
+		// }
+		// for (JButton button : terminateMap.values()) {
+		// 	Rectangle bounds = button.getBounds();
+		// 	int height = bounds.height;
+		// 	int width = bounds.width;
+		// 	width *= ratio;
+		// 	height *= ratio;
+		// 	button.setSize(width, height);
+		// 	// button.setBounds(bounds.x, bounds.y, width, height);
+		// }
+		for (JTextField text : lineMap.keySet()) {
+			Rectangle bounds = text.getBounds();
+			int height = bounds.height;
+			int width = bounds.width;
+			width *= ratio;
+			height *= ratio;
+			text.setSize(width, height);
+			// button.setBounds(bounds.x, bounds.y, width, height);
 		}
-		else if( newLevel < zoomLevel ){
-			for( int j = 0; j < (zoomLevel - newLevel); ++j ) {
-				zoomLevel--;
-				double ratio = zoomMultiplicationFactor;
-				Font oldF = getFont();
-				Font newF = oldF.deriveFont( (float)( oldF.getSize2D() * ratio )  );
-				setFont( newF );
-				w *= ratio;
-				h *= ratio;        
-				// for (JButton button : addBranchMap.values()) {
-				// 	Rectangle bounds = button.getBounds();
-				// 	int height = bounds.height;
-				// 	int width = bounds.width;
-				// 	width *= ratio;
-				// 	height *= ratio;
-				// 	button.setSize(width, height);
-				// 	// button.setBounds(bounds.x, bounds.y, width, height);
-				// }
-				// for (JButton button : addLineMap.values()) {
-				// 	Rectangle bounds = button.getBounds();
-				// 	int height = bounds.height;
-				// 	int width = bounds.width;
-				// 	width *= ratio;
-				// 	height *= ratio;
-				// 	button.setSize(width, height);
-				// 	// button.setBounds(bounds.x, bounds.y, width, height);
-				// }
-				// for (JButton button : branchMap.values()) {
-				// 	Rectangle bounds = button.getBounds();
-				// 	int height = bounds.height;
-				// 	int width = bounds.width;
-				// 	width *= ratio;
-				// 	height *= ratio;
-				// 	button.setSize(width, height);
-				// 	// button.setBounds(bounds.x, bounds.y, width, height);
-				// }
-				// for (JButton button : terminateMap.values()) {
-				// 	Rectangle bounds = button.getBounds();
-				// 	int height = bounds.height;
-				// 	int width = bounds.width;
-				// 	width *= ratio;
-				// 	height *= ratio;
-				// 	button.setSize(width, height);
-				// 	// button.setBounds(bounds.x, bounds.y, width, height);
-				// }
-				for (JTextField text : lineMap.keySet()) {
-					Rectangle bounds = text.getBounds();
-					int height = bounds.height;
-					int width = bounds.width;
-					width *= ratio;
-					height *= ratio;
-					text.setSize(width, height);
-					// button.setBounds(bounds.x, bounds.y, width, height);
-				}
-				this.repaint();
-			}
+		this.repaint();
+	}
+
+	public void zoomOut() {
+		if (zoomLevel <= -3)
+			return;
+		zoomLevel--;
+		double ratio = ( 1.0 / zoomMultiplicationFactor );
+		Font oldF = getFont();
+		Font newF = oldF.deriveFont( (float)( oldF.getSize2D() * ratio )  );
+		setFont( newF );      
+		for (Branch branch : addBranchMap.keySet()) {
+			int numLines = branch.numLines();
+			branch.width *= ratio;
+			branch.addStatement(null);
+			branch.removeLine(numLines);
+			
 		}
+		// for (JButton button : addLineMap.values()) {
+		// 	Rectangle bounds = button.getBounds();
+		// 	int height = bounds.height;
+		// 	int width = bounds.width;
+		// 	width *= ratio;
+		// 	height *= ratio;
+		// 	button.setSize(width, height);
+		// 	// button.setBounds(bounds.x, bounds.y, width, height);
+		// }
+		// for (JButton button : branchMap.values()) {
+		// 	Rectangle bounds = button.getBounds();
+		// 	int height = bounds.height;
+		// 	int width = bounds.width;
+		// 	width *= ratio;
+		// 	height *= ratio;
+		// 	button.setSize(width, height);
+		// 	// button.setBounds(bounds.x, bounds.y, width, height);
+		// }
+		// for (JButton button : terminateMap.values()) {
+		// 	Rectangle bounds = button.getBounds();
+		// 	int height = bounds.height;
+		// 	int width = bounds.width;
+		// 	width *= ratio;
+		// 	height *= ratio;
+		// 	button.setSize(width, height);
+		// 	// button.setBounds(bounds.x, bounds.y, width, height);
+		// }
+		for (JTextField text : lineMap.keySet()) {
+			Rectangle bounds = text.getBounds();
+			int height = bounds.height;
+			int width = bounds.width;
+			width *= ratio;
+			height *= ratio;
+			text.setSize(width, height);
+			// button.setBounds(bounds.x, bounds.y, width, height);
+		}
+		this.repaint();
 	}
 	
 }

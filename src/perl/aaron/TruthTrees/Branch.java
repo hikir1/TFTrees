@@ -18,17 +18,17 @@ import perl.aaron.TruthTrees.logic.Statement;
  *
  */
 public class Branch {
-	public static final int BRANCH_SEPARATION = 10;
-	public static final int VERTICAL_GAP = 20;
-	public static final int LABEL_BORDER = 5;
-	public static final int MIN_WIDTH = 100;
+	public static int BRANCH_SEPARATION = 10;
+	public static int VERTICAL_GAP = 20;
+	public static int LABEL_BORDER = 5;
+	public static int MIN_WIDTH = 100;
 	private List<BranchLine> lines;
 	private Set<Branch> branches;
 	private Branch root;
 	
 	private FontMetrics fm;	
 	private BranchLine widestLine;
-	private int width;
+	public int width;
 	private BranchLine decomposedFrom;
 
 	/**

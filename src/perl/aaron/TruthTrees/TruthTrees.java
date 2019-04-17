@@ -52,12 +52,10 @@ public class TruthTrees {
 
 	public static void close() {
 		instances--;
-		System.out.println(instances);
 		if (instances == 0) {
 			System.exit(0);
 		}
 	}
-
 	public static void createNewInstance() {
 		final JFrame frame = new JFrame("Truth Tree");
 		frame.setLayout(new BorderLayout());
@@ -65,31 +63,21 @@ public class TruthTrees {
 		JMenuBar menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
 		JMenu editMenu = new JMenu("Edit");
+		JMenu viewMenu = new JMenu("View");
 		JMenu treeMenu = new JMenu("Tree");
 		JMenu helpMenu = new JMenu("Help");
 		final TreePanel treePanel = new TreePanel();
-
-		JSlider zoomSlider = new JSlider(1, -10, 10, 0);
-		treePanel.setSlider(zoomSlider);
-		zoomSlider.setMajorTickSpacing(5);
-		zoomSlider.setMinorTickSpacing(1);
-		zoomSlider.setPaintTicks(true);
-		zoomSlider.setSnapToTicks(true);
-		zoomSlider.addChangeListener(treePanel);
-		JPanel zoompanel = new JPanel();
-		zoompanel.setLayout( new BorderLayout() );
-		zoompanel.add( zoomSlider, BorderLayout.EAST );
-		// frame.add(zoompanel);
 		
 		frame.getContentPane().add(treePanel, BorderLayout.CENTER);
 		System.out.println(frame.getContentPane().getComponent(0) == treePanel);
 		frame.setJMenuBar(menuBar);
 		menuBar.add(fileMenu);
 		menuBar.add(editMenu);
+		menuBar.add(viewMenu);
 		menuBar.add(treeMenu);
 		menuBar.add(helpMenu);
 
-		frame.getContentPane().add(zoompanel,BorderLayout.EAST);
+		// frame.getContentPane().add(zoompanel,BorderLayout.EAST);
 		
 		JMenuItem checkButton = new JMenuItem("Check Tree");
 		
@@ -230,6 +218,41 @@ public class TruthTrees {
 				}
 			}
 		});
+		JMenuItem splitButton = new JMenuItem("Split Selected Line");
+		treeMenu.add(splitButton);
+		splitButton.setAccelerator(KeyStroke.getKeyStroke('W', InputEvent.CTRL_MASK));
+		splitButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String ret = ((TreePanel)frame.getContentPane().getComponent(0)).split();
+				if (ret == null)
+					JOptionPane.showMessageDialog(null, "This line has been split");				
+				else
+					JOptionPane.showMessageDialog(null, ret);
+			}
+		});
+		JMenuItem zoomInButton = new JMenuItem("Zoom in");
+		viewMenu.add(zoomInButton);
+		zoomInButton.setAccelerator(KeyStroke.getKeyStroke('i', InputEvent.CTRL_MASK));
+		zoomInButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				((TreePanel)frame.getContentPane().getComponent(0)).zoomIn();
+			}
+		});
+		JMenuItem zoomOutButton = new JMenuItem("Zoom out");
+		viewMenu.add(zoomOutButton);
+		zoomOutButton.setAccelerator(KeyStroke.getKeyStroke('z', InputEvent.CTRL_MASK));
+		zoomOutButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				((TreePanel)frame.getContentPane().getComponent(0)).zoomOut();
+			}
+    });
+
 		JMenuItem addLineAfterButton = new JMenuItem("Add Line After");
 		
 		treeMenu.add(addLineAfterButton);
@@ -441,44 +464,16 @@ public class TruthTrees {
 		popupException(e, errorMessage);
 	}
 
-	
-
-	
 	public static void main(String[] args) {
-		createNewInstance();
-		
-		/*while (true)
 		try {
-			treePanel.addStatement(ExpressionParser.parseExpression(br.readLine()));
-		} catch (IOException e) {
-			System.exit(0);
-		}*/
-		
-//		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-//		while (true)
-//		try {
-//			Decomposable tree = (Decomposable)ExpressionParser.parseExpression(br.readLine());
-//			Statement decomp1 = ExpressionParser.parseExpression(br.readLine());
-//			Statement decomp2 = ExpressionParser.parseExpression(br.readLine());
-//			Statement decomp3 = ExpressionParser.parseExpression(br.readLine());
-//			List<List<Statement>> branches = new ArrayList<List<Statement>>();
-//			List<Statement> branch = new ArrayList<Statement>();
-//			List<Statement> branch2 = new ArrayList<Statement>();
-//			List<Statement> branch3 = new ArrayList<Statement>();
-//			branch.add(decomp1);
-//			branch2.add(decomp2);
-//			branch3.add(decomp3);
-//			branches.add(branch);
-//			branches.add(branch2);
-//			branches.add(branch3);
-//			if (tree.verifyDecomposition(branches))
-//				System.out.println("Valid decomposition!");
-//			else
-//				System.out.println("Invalid decomposition!");
-////			System.out.println(ExpressionParser.parseExpression(br.readLine()).toString());
-//		} catch (IOException e) {
-//			System.exit(0);
-//		}
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException | InstantiationException
+				| IllegalAccessException | UnsupportedLookAndFeelException e) {
+			logExceptionPopup(e, errorMessageSystemLookAndFeel);
+			System.exit(1);
+		}
+
+		createNewInstance();
 
 	}
 

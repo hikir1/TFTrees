@@ -397,5 +397,20 @@ public class BranchLine {
 				return false;
 		}
 	}
+
+	public String split(){
+		// int count = 0;
+		String line = statement.toString();
+		// if line.charAt(0) != '\u00AC'
+
+		// for(int i = 1; i < line.length(); i++){
+		// 	if (line.charAt(i) == '(')
+		// 		count++;
+		// 	else if (line.charAt(i) == ')')
+		// 		count--;
+		// }
+		return line;
+	}
+
 	
 }
