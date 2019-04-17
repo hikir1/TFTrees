@@ -1,0 +1,50 @@
+Truth Trees  Desired Improvements
+
+When typing characters for symbols, sometimes character gets replaced by logic symbol .. but not always. It should be always.
+Allow ability to add lines at any spot in tree. Like Fitch: ‘add after’, ‘add before’
+Have option of whether to use ‘checkmark/inheritance’ notation or ‘copy/reiterate’ notation. In ‘copy mode’, we can have system do the copying … otherwise that’s a lot of annoying rewriting. In ‘checkmark’ mode, decomposed statements should be explicitly marked (‘checked’), possibly with box color.
+Zoom In/Out feature
+Tree layout needs to be better (sometimes too spread out)
+
+When checking tree, list *all* mistakes (highlight statement?)
+If possible, say a little more about any mistake … provide some details … why exactly is it a mistake?
+Sometimes ‘check tree’ says nothing …
+After deleting a line, the check mechanism seems to be effected as well …
+Tree should check out when finished, even if not all statements have been decomposed
+Add assessment button/window (basically: are statements satisfiable Yes/No?)
+
+
+
+For some reason it does not always load files .. typically after it has encountered some kind of issue with checking a tree.
+
+Have file menu keep track of where you got the last file (stay in that folder)
+Have File->New Option
+
+
+
+
+Truth Tree Features
+Allow for ‘Splitting/Law of Excluded Middle’ Rule:  at any time, you can branch between A and ~A … maybe even between phi and ~phi with phi any arbitrary statement
+
+Allow ‘short-cut’ rules, like Modus Ponens, Modus Tollens, Disjunctive Syllogism, and Exclusion.  Also add some for the biconditional
+
+Allow for rules of replacement/equivalence to rewrite statements
+
+Add Davis-Putnam ‘mode’ and rules (besides splitting, that’s really just one more rule: Reduction). Have flag to indicate whether it is required to reduce whole clause set, or whether user can choose statements to reduce at will (not no need to reduce everything …) .. 
+
+Allow for unit rule (or will this automatically come to be by way system is set up? (e.g. you can reduce when literal … and ultimately branches will get all literals … or close) 
+
+
+Add Resolution
+
+Be able to apply resolution rule  (how does this effect ‘doneness’ of tree?)
+
+Allow for tautologous clause elimination, subsumption elimination, pure literal alimination
+
+
+
+Predicate Logic
+
+Add rules for identity
+
+Add function symbols
