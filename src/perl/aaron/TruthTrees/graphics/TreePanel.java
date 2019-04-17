@@ -1452,65 +1452,10 @@ public class TreePanel extends JPanel{
 		Font oldF = getFont();
 		Font newF = oldF.deriveFont( (float)( oldF.getSize2D() * ratio )  );
 		setFont( newF );
-		// for (JButton button : addBranchMap.values()) {
-		// 	Rectangle bounds = button.getBounds();
-		// 	int height = bounds.height;
-		// 	int width = bounds.width;
-		// 	width *= ratio;
-		// 	height *= ratio;
-		// 	button.setSize(width, height);
-		// 	// button.setBounds(bounds.x, bounds.y, width, height);
-		// }
-		// for (JButton button : addLineMap.values()) {
-		// 	Rectangle bounds = button.getBounds();
-		// 	int height = bounds.height;
-		// 	int width = bounds.width;
-		// 	width *= ratio;
-		// 	height *= ratio;
-		// 	button.setSize(width, height);
-		// 	// button.setBounds(bounds.x, bounds.y, width, height);
-		// }
-		// for (JButton button : branchMap.values()) {
-		// 	Rectangle bounds = button.getBounds();
-		// 	int height = bounds.height;
-		// 	int width = bounds.width;
-		// 	width *= ratio;
-		// 	height *= ratio;
-		// 	button.setSize(width, height);
-		// 	// button.setBounds(bounds.x, bounds.y, width, height);
-		// }
-		// for (JButton button : terminateMap.values()) {
-		// 	Rectangle bounds = button.getBounds();
-		// 	int height = bounds.height;
-		// 	int width = bounds.width;
-		// 	width *= ratio;
-		// 	height *= ratio;
-		// 	button.setSize(width, height);
-		// 	// button.setBounds(bounds.x, bounds.y, width, height);
-		// }
-		for (JTextField text : lineMap.keySet()) {
-			Rectangle bounds = text.getBounds();
-			int height = bounds.height;
-			int width = bounds.width;
-			width *= ratio;
-			height *= ratio;
-			text.setSize(width, height);
-			// button.setBounds(bounds.x, bounds.y, width, height);
-		}
-		this.repaint();
-	}
-
-	public void zoomOut() {
-		if (zoomLevel <= -3)
-			return;
-		zoomLevel--;
-		double ratio = ( 1.0 / zoomMultiplicationFactor );
-		Font oldF = getFont();
-		Font newF = oldF.deriveFont( (float)( oldF.getSize2D() * ratio )  );
-		setFont( newF );      
 		for (Branch branch : addBranchMap.keySet()) {
 			int numLines = branch.numLines();
 			branch.width *= ratio;
+			branch.MIN_WIDTH *= ratio;
 			branch.addStatement(null);
 			branch.removeLine(numLines);
 			
@@ -1552,6 +1497,63 @@ public class TreePanel extends JPanel{
 			// button.setBounds(bounds.x, bounds.y, width, height);
 		}
 		this.repaint();
+		moveComponents();
+	}
+
+	public void zoomOut() {
+		if (zoomLevel <= -3)
+			return;
+		zoomLevel--;
+		double ratio = ( 1.0 / zoomMultiplicationFactor );
+		Font oldF = getFont();
+		Font newF = oldF.deriveFont( (float)( oldF.getSize2D() * ratio )  );
+		setFont( newF );      
+		for (Branch branch : addBranchMap.keySet()) {
+			int numLines = branch.numLines();
+			branch.width *= ratio;
+			branch.MIN_WIDTH *= ratio;
+			branch.addStatement(null);
+			branch.removeLine(numLines);
+			
+		}
+		// for (JButton button : addLineMap.values()) {
+		// 	Rectangle bounds = button.getBounds();
+		// 	int height = bounds.height;
+		// 	int width = bounds.width;
+		// 	width *= ratio;
+		// 	height *= ratio;
+		// 	button.setSize(width, height);
+		// 	// button.setBounds(bounds.x, bounds.y, width, height);
+		// }
+		// for (JButton button : branchMap.values()) {
+		// 	Rectangle bounds = button.getBounds();
+		// 	int height = bounds.height;
+		// 	int width = bounds.width;
+		// 	width *= ratio;
+		// 	height *= ratio;
+		// 	button.setSize(width, height);
+		// 	// button.setBounds(bounds.x, bounds.y, width, height);
+		// }
+		// for (JButton button : terminateMap.values()) {
+		// 	Rectangle bounds = button.getBounds();
+		// 	int height = bounds.height;
+		// 	int width = bounds.width;
+		// 	width *= ratio;
+		// 	height *= ratio;
+		// 	button.setSize(width, height);
+		// 	// button.setBounds(bounds.x, bounds.y, width, height);
+		// }
+		for (JTextField text : lineMap.keySet()) {
+			Rectangle bounds = text.getBounds();
+			int height = bounds.height;
+			int width = bounds.width;
+			width *= ratio;
+			height *= ratio;
+			text.setSize(width, height);
+			// button.setBounds(bounds.x, bounds.y, width, height);
+		}
+		this.repaint();
+		moveComponents();
 	}
 	
 }
