@@ -234,7 +234,7 @@ public class TruthTrees {
 		});
 		JMenuItem zoomInButton = new JMenuItem("Zoom in");
 		viewMenu.add(zoomInButton);
-		zoomInButton.setAccelerator(KeyStroke.getKeyStroke('i', InputEvent.CTRL_MASK));
+		zoomInButton.setAccelerator(KeyStroke.getKeyStroke('=', InputEvent.CTRL_MASK));
 		zoomInButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -244,7 +244,7 @@ public class TruthTrees {
 		});
 		JMenuItem zoomOutButton = new JMenuItem("Zoom out");
 		viewMenu.add(zoomOutButton);
-		zoomOutButton.setAccelerator(KeyStroke.getKeyStroke('z', InputEvent.CTRL_MASK));
+		zoomOutButton.setAccelerator(KeyStroke.getKeyStroke('-', InputEvent.CTRL_MASK));
 		zoomOutButton.addActionListener(new ActionListener() {
 			
 			@Override
