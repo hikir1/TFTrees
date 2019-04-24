@@ -21,11 +21,13 @@ public class ExpressionParser {
 	private static final String variablePattern;
 	private static final String constantPattern;
 	private static final String quantifiers;
+	public static ArrayList<String> variableList;
 //	private static final Pattern operatorPattern;
 	
 	static
 	{
 		operators = new ArrayList<Set<Character>>();
+		variableList = new ArrayList<>();
 		
 		Set<Character> conditionals = new LinkedHashSet<Character>();
 		conditionals.add('\u2192');
@@ -167,6 +169,7 @@ public class ExpressionParser {
 			if (subExpression.matches("\\w+") || subExpression.matches("(\\w+)"))
 			{
 //				System.out.println("Atomic Statement : " + subExpression);
+				variableList.add(subExpression);
 				return new AtomicStatement(subExpression);
 			}
 			else if (subExpression.startsWith("(") && subExpression.endsWith(")"))
@@ -221,6 +224,7 @@ public class ExpressionParser {
 				String statementString = subExpression.substring(end);
 				
 				Variable var = (Variable) parseObject(varString);
+			
 				Statement statement = recurseStatement(statementString);
 				
 				if (var == null || statement == null) return null;

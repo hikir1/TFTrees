@@ -1,19 +1,16 @@
 package perl.aaron.TruthTrees;
 
 import java.awt.BorderLayout;
-import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -21,24 +18,16 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.event.ChangeListener;
-
 import perl.aaron.TruthTrees.graphics.TreePanel;
-import perl.aaron.TruthTrees.logic.Decomposable;
-import perl.aaron.TruthTrees.logic.Statement;
 
 public class TruthTrees {
 
@@ -226,10 +215,10 @@ public class TruthTrees {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String ret = ((TreePanel)frame.getContentPane().getComponent(0)).split();
-				if (ret == null)
-					JOptionPane.showMessageDialog(null, "This line has been split");				
-				else
-					JOptionPane.showMessageDialog(null, ret);
+				if (ret != null)
+					JOptionPane.showMessageDialog(null, "ret");				
+				// else
+				// 	JOptionPane.showMessageDialog(null, ret);
 			}
 		});
 		JMenuItem zoomInButton = new JMenuItem("Zoom in");

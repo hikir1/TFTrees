@@ -1,13 +1,10 @@
 package perl.aaron.TruthTrees;
 
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
 
 import perl.aaron.TruthTrees.logic.Statement;
 

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -398,9 +399,13 @@ public class BranchLine {
 		}
 	}
 
-	public String split(){
+	public Set<String> split(){
 		// int count = 0;
-		String line = statement.toString();
+		System.out.println(statement.toString());
+		ExpressionParser.parseExpression(statement.toString());
+		ArrayList<String> varList = ExpressionParser.variableList;
+		System.out.println(varList);
+		
 		// if line.charAt(0) != '\u00AC'
 
 		// for(int i = 1; i < line.length(); i++){
@@ -409,7 +414,7 @@ public class BranchLine {
 		// 	else if (line.charAt(i) == ')')
 		// 		count--;
 		// }
-		return line;
+		return new HashSet<String>(varList);
 	}
 
 	

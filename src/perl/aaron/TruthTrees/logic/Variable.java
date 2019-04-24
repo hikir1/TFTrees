@@ -1,7 +1,6 @@
 package perl.aaron.TruthTrees.logic;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class Variable extends LogicObject {

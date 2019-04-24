@@ -7,21 +7,15 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.event.InputEvent;
-import java.awt.event.InputMethodEvent;
-import java.awt.event.InputMethodListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -31,43 +25,25 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-
-import javax.swing.ButtonModel;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JMenuItem;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JSlider;
-import javax.swing.JTable;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.UndoableEditListener;
 import javax.swing.plaf.basic.BasicTextFieldUI;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
 import javax.swing.text.DocumentFilter;
-import javax.swing.text.Element;
-import javax.swing.text.Position;
-import javax.swing.text.Segment;
-
 import perl.aaron.TruthTrees.Branch;
 import perl.aaron.TruthTrees.BranchLine;
 import perl.aaron.TruthTrees.BranchTerminator;
@@ -76,6 +52,98 @@ import perl.aaron.TruthTrees.logic.Conjunction;
 import perl.aaron.TruthTrees.logic.Decomposable;
 import perl.aaron.TruthTrees.logic.Negation;
 import perl.aaron.TruthTrees.logic.Statement;
+
+
+class RadioPanel extends JFrame { 
+  
+    // Declaration of object of JRadioButton class. 
+    JRadioButton jRadioButton1; 
+  
+    // Declaration of object of JRadioButton class. 
+    JRadioButton jRadioButton2; 
+  
+    // Declaration of object of JButton class. 
+    JButton jButton; 
+  
+    // Declaration of object of ButtonGroup class. 
+    ButtonGroup buttonGroup; 
+  
+    // Declaration of object of  JLabel  class. 
+	JLabel label; 
+	
+	ArrayList<JRadioButton> buttons;
+	String variable;
+  
+    // Constructor of Demo class. 
+    public RadioPanel(Set<String> variables) 
+    { 
+		variable = "";
+  
+        // Setting layout as null of JFrame. 
+		this.setLayout(null);
+
+		jButton = new JButton("Submit"); // Initialization of object of "ButtonGroup" class. 
+        buttonGroup = new ButtonGroup(); 
+		label = new JLabel("Choose variable to split"); 
+
+		int x = 200;
+		int y = 200;
+		buttons = new ArrayList<>();
+
+		Iterator itr = variables.iterator();
+		while(itr.hasNext()){
+			JRadioButton button = new JRadioButton();
+			button.setText(itr.next().toString());
+			buttonGroup.add(button);
+			buttons.add(button);
+			this.add(button); 
+			button.setBounds(x, 30, y, 50); 
+			x+=100;
+			y-=40;
+		}
+  
+        // Setting Bounds of "jButton". 
+        jButton.setBounds(125, 90, 80, 30); 
+  
+        // Setting Bounds of JLabel "L2". 
+		label.setBounds(20, 30, 200, 50); 
+		
+        this.add(jButton); 
+  
+        // Adding JLabel "L2" on JFrame. 
+		this.add(label); 
+
+		// Adding Listener to JButton. 
+        jButton.addActionListener(new ActionListener() { 
+            // Anonymous class. 
+  
+            public void actionPerformed(ActionEvent e) 
+            { 
+                // Override Method 
+  
+                // Declaration of String class Objects. 
+                String qual = " "; 
+				for (int i = 0; i < buttons.size(); i++){
+					JRadioButton button = buttons.get(i);
+					if (button.isSelected()) {
+						qual = button.getText();
+					}
+				}
+                if (qual.equals(" ")) { 
+  
+                    qual = "NO variable selected"; 
+                } 
+  
+                // MessageDialog to show information selected radion buttons. 
+				JOptionPane.showMessageDialog(RadioPanel.this, qual); 
+				variable = qual;
+				RadioPanel.this.dispose();
+            } 
+		}); 
+    } 
+} 
+  
+
 
 /**
  * An extension of JPanel for displaying and interacting with a sequence of
@@ -746,6 +814,23 @@ public class TreePanel extends JPanel{
 		return newBranch;
 	}
 
+	public Branch addBranch(Branch parent, boolean addFirstLine, boolean wasNotTyped, Statement s) {
+		recordState();
+		Branch newBranch = new Branch(parent);
+		newBranch.setFontMetrics(getFontMetrics(getFont()));
+		makeButtonsForBranch(newBranch);
+		if (parent != null)
+			parent.addBranch(newBranch);
+		if (addFirstLine) {
+			addLine(newBranch, s);
+			if (parent == null)
+				newBranch.getLine(0).setIsPremise(true);
+		}
+		moveComponents();
+		repaint();
+		return newBranch;
+	}
+
 	/**
 	 * Makes all the buttons for the branch
 	 * 
@@ -860,6 +945,7 @@ public class TreePanel extends JPanel{
 		int maxWidth = b.getWidestChild();
 		for (int i = 0; i < b.numLines(); i++) {
 			BranchLine curLine = b.getLine(i);
+			System.out.println("curLine:"+curLine);
 			JTextField curField = reverseLineMap.get(curLine);
 			// if (curField == null)
 			// {
@@ -936,8 +1022,9 @@ public class TreePanel extends JPanel{
 			origin.translate(0, premises.getLineHeight() * premises.numLines());
 		}
 		origin.translate(0, 20);
-		if (root != null)
+		if (root != null){
 			moveBranch(root, origin);
+		}
 	}
 
 	public Dimension getPreferredSize()
@@ -953,6 +1040,10 @@ public class TreePanel extends JPanel{
 	 */
 	private BranchLine addLine(final Branch b) {
 		return addLine(b, false);
+	}
+
+	private BranchLine addLine(final Branch b, final Statement s) {
+		return addLine(b, false, true, true, s);
 	}
 
 	/**
@@ -978,6 +1069,25 @@ public class TreePanel extends JPanel{
 		recordState();
 		final BranchLine newLine;
 		if (isTerminator) {
+			newLine = new BranchTerminator(b);
+			if (!isClose)
+				((BranchTerminator) newLine).switchIsClose();
+			b.addTerminator((BranchTerminator) newLine);
+		} else
+			newLine = b.addStatement(null);
+		makeTextFieldForLine(newLine, b, isTerminator);
+		moveComponents();
+		return newLine;
+	}
+
+	private BranchLine addLine(final Branch b, final boolean isTerminator, final boolean isClose, final boolean wasNotTyped, final Statement s) {
+		recordState();
+		final BranchLine newLine;
+		if (wasNotTyped){
+			newLine = new BranchLine(b);
+			newLine.setStatement(s);
+		}
+		else if (isTerminator) {
 			newLine = new BranchTerminator(b);
 			if (!isClose)
 				((BranchTerminator) newLine).switchIsClose();
@@ -1441,7 +1551,38 @@ public class TreePanel extends JPanel{
 	}
 
 	public String split(BranchLine l) {
-		return l.split();
+		ButtonGroup buttons = new ButtonGroup();
+		Set<String> vars = l.split();
+		RadioPanel rp = new RadioPanel(vars);
+		// Setting Bounds of JFrame. 
+        rp.setBounds(100, 100, 220*vars.size(), 200); 
+  
+        // Setting Title of frame. 
+        rp.setTitle("Split Window"); 
+  
+        // Setting Visible status of frame as true. 
+		rp.setVisible(true); 
+		
+		String var = rp.variable;
+		Statement s1 = ExpressionParser.parseExpression(var);
+		Statement s2 = ExpressionParser.parseExpression("\u00AC"+var);
+		Branch branch1, branch2;
+		if (l.getParent() == premises){
+			branch1 = this.addBranch(root, true, true, s1);
+			branch2 = this.addBranch(root, true, true, s2);
+			branch1.addStatement(s1);
+			branch2.addStatement(s2);
+		}
+		else{
+			branch1 = this.addBranch(l.getParent(), true, true, s1);
+			branch2 = this.addBranch(l.getParent(), true, true, s2);
+			branch1.addStatement(s1);
+			branch2.addStatement(s2);
+		}
+		recordState();
+			
+
+		return null;
 	}
 
 	public void zoomIn() {
@@ -1451,6 +1592,8 @@ public class TreePanel extends JPanel{
 		double ratio = zoomMultiplicationFactor;
 		Font oldF = getFont();
 		Font newF = oldF.deriveFont( (float)( oldF.getSize2D() * ratio )  );
+		size = size * (float)ratio;
+		// Font newF2 = this.getFont().deriveFont(size);    
 		setFont( newF );
 		for (Branch branch : addBranchMap.keySet()) {
 			int numLines = branch.numLines();
@@ -1460,42 +1603,13 @@ public class TreePanel extends JPanel{
 			branch.removeLine(numLines);
 			
 		}
-		// for (JButton button : addLineMap.values()) {
-		// 	Rectangle bounds = button.getBounds();
-		// 	int height = bounds.height;
-		// 	int width = bounds.width;
-		// 	width *= ratio;
-		// 	height *= ratio;
-		// 	button.setSize(width, height);
-		// 	// button.setBounds(bounds.x, bounds.y, width, height);
-		// }
-		// for (JButton button : branchMap.values()) {
-		// 	Rectangle bounds = button.getBounds();
-		// 	int height = bounds.height;
-		// 	int width = bounds.width;
-		// 	width *= ratio;
-		// 	height *= ratio;
-		// 	button.setSize(width, height);
-		// 	// button.setBounds(bounds.x, bounds.y, width, height);
-		// }
-		// for (JButton button : terminateMap.values()) {
-		// 	Rectangle bounds = button.getBounds();
-		// 	int height = bounds.height;
-		// 	int width = bounds.width;
-		// 	width *= ratio;
-		// 	height *= ratio;
-		// 	button.setSize(width, height);
-		// 	// button.setBounds(bounds.x, bounds.y, width, height);
-		// }
 		for (JTextField text : lineMap.keySet()) {
-			Rectangle bounds = text.getBounds();
-			int height = bounds.height;
-			int width = bounds.width;
-			width *= ratio;
-			height *= ratio;
-			text.setSize(width, height);
-			// button.setBounds(bounds.x, bounds.y, width, height);
+			int width = (int)(text.getWidth() * ratio);
+			int height = (int)(text.getHeight() * ratio);
+			text.setSize(width,height);
+			text.setFont(newF);
 		}
+		this.setFont(this.getFont().deriveFont(size));
 		this.repaint();
 		moveComponents();
 	}
@@ -1507,6 +1621,8 @@ public class TreePanel extends JPanel{
 		double ratio = ( 1.0 / zoomMultiplicationFactor );
 		Font oldF = getFont();
 		Font newF = oldF.deriveFont( (float)( oldF.getSize2D() * ratio )  );
+		size = size * (float)ratio;
+		// Font newF2 = this.getFont().deriveFont(size);
 		setFont( newF );      
 		for (Branch branch : addBranchMap.keySet()) {
 			int numLines = branch.numLines();
@@ -1516,42 +1632,13 @@ public class TreePanel extends JPanel{
 			branch.removeLine(numLines);
 			
 		}
-		// for (JButton button : addLineMap.values()) {
-		// 	Rectangle bounds = button.getBounds();
-		// 	int height = bounds.height;
-		// 	int width = bounds.width;
-		// 	width *= ratio;
-		// 	height *= ratio;
-		// 	button.setSize(width, height);
-		// 	// button.setBounds(bounds.x, bounds.y, width, height);
-		// }
-		// for (JButton button : branchMap.values()) {
-		// 	Rectangle bounds = button.getBounds();
-		// 	int height = bounds.height;
-		// 	int width = bounds.width;
-		// 	width *= ratio;
-		// 	height *= ratio;
-		// 	button.setSize(width, height);
-		// 	// button.setBounds(bounds.x, bounds.y, width, height);
-		// }
-		// for (JButton button : terminateMap.values()) {
-		// 	Rectangle bounds = button.getBounds();
-		// 	int height = bounds.height;
-		// 	int width = bounds.width;
-		// 	width *= ratio;
-		// 	height *= ratio;
-		// 	button.setSize(width, height);
-		// 	// button.setBounds(bounds.x, bounds.y, width, height);
-		// }
 		for (JTextField text : lineMap.keySet()) {
-			Rectangle bounds = text.getBounds();
-			int height = bounds.height;
-			int width = bounds.width;
-			width *= ratio;
-			height *= ratio;
-			text.setSize(width, height);
-			// button.setBounds(bounds.x, bounds.y, width, height);
+			int width = (int)(text.getWidth() * ratio);
+			int height = (int)(text.getHeight() * ratio);
+			text.setSize(width,height);
+			text.setFont(newF);
 		}
+		this.setFont(this.getFont().deriveFont(size));
 		this.repaint();
 		moveComponents();
 	}
