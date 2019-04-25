@@ -35,7 +35,8 @@ public class BranchLine {
 	public static final Color DEFAULT_COLOR = Color.LIGHT_GRAY;
 	public static final Color EDIT_COLOR = Color.GREEN;
   public boolean typing = false;
-  public String currentTyping;
+	public String currentTyping;
+	public int decompNum;
 
 	public BranchLine(Branch branch)
 	{
@@ -45,6 +46,7 @@ public class BranchLine {
 		selectedBranches = new LinkedHashSet<Branch>();
 		selectedLines = new LinkedHashSet<BranchLine>();
 		isPremise = false;
+		decompNum = -1;
 	}
 
 	public String toString()

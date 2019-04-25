@@ -951,7 +951,6 @@ public class TreePanel extends JPanel {
 		int maxWidth = b.getWidestChild();
 		for (int i = 0; i < b.numLines(); i++) {
 			BranchLine curLine = b.getLine(i);
-			System.out.println("This line is:" + curLine.toString());
 			JTextField curField = reverseLineMap.get(curLine);
 			// if (curField == null)
 			// {
@@ -967,6 +966,15 @@ public class TreePanel extends JPanel {
 			curField.setBounds(origin.x - maxLineWidth / 2, origin.y + verticalOffset, maxLineWidth, b.getLineHeight());
 			curField.repaint();
 			verticalOffset += b.getLineHeight();
+			if (curLine.decompNum != -1){
+
+				String tickMark = "\u221A" + generateSubscript(curLine.decompNum);
+				Graphics2D g2d = (Graphics2D)this.getGraphics();
+				Point p = curField.getLocation();
+				p.setLocation((p.getX()+curField.getWidth()+10), (p.getY()+(curField.getHeight()/2)+7));
+				// drawStringAt(g2d, new Point(center.x + getWidth() / 2, center.y + getHeight() / 2), tickMark);
+				drawStringAt(g2d, p, tickMark);
+			}
 		}
 		if (b != premises) {
 			JButton lineButton = addLineMap.get(b);
@@ -1416,6 +1424,18 @@ public class TreePanel extends JPanel {
 				center.y + getHeight() / 2 + premises.numLines() * premises.getLineHeight() + Branch.VERTICAL_GAP),
 				"Decomposition");
 
+		for (BranchLine l : reverseLineMap.keySet()){
+			if (l.decompNum != -1){
+				String tickMark = "\u221A" + generateSubscript(l.decompNum);
+				JTextField field = reverseLineMap.get(l);
+				Point p = field.getLocation();
+				p.setLocation((p.getX()+field.getWidth()+10), (p.getY()+(field.getHeight()/2)+7));
+				drawStringAt(g2d, p, tickMark);
+			}
+		}
+
+
+
 		if (root.getBranches().size() > 0)
 			drawBranching(root, g2d);
 	}
@@ -1672,12 +1692,24 @@ public class TreePanel extends JPanel {
 		return "No statement is currently selected!";
 	}
 
+	public String generateSubscript(int i) {
+		StringBuilder sb = new StringBuilder();
+		for (char ch : String.valueOf(i).toCharArray()) {
+			sb.append((char) ('\u2080' + (ch - '0')));
+		}
+		return sb.toString();
+	}
+
 	public String mark(final BranchLine l) {
-		String tickMark = "\u221A" + "<sub>"+decompNumber+"</sub>";
+		String tickMark = "\u221A" + generateSubscript(decompNumber);
+		l.decompNum = decompNumber;
+		decompNumber++;
 		Graphics2D g2d = (Graphics2D)this.getGraphics();
-		JTextField field = reverseLineMap.get(editLine);
+		JTextField field = reverseLineMap.get(l);
 		Point p = field.getLocation();
+		p.setLocation((p.getX()+field.getWidth()+10), (p.getY()+(field.getHeight()/2)+7));
 		drawStringAt(g2d, p, tickMark);
+		// moveComponents();
 		return null;
 	}
 }
