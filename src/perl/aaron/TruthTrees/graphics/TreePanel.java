@@ -19,6 +19,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -53,6 +55,12 @@ import perl.aaron.TruthTrees.logic.Decomposable;
 import perl.aaron.TruthTrees.logic.Negation;
 import perl.aaron.TruthTrees.logic.Statement;
 
+class Global {
+	public static String var;
+	public static Statement s1;
+	public static Statement s2;
+}
+
 
 class RadioPanel extends JFrame { 
   
@@ -72,13 +80,10 @@ class RadioPanel extends JFrame {
 	JLabel label; 
 	
 	ArrayList<JRadioButton> buttons;
-	String variable;
   
     // Constructor of Demo class. 
     public RadioPanel(Set<String> variables) 
     { 
-		variable = "";
-  
         // Setting layout as null of JFrame. 
 		this.setLayout(null);
 
@@ -136,7 +141,7 @@ class RadioPanel extends JFrame {
   
                 // MessageDialog to show information selected radion buttons. 
 				JOptionPane.showMessageDialog(RadioPanel.this, qual); 
-				variable = qual;
+				Global.var = new String(qual);
 				RadioPanel.this.dispose();
             } 
 		}); 
@@ -157,6 +162,7 @@ public class TreePanel extends JPanel{
 	private static final long serialVersionUID = 2267768929169530856L;
 	private static final int UNDO_STACK_SIZE = 32;
 	private static final int REDO_STACK_SIZE = 32;
+	public static String var;
 
 	private Branch root;
 	private Point center;
@@ -816,6 +822,7 @@ public class TreePanel extends JPanel{
 
 	public Branch addBranch(Branch parent, boolean addFirstLine, boolean wasNotTyped, Statement s) {
 		recordState();
+		System.out.println("Statement:"+s);
 		Branch newBranch = new Branch(parent);
 		newBranch.setFontMetrics(getFontMetrics(getFont()));
 		makeButtonsForBranch(newBranch);
@@ -943,15 +950,21 @@ public class TreePanel extends JPanel{
 		int verticalOffset = 0;
 		int maxLineWidth = b.getWidestLine();
 		int maxWidth = b.getWidestChild();
+		// System.out.println("Branch:"+b.toString());
+		System.out.println("RlineMap:"+reverseLineMap);
+		// for (int i = 0; i < b.numLines(); i++) {
+		// 	BranchLine curLine = b.getLine(i);
+		// 	System.out.println("Tkewognwneghis line is:"+curLine.toString());
+		// }
 		for (int i = 0; i < b.numLines(); i++) {
 			BranchLine curLine = b.getLine(i);
-			System.out.println("curLine:"+curLine);
+			System.out.println("This line is:"+curLine.toString());
 			JTextField curField = reverseLineMap.get(curLine);
-			// if (curField == null)
-			// {
-			// System.out.println(curLine.toString());
-			// System.exit(-1);
-			// }
+			if (curField == null)
+			{
+			System.out.println(curLine.toString());
+			System.exit(-1);
+			}
 			if (isSelected(curLine))
 				curField.setBackground(BranchLine.SELECTED_COLOR);
 			else if (curLine == editLine)
@@ -1084,8 +1097,9 @@ public class TreePanel extends JPanel{
 		recordState();
 		final BranchLine newLine;
 		if (wasNotTyped){
-			newLine = new BranchLine(b);
-			newLine.setStatement(s);
+			System.out.println("was not typed");
+			newLine = b.addStatement(null);
+			// newLine.setStatement(s);
 		}
 		else if (isTerminator) {
 			newLine = new BranchTerminator(b);
@@ -1094,6 +1108,8 @@ public class TreePanel extends JPanel{
 			b.addTerminator((BranchTerminator) newLine);
 		} else
 			newLine = b.addStatement(null);
+		if (newLine.getStatement()!=null)
+			System.out.println("newline:"+newLine.getStatement().toString());
 		makeTextFieldForLine(newLine, b, isTerminator);
 		moveComponents();
 		return newLine;
@@ -1141,8 +1157,10 @@ public class TreePanel extends JPanel{
 				g.setColor(old);
 			}
 		});
-		if (line.getStatement() != null)
+		if (line.getStatement() != null){
+			System.out.println("toString:"+line.getStatement().toString());
 			newField.setText(line.getStatement().toString());
+		}
 		if (isTerminator) {
 			newField.setText(line.toString());
 			newField.setForeground(new Color(0.7f, 0.0f, 0.0f));
@@ -1313,7 +1331,24 @@ public class TreePanel extends JPanel{
 			}
 		});
 		lineMap.put(newField, line);
+		// if (line.getStatement()!=null){
+		// 	System.out.println("line:"+line.getStatement().toString());
+		// 	System.out.println("putting:"+line.getStatement().toString()+newField.getText());
+		// }
+		// else{
+		// 	System.out.println("isNull:"+line.isPremise());
+		// }
 		reverseLineMap.put(line, newField);
+		// for (int i = 0; i < b.numLines(); i++) {
+		// 	BranchLine curLine = b.getLine(i);
+		// 	JTextField curField = reverseLineMap.get(curLine);
+		// 	System.out.println("iteration:"+curLine.toString());
+		// 	if (curField == null)
+		// 	{
+		// 	System.out.println("in makeTextField:"+curLine.toString());
+		// 	System.exit(-1);
+		// 	}
+		// }
 		add(newField);
 		newField.setEditable(false);
 	}
@@ -1550,41 +1585,6 @@ public class TreePanel extends JPanel{
 		return "No statement is currently selected!";
 	}
 
-	public String split(BranchLine l) {
-		ButtonGroup buttons = new ButtonGroup();
-		Set<String> vars = l.split();
-		RadioPanel rp = new RadioPanel(vars);
-		// Setting Bounds of JFrame. 
-        rp.setBounds(100, 100, 220*vars.size(), 200); 
-  
-        // Setting Title of frame. 
-        rp.setTitle("Split Window"); 
-  
-        // Setting Visible status of frame as true. 
-		rp.setVisible(true); 
-		
-		String var = rp.variable;
-		Statement s1 = ExpressionParser.parseExpression(var);
-		Statement s2 = ExpressionParser.parseExpression("\u00AC"+var);
-		Branch branch1, branch2;
-		if (l.getParent() == premises){
-			branch1 = this.addBranch(root, true, true, s1);
-			branch2 = this.addBranch(root, true, true, s2);
-			branch1.addStatement(s1);
-			branch2.addStatement(s2);
-		}
-		else{
-			branch1 = this.addBranch(l.getParent(), true, true, s1);
-			branch2 = this.addBranch(l.getParent(), true, true, s2);
-			branch1.addStatement(s1);
-			branch2.addStatement(s2);
-		}
-		recordState();
-			
-
-		return null;
-	}
-
 	public void zoomIn() {
 		if (zoomLevel >= 3)
 			return;
@@ -1642,5 +1642,56 @@ public class TreePanel extends JPanel{
 		this.repaint();
 		moveComponents();
 	}
-	
+
+
+	public String split(final BranchLine l) {
+		ButtonGroup buttons = new ButtonGroup();
+		Set<String> vars = l.split();
+		RadioPanel rp = new RadioPanel(vars);
+		// Setting Bounds of JFrame. 
+        rp.setBounds(100, 100, 220*vars.size(), 200); 
+  
+        // Setting Title of frame. 
+        rp.setTitle("Split Window"); 
+  
+        // Setting Visible status of frame as true. 
+		rp.setVisible(true); 
+		// final Statement s1;
+		// final Statement s2;
+		rp.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowOpened(WindowEvent we) {
+				System.out.println("this window was opened for the first time");
+			}
+		
+			@Override
+			public void windowActivated(WindowEvent we) {
+				System.out.println("this window or a subframe was focused");
+			}
+
+			@Override
+			public void windowClosed(WindowEvent we) {
+				String var = Global.var;
+				Global.s1 = ExpressionParser.parseExpression(var);
+				Global.s2 = ExpressionParser.parseExpression("\u00AC"+var);
+				// System.out.println("s1:"+Global.s1);
+				// System.out.println("s2:"+Global.s2);
+				Branch branch1, branch2;
+				if (l.getParent() == premises){
+					branch1 = TreePanel.this.addBranch(root, true, true, Global.s1);
+					branch2 = TreePanel.this.addBranch(root, true, true, Global.s2);
+					// branch1.addStatement(Global.s1);
+					// branch2.addStatement(Global.s2);
+				}
+				else{
+					branch1 = TreePanel.this.addBranch(l.getParent(), true, true, Global.s1);
+					branch2 = TreePanel.this.addBranch(l.getParent(), true, true, Global.s2);
+					// branch1.addStatement(Global.s1);
+					// branch2.addStatement(Global.s2);
+				}
+			}
+		});
+
+		return null;
+	}
 }

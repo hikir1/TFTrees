@@ -401,10 +401,8 @@ public class BranchLine {
 
 	public Set<String> split(){
 		// int count = 0;
-		System.out.println(statement.toString());
 		ExpressionParser.parseExpression(statement.toString());
 		ArrayList<String> varList = ExpressionParser.variableList;
-		System.out.println(varList);
 		
 		// if line.charAt(0) != '\u00AC'
 
