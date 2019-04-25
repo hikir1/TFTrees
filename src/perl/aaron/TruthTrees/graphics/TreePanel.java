@@ -822,7 +822,7 @@ public class TreePanel extends JPanel{
 
 	public Branch addBranch(Branch parent, boolean addFirstLine, boolean wasNotTyped, Statement s) {
 		recordState();
-		System.out.println("Statement:"+s);
+		// System.out.println("Statement:"+s);
 		Branch newBranch = new Branch(parent);
 		newBranch.setFontMetrics(getFontMetrics(getFont()));
 		makeButtonsForBranch(newBranch);
@@ -830,6 +830,7 @@ public class TreePanel extends JPanel{
 			parent.addBranch(newBranch);
 		if (addFirstLine) {
 			addLine(newBranch, s);
+			newBranch.getLine(0).setIsPremise(true);
 			if (parent == null)
 				newBranch.getLine(0).setIsPremise(true);
 		}
@@ -950,21 +951,15 @@ public class TreePanel extends JPanel{
 		int verticalOffset = 0;
 		int maxLineWidth = b.getWidestLine();
 		int maxWidth = b.getWidestChild();
-		// System.out.println("Branch:"+b.toString());
-		System.out.println("RlineMap:"+reverseLineMap);
-		// for (int i = 0; i < b.numLines(); i++) {
-		// 	BranchLine curLine = b.getLine(i);
-		// 	System.out.println("Tkewognwneghis line is:"+curLine.toString());
-		// }
 		for (int i = 0; i < b.numLines(); i++) {
 			BranchLine curLine = b.getLine(i);
 			System.out.println("This line is:"+curLine.toString());
 			JTextField curField = reverseLineMap.get(curLine);
-			if (curField == null)
-			{
-			System.out.println(curLine.toString());
-			System.exit(-1);
-			}
+			// if (curField == null)
+			// {
+			// System.out.println(curLine.toString());
+			// System.exit(-1);
+			// }
 			if (isSelected(curLine))
 				curField.setBackground(BranchLine.SELECTED_COLOR);
 			else if (curLine == editLine)
@@ -1097,9 +1092,8 @@ public class TreePanel extends JPanel{
 		recordState();
 		final BranchLine newLine;
 		if (wasNotTyped){
-			System.out.println("was not typed");
-			newLine = b.addStatement(null);
-			// newLine.setStatement(s);
+			// newLine = b.addStatement(null);
+			newLine = b.addStatement(s);
 		}
 		else if (isTerminator) {
 			newLine = new BranchTerminator(b);
@@ -1331,24 +1325,7 @@ public class TreePanel extends JPanel{
 			}
 		});
 		lineMap.put(newField, line);
-		// if (line.getStatement()!=null){
-		// 	System.out.println("line:"+line.getStatement().toString());
-		// 	System.out.println("putting:"+line.getStatement().toString()+newField.getText());
-		// }
-		// else{
-		// 	System.out.println("isNull:"+line.isPremise());
-		// }
 		reverseLineMap.put(line, newField);
-		// for (int i = 0; i < b.numLines(); i++) {
-		// 	BranchLine curLine = b.getLine(i);
-		// 	JTextField curField = reverseLineMap.get(curLine);
-		// 	System.out.println("iteration:"+curLine.toString());
-		// 	if (curField == null)
-		// 	{
-		// 	System.out.println("in makeTextField:"+curLine.toString());
-		// 	System.exit(-1);
-		// 	}
-		// }
 		add(newField);
 		newField.setEditable(false);
 	}
@@ -1661,12 +1638,10 @@ public class TreePanel extends JPanel{
 		rp.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowOpened(WindowEvent we) {
-				System.out.println("this window was opened for the first time");
 			}
 		
 			@Override
 			public void windowActivated(WindowEvent we) {
-				System.out.println("this window or a subframe was focused");
 			}
 
 			@Override
