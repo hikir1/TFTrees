@@ -221,6 +221,20 @@ public class TruthTrees {
 				// 	JOptionPane.showMessageDialog(null, ret);
 			}
 		});
+		JMenuItem tickButton = new JMenuItem("Mark Decomposition");
+		treeMenu.add(tickButton);
+		tickButton.setAccelerator(KeyStroke.getKeyStroke('M', InputEvent.CTRL_MASK));
+		tickButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String ret = ((TreePanel)frame.getContentPane().getComponent(0)).mark();
+				if (ret != null)
+					JOptionPane.showMessageDialog(null, "ret");				
+				// else
+				// 	JOptionPane.showMessageDialog(null, ret);
+			}
+		});
 		JMenuItem zoomInButton = new JMenuItem("Zoom in");
 		viewMenu.add(zoomInButton);
 		zoomInButton.setAccelerator(KeyStroke.getKeyStroke('=', InputEvent.CTRL_MASK));

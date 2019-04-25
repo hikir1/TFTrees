@@ -1,5 +1,7 @@
 package perl.aaron.TruthTrees.graphics;
 
+import static perl.aaron.TruthTrees.Branch.MIN_WIDTH;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -7,7 +9,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -30,7 +31,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -61,94 +61,91 @@ class Global {
 	public static Statement s2;
 }
 
+class RadioPanel extends JFrame {
 
-class RadioPanel extends JFrame { 
-  
-    // Declaration of object of JRadioButton class. 
-    JRadioButton jRadioButton1; 
-  
-    // Declaration of object of JRadioButton class. 
-    JRadioButton jRadioButton2; 
-  
-    // Declaration of object of JButton class. 
-    JButton jButton; 
-  
-    // Declaration of object of ButtonGroup class. 
-    ButtonGroup buttonGroup; 
-  
-    // Declaration of object of  JLabel  class. 
-	JLabel label; 
-	
+	private static final long serialVersionUID = 1L;
+
+	// Declaration of object of JRadioButton class.
+	JRadioButton jRadioButton1;
+
+	// Declaration of object of JRadioButton class.
+	JRadioButton jRadioButton2;
+
+	// Declaration of object of JButton class.
+	JButton jButton;
+
+	// Declaration of object of ButtonGroup class.
+	ButtonGroup buttonGroup;
+
+	// Declaration of object of JLabel class.
+	JLabel label;
+
 	ArrayList<JRadioButton> buttons;
-  
-    // Constructor of Demo class. 
-    public RadioPanel(Set<String> variables) 
-    { 
-        // Setting layout as null of JFrame. 
+
+	// Constructor of Demo class.
+	public RadioPanel(Set<String> variables) {
+		// Setting layout as null of JFrame.
 		this.setLayout(null);
 
-		jButton = new JButton("Submit"); // Initialization of object of "ButtonGroup" class. 
-        buttonGroup = new ButtonGroup(); 
-		label = new JLabel("Choose variable to split"); 
+		jButton = new JButton("Submit"); // Initialization of object of "ButtonGroup" class.
+		buttonGroup = new ButtonGroup();
+		label = new JLabel("Choose variable to split");
 
 		int x = 200;
 		int y = 200;
 		buttons = new ArrayList<>();
 
 		Iterator itr = variables.iterator();
-		while(itr.hasNext()){
+		while (itr.hasNext()) {
 			JRadioButton button = new JRadioButton();
 			button.setText(itr.next().toString());
 			buttonGroup.add(button);
 			buttons.add(button);
-			this.add(button); 
-			button.setBounds(x, 30, y, 50); 
-			x+=100;
-			y-=40;
+			this.add(button);
+			button.setBounds(x, 30, y, 50);
+			x += 100;
+			y -= 40;
 		}
-  
-        // Setting Bounds of "jButton". 
-        jButton.setBounds(125, 90, 80, 30); 
-  
-        // Setting Bounds of JLabel "L2". 
-		label.setBounds(20, 30, 200, 50); 
-		
-        this.add(jButton); 
-  
-        // Adding JLabel "L2" on JFrame. 
-		this.add(label); 
 
-		// Adding Listener to JButton. 
-        jButton.addActionListener(new ActionListener() { 
-            // Anonymous class. 
-  
-            public void actionPerformed(ActionEvent e) 
-            { 
-                // Override Method 
-  
-                // Declaration of String class Objects. 
-                String qual = " "; 
-				for (int i = 0; i < buttons.size(); i++){
+		// Setting Bounds of "jButton".
+		jButton.setBounds(125, 90, 80, 30);
+
+		// Setting Bounds of JLabel "L2".
+		label.setBounds(20, 30, 200, 50);
+
+		this.add(jButton);
+
+		// Adding JLabel "L2" on JFrame.
+		this.add(label);
+
+		// Adding Listener to JButton.
+		jButton.addActionListener(new ActionListener() {
+			// Anonymous class.
+
+			public void actionPerformed(ActionEvent e) {
+				// Override Method
+
+				// Declaration of String class Objects.
+				String qual = " ";
+				for (int i = 0; i < buttons.size(); i++) {
 					JRadioButton button = buttons.get(i);
 					if (button.isSelected()) {
 						qual = button.getText();
 					}
 				}
-                if (qual.equals(" ")) { 
-  
-                    qual = "NO variable selected"; 
-                } 
-  
-                // MessageDialog to show information selected radion buttons. 
-				JOptionPane.showMessageDialog(RadioPanel.this, qual); 
+				if (qual.equals(" ")) {
+
+					qual = "NO variable selected";
+				}
+
+				// MessageDialog to show information selected radion buttons.
+				JOptionPane.showMessageDialog(RadioPanel.this, qual);
 				Global.var = new String(qual);
 				RadioPanel.this.dispose();
-            } 
-		}); 
-    } 
-} 
-  
-
+			}
+		});
+	}
+}
 
 /**
  * An extension of JPanel for displaying and interacting with a sequence of
@@ -157,7 +154,7 @@ class RadioPanel extends JFrame {
  * @author Aaron Perl, Sarah Mogielnicki
  *
  */
-public class TreePanel extends JPanel{
+public class TreePanel extends JPanel {
 
 	private static final long serialVersionUID = 2267768929169530856L;
 	private static final int UNDO_STACK_SIZE = 32;
@@ -169,7 +166,6 @@ public class TreePanel extends JPanel{
 	private Point prevCenter;
 	private Point clickPoint;
 	private float size;
-	private int maxWidth;
 	private BranchLine editLine;
 	private Map<Branch, JButton> addBranchMap;
 	private Map<Branch, JButton> addLineMap;
@@ -183,9 +179,10 @@ public class TreePanel extends JPanel{
 	private Deque<Branch> undoStack;
 	private Deque<Branch> redoStack;
 	private int zoomLevel;
+	private int decompNumber;
 
 	private double zoomMultiplicationFactor = 1.1;
-	
+
 	public TreePanel() {
 		this(true);
 	}
@@ -198,7 +195,7 @@ public class TreePanel extends JPanel{
 		center = new Point(0, -50);
 		size = 12f;
 		zoomLevel = 0;
-		maxWidth = 0;
+		decompNumber = 1;
 		editLine = null;
 		selectedLines = null;
 		selectedBranches = null;
@@ -256,7 +253,7 @@ public class TreePanel extends JPanel{
 				repaint();
 			}
 		});
-		
+
 	}
 
 	private void recordState() {
@@ -891,6 +888,7 @@ public class TreePanel extends JPanel{
 					TreePanel.this.repaint();
 				}
 			}
+
 			@Override
 			public void mouseClicked(MouseEvent e) {
 			}
@@ -953,7 +951,7 @@ public class TreePanel extends JPanel{
 		int maxWidth = b.getWidestChild();
 		for (int i = 0; i < b.numLines(); i++) {
 			BranchLine curLine = b.getLine(i);
-			System.out.println("This line is:"+curLine.toString());
+			System.out.println("This line is:" + curLine.toString());
 			JTextField curField = reverseLineMap.get(curLine);
 			// if (curField == null)
 			// {
@@ -1030,13 +1028,12 @@ public class TreePanel extends JPanel{
 			origin.translate(0, premises.getLineHeight() * premises.numLines());
 		}
 		origin.translate(0, 20);
-		if (root != null){
+		if (root != null) {
 			moveBranch(root, origin);
 		}
 	}
 
-	public Dimension getPreferredSize()
-	{
+	public Dimension getPreferredSize() {
 		return new Dimension(800, 600);
 	}
 
@@ -1088,22 +1085,22 @@ public class TreePanel extends JPanel{
 		return newLine;
 	}
 
-	private BranchLine addLine(final Branch b, final boolean isTerminator, final boolean isClose, final boolean wasNotTyped, final Statement s) {
+	private BranchLine addLine(final Branch b, final boolean isTerminator, final boolean isClose,
+			final boolean wasNotTyped, final Statement s) {
 		recordState();
 		final BranchLine newLine;
-		if (wasNotTyped){
+		if (wasNotTyped) {
 			// newLine = b.addStatement(null);
 			newLine = b.addStatement(s);
-		}
-		else if (isTerminator) {
+		} else if (isTerminator) {
 			newLine = new BranchTerminator(b);
 			if (!isClose)
 				((BranchTerminator) newLine).switchIsClose();
 			b.addTerminator((BranchTerminator) newLine);
 		} else
 			newLine = b.addStatement(null);
-		if (newLine.getStatement()!=null)
-			System.out.println("newline:"+newLine.getStatement().toString());
+		if (newLine.getStatement() != null)
+			System.out.println("newline:" + newLine.getStatement().toString());
 		makeTextFieldForLine(newLine, b, isTerminator);
 		moveComponents();
 		return newLine;
@@ -1151,8 +1148,8 @@ public class TreePanel extends JPanel{
 				g.setColor(old);
 			}
 		});
-		if (line.getStatement() != null){
-			System.out.println("toString:"+line.getStatement().toString());
+		if (line.getStatement() != null) {
+			System.out.println("toString:" + line.getStatement().toString());
 			newField.setText(line.getStatement().toString());
 		}
 		if (isTerminator) {
@@ -1413,7 +1410,7 @@ public class TreePanel extends JPanel{
 		g2d.fillRect(0, 0, getWidth(), getHeight());
 		g2d.setColor(new Color(0.0f, 0.0f, 0.0f));
 		g2d.setStroke(new BasicStroke(4.0f));
-	 	drawStringAt(g2d, new Point(center.x + getWidth() / 2, center.y + getHeight() / 2), "Premises");
+		drawStringAt(g2d, new Point(center.x + getWidth() / 2, center.y + getHeight() / 2), "Premises");
 
 		drawStringAt(g2d, new Point(center.x + getWidth() / 2,
 				center.y + getHeight() / 2 + premises.numLines() * premises.getLineHeight() + Branch.VERTICAL_GAP),
@@ -1556,26 +1553,20 @@ public class TreePanel extends JPanel{
 		removeLine(premises.getLine(0));
 	}
 
-	public String split() {
-		if (editLine != null)
-			return split(editLine);
-		return "No statement is currently selected!";
-	}
-
 	public void zoomIn() {
 		if (zoomLevel >= 3)
 			return;
 		zoomLevel++;
 		double ratio = zoomMultiplicationFactor;
 		Font oldF = getFont();
-		Font newF = oldF.deriveFont( (float)( oldF.getSize2D() * ratio )  );
-		size = size * (float)ratio;
-		// Font newF2 = this.getFont().deriveFont(size);    
-		setFont( newF );
+		Font newF = oldF.deriveFont((float) (oldF.getSize2D() * ratio));
+		size = size * (float) ratio;
+		// Font newF2 = this.getFont().deriveFont(size);
+		setFont(newF);
 		for (Branch branch : addBranchMap.keySet()) {
 			int numLines = branch.numLines();
 			branch.width *= ratio;
-			branch.MIN_WIDTH *= ratio;
+			MIN_WIDTH *= ratio;
 			branch.addStatement(null);
 			branch.removeLine(numLines);
 			
@@ -1604,7 +1595,7 @@ public class TreePanel extends JPanel{
 		for (Branch branch : addBranchMap.keySet()) {
 			int numLines = branch.numLines();
 			branch.width *= ratio;
-			branch.MIN_WIDTH *= ratio;
+			MIN_WIDTH *= ratio;
 			branch.addStatement(null);
 			branch.removeLine(numLines);
 			
@@ -1620,6 +1611,11 @@ public class TreePanel extends JPanel{
 		moveComponents();
 	}
 
+	public String split() {
+		if (editLine != null)
+			return split(editLine);
+		return "No statement is currently selected!";
+	}
 
 	public String split(final BranchLine l) {
 		ButtonGroup buttons = new ButtonGroup();
@@ -1667,6 +1663,21 @@ public class TreePanel extends JPanel{
 			}
 		});
 
+		return null;
+	}
+
+	public String mark() {
+		if (editLine != null)
+			return mark(editLine);
+		return "No statement is currently selected!";
+	}
+
+	public String mark(final BranchLine l) {
+		String tickMark = "\u221A" + "<sub>"+decompNumber+"</sub>";
+		Graphics2D g2d = (Graphics2D)this.getGraphics();
+		JTextField field = reverseLineMap.get(editLine);
+		Point p = field.getLocation();
+		drawStringAt(g2d, p, tickMark);
 		return null;
 	}
 }
