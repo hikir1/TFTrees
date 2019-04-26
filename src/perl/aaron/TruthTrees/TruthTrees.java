@@ -39,12 +39,15 @@ public class TruthTrees {
 	public static final String errorMessageErrorLogFile = "Error writing to log file";
 	public static final String errorMessageSystemLookAndFeel = "Error setting system look and feel";
 
+	// keeps track of all instances
 	public static void close() {
 		instances--;
 		if (instances == 0) {
 			System.exit(0);
 		}
 	}
+
+	// Starts new window
 	public static void createNewInstance() {
 		final JFrame frame = new JFrame("Truth Tree");
 		frame.setLayout(new BorderLayout());
@@ -207,7 +210,7 @@ public class TruthTrees {
 				}
 			}
 		});
-		JMenuItem splitButton = new JMenuItem("Split Selected Line");
+		JMenuItem splitButton = new JMenuItem("Split on Selected Line");
 		treeMenu.add(splitButton);
 		splitButton.setAccelerator(KeyStroke.getKeyStroke('W', InputEvent.CTRL_MASK));
 		splitButton.addActionListener(new ActionListener() {

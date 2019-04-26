@@ -1,9 +1,7 @@
 Truth Trees  Desired Improvements
 
-When typing characters for symbols, sometimes character gets replaced by logic symbol .. but not always. It should be always.
 Allow ability to add lines at any spot in tree. Like Fitch: ‘add after’, ‘add before’
 Have option of whether to use ‘checkmark/inheritance’ notation or ‘copy/reiterate’ notation. In ‘copy mode’, we can have system do the copying … otherwise that’s a lot of annoying rewriting. In ‘checkmark’ mode, decomposed statements should be explicitly marked (‘checked’), possibly with box color.
-Zoom In/Out feature
 Tree layout needs to be better (sometimes too spread out)
 
 When checking tree, list *all* mistakes (highlight statement?)
@@ -12,15 +10,7 @@ Sometimes ‘check tree’ says nothing …
 After deleting a line, the check mechanism seems to be effected as well …
 Tree should check out when finished, even if not all statements have been decomposed
 Add assessment button/window (basically: are statements satisfiable Yes/No?)
-
-
-
 For some reason it does not always load files .. typically after it has encountered some kind of issue with checking a tree.
-
-Have file menu keep track of where you got the last file (stay in that folder)
-Have File->New Option
-
-
 
 
 Truth Tree Features

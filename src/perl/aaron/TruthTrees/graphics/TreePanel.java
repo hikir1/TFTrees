@@ -1055,6 +1055,15 @@ public class TreePanel extends JPanel {
 		return addLine(b, false);
 	}
 
+	/**
+	 * Adds a BranchLine that is not a terminator
+	 * Specific to the split function where user does not add the line
+	 * 
+	 * @param b the Branch that the BranchLine is added to
+	 * @param s the Statement that is added to the Branchline
+	 * 
+	 * @return the BranchLine that was added
+	 */
 	private BranchLine addLine(final Branch b, final Statement s) {
 		return addLine(b, false, true, true, s);
 	}
@@ -1093,12 +1102,23 @@ public class TreePanel extends JPanel {
 		return newLine;
 	}
 
+	/**
+	 * Adds a new branch line, which can be a terminator.
+	 * Used when user does not add the line
+	 * 
+	 * @param b            the Branch to which the line is being added
+	 * @param isTerminator true if the line is a terminator
+	 * @param isClose
+	 * @param wasNotTyped check if user added the line or code did
+	 * @param s the Statement added to the Branchline
+	 * 
+	 * @return the BranchLine that was added
+	 */
 	private BranchLine addLine(final Branch b, final boolean isTerminator, final boolean isClose,
 			final boolean wasNotTyped, final Statement s) {
 		recordState();
 		final BranchLine newLine;
 		if (wasNotTyped) {
-			// newLine = b.addStatement(null);
 			newLine = b.addStatement(s);
 		} else if (isTerminator) {
 			newLine = new BranchTerminator(b);
@@ -1631,12 +1651,20 @@ public class TreePanel extends JPanel {
 		moveComponents();
 	}
 
+	// intermediate function
 	public String split() {
 		if (editLine != null)
 			return split(editLine);
 		return "No statement is currently selected!";
 	}
 
+	/**
+	 * Splits the selected Branchline
+	 * 
+	 * @param l The Branchline to be split
+	 * 
+	 * @return String that describes success
+	 */
 	public String split(final BranchLine l) {
 		ButtonGroup buttons = new ButtonGroup();
 		Set<String> vars = l.split();
@@ -1677,12 +1705,14 @@ public class TreePanel extends JPanel {
 		return null;
 	}
 
+	// intermediate function
 	public String mark() {
 		if (editLine != null)
 			return mark(editLine);
 		return "No statement is currently selected!";
 	}
 
+	// helper function
 	public String generateSubscript(int i) {
 		StringBuilder sb = new StringBuilder();
 		for (char ch : String.valueOf(i).toCharArray()) {
@@ -1691,6 +1721,13 @@ public class TreePanel extends JPanel {
 		return sb.toString();
 	}
 
+	/**
+	 * Adds decomposition marks to the tree
+	 * 
+	 * @param l The Branchline to be marked
+	 * 
+	 * @return String that describes success
+	 */
 	public String mark(final BranchLine l) {
 		String tickMark = "\u221A" + generateSubscript(decompNumber);
 		l.decompNum = decompNumber;
