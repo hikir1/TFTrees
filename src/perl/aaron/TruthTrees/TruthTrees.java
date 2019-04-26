@@ -216,7 +216,7 @@ public class TruthTrees {
 			public void actionPerformed(ActionEvent e) {
 				String ret = ((TreePanel)frame.getContentPane().getComponent(0)).split();
 				if (ret != null)
-					JOptionPane.showMessageDialog(null, "ret");				
+					JOptionPane.showMessageDialog(null, ret);				
 				// else
 				// 	JOptionPane.showMessageDialog(null, ret);
 			}
@@ -230,7 +230,7 @@ public class TruthTrees {
 			public void actionPerformed(ActionEvent e) {
 				String ret = ((TreePanel)frame.getContentPane().getComponent(0)).mark();
 				if (ret != null)
-					JOptionPane.showMessageDialog(null, "ret");				
+					JOptionPane.showMessageDialog(null, ret);				
 				// else
 				// 	JOptionPane.showMessageDialog(null, ret);
 			}

@@ -1646,11 +1646,9 @@ public class TreePanel extends JPanel {
   
         // Setting Title of frame. 
         rp.setTitle("Split Window"); 
-  
+
         // Setting Visible status of frame as true. 
 		rp.setVisible(true); 
-		// final Statement s1;
-		// final Statement s2;
 		rp.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowOpened(WindowEvent we) {
@@ -1665,20 +1663,13 @@ public class TreePanel extends JPanel {
 				String var = Global.var;
 				Global.s1 = ExpressionParser.parseExpression(var);
 				Global.s2 = ExpressionParser.parseExpression("\u00AC"+var);
-				// System.out.println("s1:"+Global.s1);
-				// System.out.println("s2:"+Global.s2);
-				Branch branch1, branch2;
 				if (l.getParent() == premises){
-					branch1 = TreePanel.this.addBranch(root, true, true, Global.s1);
-					branch2 = TreePanel.this.addBranch(root, true, true, Global.s2);
-					// branch1.addStatement(Global.s1);
-					// branch2.addStatement(Global.s2);
+					TreePanel.this.addBranch(root, true, true, Global.s1);
+					TreePanel.this.addBranch(root, true, true, Global.s2);
 				}
 				else{
-					branch1 = TreePanel.this.addBranch(l.getParent(), true, true, Global.s1);
-					branch2 = TreePanel.this.addBranch(l.getParent(), true, true, Global.s2);
-					// branch1.addStatement(Global.s1);
-					// branch2.addStatement(Global.s2);
+					TreePanel.this.addBranch(l.getParent(), true, true, Global.s1);
+					TreePanel.this.addBranch(l.getParent(), true, true, Global.s2);
 				}
 			}
 		});
@@ -1709,7 +1700,6 @@ public class TreePanel extends JPanel {
 		Point p = field.getLocation();
 		p.setLocation((p.getX()+field.getWidth()+10), (p.getY()+(field.getHeight()/2)+7));
 		drawStringAt(g2d, p, tickMark);
-		// moveComponents();
 		return null;
 	}
 }
