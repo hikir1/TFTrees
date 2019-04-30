@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -34,7 +35,8 @@ public class BranchLine {
 	public static final Color DEFAULT_COLOR = Color.LIGHT_GRAY;
 	public static final Color EDIT_COLOR = Color.GREEN;
   public boolean typing = false;
-  public String currentTyping;
+	public String currentTyping;
+	public int decompNum;
 
 	public BranchLine(Branch branch)
 	{
@@ -44,6 +46,7 @@ public class BranchLine {
 		selectedBranches = new LinkedHashSet<Branch>();
 		selectedLines = new LinkedHashSet<BranchLine>();
 		isPremise = false;
+		decompNum = -1;
 	}
 
 	public String toString()
@@ -397,5 +400,22 @@ public class BranchLine {
 				return false;
 		}
 	}
+
+	public Set<String> split(){
+		// int count = 0;
+		ExpressionParser.parseExpression(statement.toString());
+		ArrayList<String> varList = ExpressionParser.variableList;
+		
+		// if line.charAt(0) != '\u00AC'
+
+		// for(int i = 1; i < line.length(); i++){
+		// 	if (line.charAt(i) == '(')
+		// 		count++;
+		// 	else if (line.charAt(i) == ')')
+		// 		count--;
+		// }
+		return new HashSet<String>(varList);
+	}
+
 	
 }

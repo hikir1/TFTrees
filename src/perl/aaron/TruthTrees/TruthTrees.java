@@ -1,15 +1,16 @@
 package perl.aaron.TruthTrees;
 
 import java.awt.BorderLayout;
-import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -17,8 +18,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -28,106 +27,49 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-
 import perl.aaron.TruthTrees.graphics.TreePanel;
-import perl.aaron.TruthTrees.logic.Decomposable;
-import perl.aaron.TruthTrees.logic.Statement;
 
 public class TruthTrees {
-	
+
+	private static int instances = 0;
+
 	public static final String version = "1.3";
 	public static final String errorLogDir = "logs/";
 	public static final String errorFrameName = "Truth Trees Error";
 	public static final String errorMessageErrorLogFile = "Error writing to log file";
 	public static final String errorMessageSystemLookAndFeel = "Error setting system look and feel";
 
-	public static void popupException(Exception e, String errorMessage)
-	{
-		// get error string
-		StringWriter sw = new StringWriter();
-		e.printStackTrace(new PrintWriter(sw));
-		String errorString = sw.toString().trim();
-		
-		// trim error to 5 lines to prevent large popup dialogs
-		int newlinePos = errorString.indexOf("\n");
-		int newlines = 1;
-		while (newlinePos != -1 && newlines < 5)
-		{
-			newlinePos = errorString.indexOf("\n",newlinePos + 1);
-			newlines++;
+	// keeps track of all instances
+	public static void close() {
+		instances--;
+		if (instances == 0) {
+			System.exit(0);
 		}
-		
-		// get number of error lines trimmed
-		int newlinesRemaining = 0;
-		int newlinePosNext = newlinePos;
-		while (newlinePosNext != -1)
-		{
-			newlinesRemaining++;
-			newlinePosNext = errorString.indexOf("\n",newlinePosNext + 1);
-		}
-		
-		// string to append to error displaying number of lines trimmed
-		String extraError = "";
-		if (newlinesRemaining > 1)
-			extraError = "\nand " + Integer.toString(newlinesRemaining) + " more...";
-		
-		JOptionPane.showMessageDialog(null, errorMessage+"\n"+errorString.substring(0,newlinePos)+extraError,
-											TruthTrees.errorFrameName,
-											JOptionPane.ERROR_MESSAGE);
-	}
-	
-	public static void logException(Exception e, String errorMessage)
-	{
-		// file name based on timestamp
-		DateFormat format = new SimpleDateFormat("MM-dd-yyyy_HH-mm-ss");
-		String dateString = format.format(new Date());
-		File errorFile = new File(errorLogDir + dateString + ".txt");
-		try
-		{
-			PrintWriter errorpw = new PrintWriter(errorFile);
-			errorpw.println(errorMessage);
-			e.printStackTrace(errorpw);
-			errorpw.close();
-		}
-		catch (FileNotFoundException fileError)
-		{
-			popupException(fileError, errorMessageErrorLogFile);
-		}
-	}
-	
-	public static void logExceptionPopup(Exception e, String errorMessage)
-	{
-		logException(e, errorMessage);
-		popupException(e, errorMessage);
 	}
 
-	
-	public static void main(String[] args) {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ClassNotFoundException | InstantiationException
-				| IllegalAccessException | UnsupportedLookAndFeelException e) {
-			logExceptionPopup(e, errorMessageSystemLookAndFeel);
-			System.exit(1);
-		}
-		
+	// Starts new window
+	public static void createNewInstance() {
 		final JFrame frame = new JFrame("Truth Tree");
 		frame.setLayout(new BorderLayout());
-		
+
 		JMenuBar menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
 		JMenu editMenu = new JMenu("Edit");
+		JMenu viewMenu = new JMenu("View");
 		JMenu treeMenu = new JMenu("Tree");
 		JMenu helpMenu = new JMenu("Help");
-		TreePanel treePanel = new TreePanel();
+		final TreePanel treePanel = new TreePanel();
 		
 		frame.getContentPane().add(treePanel, BorderLayout.CENTER);
 		System.out.println(frame.getContentPane().getComponent(0) == treePanel);
 		frame.setJMenuBar(menuBar);
 		menuBar.add(fileMenu);
 		menuBar.add(editMenu);
+		menuBar.add(viewMenu);
 		menuBar.add(treeMenu);
 		menuBar.add(helpMenu);
+
+		// frame.getContentPane().add(zoompanel,BorderLayout.EAST);
 		
 		JMenuItem checkButton = new JMenuItem("Check Tree");
 		
@@ -184,7 +126,20 @@ public class TruthTrees {
 			}
 		});
 
-    treeMenu.addSeparator();
+		treeMenu.addSeparator();
+		
+		JMenuItem newButton = new JMenuItem("New");
+		
+		fileMenu.add(newButton);
+		newButton.setAccelerator(KeyStroke.getKeyStroke('N', InputEvent.CTRL_MASK));
+		newButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FileManager.newFile();
+				
+			}
+		});
 
 		JMenuItem saveButton = new JMenuItem("Save");
 		
@@ -255,6 +210,55 @@ public class TruthTrees {
 				}
 			}
 		});
+		JMenuItem splitButton = new JMenuItem("Split on Selected Line");
+		treeMenu.add(splitButton);
+		splitButton.setAccelerator(KeyStroke.getKeyStroke('W', InputEvent.CTRL_MASK));
+		splitButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String ret = ((TreePanel)frame.getContentPane().getComponent(0)).split();
+				if (ret != null)
+					JOptionPane.showMessageDialog(null, ret);				
+				// else
+				// 	JOptionPane.showMessageDialog(null, ret);
+			}
+		});
+		JMenuItem tickButton = new JMenuItem("Mark Decomposition");
+		treeMenu.add(tickButton);
+		tickButton.setAccelerator(KeyStroke.getKeyStroke('M', InputEvent.CTRL_MASK));
+		tickButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String ret = ((TreePanel)frame.getContentPane().getComponent(0)).mark();
+				if (ret != null)
+					JOptionPane.showMessageDialog(null, ret);				
+				// else
+				// 	JOptionPane.showMessageDialog(null, ret);
+			}
+		});
+		JMenuItem zoomInButton = new JMenuItem("Zoom in");
+		viewMenu.add(zoomInButton);
+		zoomInButton.setAccelerator(KeyStroke.getKeyStroke('=', InputEvent.CTRL_MASK));
+		zoomInButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				((TreePanel)frame.getContentPane().getComponent(0)).zoomIn();
+			}
+		});
+		JMenuItem zoomOutButton = new JMenuItem("Zoom out");
+		viewMenu.add(zoomOutButton);
+		zoomOutButton.setAccelerator(KeyStroke.getKeyStroke('-', InputEvent.CTRL_MASK));
+		zoomOutButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				((TreePanel)frame.getContentPane().getComponent(0)).zoomOut();
+			}
+    });
+
 		JMenuItem addLineAfterButton = new JMenuItem("Add Line After");
 		
 		treeMenu.add(addLineAfterButton);
@@ -381,47 +385,101 @@ public class TruthTrees {
 		});
 
     helpMenu.add(usageButton);
-		
 		frame.pack();
 		frame.setVisible(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent event) {
+				System.out.println(instances);
+					close();
+			}
+	});
+
+	frame.addComponentListener(new ComponentAdapter() {
+    public void componentResized(ComponentEvent componentEvent) {
+        treePanel.moveComponents();
+    }
+	});
+		// frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		treePanel.moveComponents();
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		instances++;
+}
+
+	public static void popupException(Exception e, String errorMessage)
+	{
+		// get error string
+		StringWriter sw = new StringWriter();
+		e.printStackTrace(new PrintWriter(sw));
+		String errorString = sw.toString().trim();
 		
-		/*while (true)
+		// trim error to 5 lines to prevent large popup dialogs
+		int newlinePos = errorString.indexOf("\n");
+		int newlines = 1;
+		while (newlinePos != -1 && newlines < 5)
+		{
+			newlinePos = errorString.indexOf("\n",newlinePos + 1);
+			newlines++;
+		}
+		
+		// get number of error lines trimmed
+		int newlinesRemaining = 0;
+		int newlinePosNext = newlinePos;
+		while (newlinePosNext != -1)
+		{
+			newlinesRemaining++;
+			newlinePosNext = errorString.indexOf("\n",newlinePosNext + 1);
+		}
+		
+		// string to append to error displaying number of lines trimmed
+		String extraError = "";
+		if (newlinesRemaining > 1)
+			extraError = "\nand " + Integer.toString(newlinesRemaining) + " more...";
+		
+		JOptionPane.showMessageDialog(null, errorMessage+"\n"+errorString.substring(0,newlinePos)+extraError,
+											TruthTrees.errorFrameName,
+											JOptionPane.ERROR_MESSAGE);
+	}
+	
+	public static void logException(Exception e, String errorMessage)
+	{
+		// file name based on timestamp
+		DateFormat format = new SimpleDateFormat("MM-dd-yyyy_HH-mm-ss");
+		String dateString = format.format(new Date());
+		File errorFile = new File(errorLogDir + dateString + ".txt");
+		try
+		{
+			PrintWriter errorpw = new PrintWriter(errorFile);
+			errorpw.println(errorMessage);
+			e.printStackTrace(errorpw);
+			errorpw.close();
+		}
+		catch (FileNotFoundException fileError)
+		{
+			popupException(fileError, errorMessageErrorLogFile);
+		}
+	}
+	
+	public static void logExceptionPopup(Exception e, String errorMessage)
+	{
+		logException(e, errorMessage);
+		popupException(e, errorMessage);
+	}
+
+	public static void main(String[] args) {
 		try {
-			treePanel.addStatement(ExpressionParser.parseExpression(br.readLine()));
-		} catch (IOException e) {
-			System.exit(0);
-		}*/
-		
-//		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-//		while (true)
-//		try {
-//			Decomposable tree = (Decomposable)ExpressionParser.parseExpression(br.readLine());
-//			Statement decomp1 = ExpressionParser.parseExpression(br.readLine());
-//			Statement decomp2 = ExpressionParser.parseExpression(br.readLine());
-//			Statement decomp3 = ExpressionParser.parseExpression(br.readLine());
-//			List<List<Statement>> branches = new ArrayList<List<Statement>>();
-//			List<Statement> branch = new ArrayList<Statement>();
-//			List<Statement> branch2 = new ArrayList<Statement>();
-//			List<Statement> branch3 = new ArrayList<Statement>();
-//			branch.add(decomp1);
-//			branch2.add(decomp2);
-//			branch3.add(decomp3);
-//			branches.add(branch);
-//			branches.add(branch2);
-//			branches.add(branch3);
-//			if (tree.verifyDecomposition(branches))
-//				System.out.println("Valid decomposition!");
-//			else
-//				System.out.println("Invalid decomposition!");
-////			System.out.println(ExpressionParser.parseExpression(br.readLine()).toString());
-//		} catch (IOException e) {
-//			System.exit(0);
-//		}
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException | InstantiationException
+				| IllegalAccessException | UnsupportedLookAndFeelException e) {
+			logExceptionPopup(e, errorMessageSystemLookAndFeel);
+			System.exit(1);
+		}
+
+		createNewInstance();
 
 	}
 
