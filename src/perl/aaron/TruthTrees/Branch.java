@@ -84,15 +84,6 @@ public class Branch {
 	}
 	
 	/**
-	 * Removes a Branch by index
-	 * @param index The index of the Branch to remove
-	 */
-	public void removeBranch(int index)
-	{
-		branches.remove(index);
-	}
-	
-	/**
 	 * Removes a Branch passed by reference
 	 * @param b The Branch to remove
 	 * @return True if b was contained (and removed), false otherwise
