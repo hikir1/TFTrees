@@ -2,6 +2,7 @@ package perl.aaron.TruthTrees;
 
 import java.awt.FontMetrics;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +28,11 @@ public class Branch {
 	private BranchLine widestLine;
 	public int width;
 	private BranchLine decomposedFrom;
+	
+	@Override
+	public String toString() {
+		return "Branch: " + lines;
+	}
 
 	/**
 	 * Constructs a branch stemming from the given root Branch
@@ -53,6 +59,14 @@ public class Branch {
 	public BranchLine getLine(int index)
 	{
 		return lines.get(index);
+	}
+	/**
+	 * Returns an unmodifiable list of contained BranchLines
+	 * @return unmodifiable list of BranchLines
+	 */
+	public List<BranchLine> getLines()
+	{
+		return Collections.unmodifiableList(lines);
 	}
 	
 	/**

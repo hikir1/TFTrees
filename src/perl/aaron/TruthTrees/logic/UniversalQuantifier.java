@@ -22,8 +22,10 @@ public class UniversalQuantifier extends Quantifier {
 
 	@Override
 	public boolean verifyDecomposition(List<List<Statement>> branches, Set<String> constants, Set<String> constantsBefore) {
-		if (branches.size() != 1) // There should be only 1 branch
+		if (branches.size() != 1) { // There should be only 1 branch
 			return false;
+		}
+		
 		Set<String> instantiatedConstants = new LinkedHashSet<String>();
 		System.out.println("All constants: " + constants.toString());
 		for (Statement s : branches.get(0))

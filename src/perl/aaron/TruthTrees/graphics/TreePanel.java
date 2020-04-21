@@ -46,6 +46,7 @@ import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
+
 import perl.aaron.TruthTrees.Branch;
 import perl.aaron.TruthTrees.BranchLine;
 import perl.aaron.TruthTrees.BranchTerminator;
@@ -53,6 +54,7 @@ import perl.aaron.TruthTrees.ExpressionParser;
 import perl.aaron.TruthTrees.logic.Conjunction;
 import perl.aaron.TruthTrees.logic.Decomposable;
 import perl.aaron.TruthTrees.logic.Negation;
+import perl.aaron.TruthTrees.logic.Quantifier;
 import perl.aaron.TruthTrees.logic.Statement;
 
 class Global {
@@ -488,7 +490,7 @@ public class TreePanel extends JPanel {
 	 * @param b the Branch that is being checked
 	 * @return true if b or any of its children are open
 	 */
-	private boolean checkForOpenBranch(Branch b) {
+	public static boolean checkForOpenBranch(Branch b) {
 		if (b.isOpen())
 			return true;
 		for (Branch child : b.getBranches()) {
@@ -609,65 +611,80 @@ public class TreePanel extends JPanel {
 		}
 		return open;
 	}
+	
+	private String openVerifyLines(Branch b) {
+		return openVerifyLines(b, false);
+	}
 
-	private String verifyPremisesOpenBranch(Branch b) {
-		String error = "";
-		int linec = b.numLines();
-		Set<Branch> openBranches = new HashSet<Branch>();
-		openBranches = findOpenBranches(root, openBranches);
-
-		HashMap<BranchLine, Boolean> premiseMap = new HashMap<BranchLine, Boolean>();
-
-		// Initialize map of all premises to false
-		for (int i = 0; i < linec; ++i) {
-			if (b.getLine(i).getStatement() instanceof Decomposable
-					&& !(b.getLine(i).getStatement() instanceof Negation)) {
-				premiseMap.put(b.getLine(i), false);
-			}
+	// 'lax' indicates that lines need not be decomposed, but still check for validity if they are
+	private String openVerifyLines(Branch b, boolean lax) {
+		
+		String error;
+		for(BranchLine line: b.getLines())
+			if((error = line.verifyDecompositionOpen(lax)) != null)
+				return error;
+		for(Branch child: b.getBranches()) {
+			boolean doLax = lax || !checkForOpenBranch(child);
+			if((error = openVerifyLines(child, doLax)) != null)
+				return error;
 		}
-
-		// Loop through each premise and check if it's decomposition is a parent of the
-		// open termination
-		for (int i = 0; i < linec; ++i) {
-
-			BranchLine line = b.getLine(i);
-
-			Set<Branch> targetBranches = line.getSelectedBranches();
-			Set<BranchLine> targetLines = line.getSelectedLines();
-
-			// For cases such as conjunctions where the decomposition results in new lines
-			// add the parent to be checked
-			if (line.getStatement() instanceof Conjunction) {
-				for (BranchLine t : targetLines) {
-					targetBranches.add(t.getParent());
-				}
-			}
-
-			// Loop through each of the selected branches where the premise is decomposed
-			for (Branch t : targetBranches) {
-
-				// Only look at cases where the target has an open terminator below it
-				if (checkForOpenBranch(t)) {
-
-					// Check if the selected branch is a parent of the open branch
-					for (Branch openBranch : openBranches) {
-						if (openBranch.isChildOf(t)) {
-							if (line.getStatement() instanceof Decomposable
-									&& !(line.getStatement() instanceof Negation)) {
-								// Mark that this premise is decomposed
-								premiseMap.put(line, true);
-							}
-						}
-					}
-				}
-			}
-		}
-		for (BranchLine l : premiseMap.keySet()) {
-			if (premiseMap.get(l) == false) {
-				error += "Premise " + l.getStatement() + " is not decomposed in the open branch.\n";
-			}
-		}
-		return error;
+		return null;
+		
+//		String error = "";
+//		int linec = b.numLines();
+//		Set<Branch> openBranches = new HashSet<Branch>();
+//		openBranches = findOpenBranches(root, openBranches);
+//
+//		HashMap<BranchLine, Boolean> premiseMap = new HashMap<BranchLine, Boolean>();
+//
+//		// Initialize map of all premises to false
+//		for (int i = 0; i < linec; ++i) {
+//			if (b.getLine(i).getStatement() instanceof Decomposable
+//					&& !(b.getLine(i).getStatement() instanceof Negation)) {
+//				premiseMap.put(b.getLine(i), false);
+//			}
+//		}
+//
+//		// Loop through each premise and check if it's decomposition is a parent of the
+//		// open termination
+//		for (int i = 0; i < linec; ++i) {
+//
+//			BranchLine line = b.getLine(i);
+//
+//			Set<Branch> targetBranches = line.getSelectedBranches();
+//			Set<BranchLine> targetLines = line.getSelectedLines();
+//
+//			// For cases such as conjunctions where the decomposition results in new lines
+//			// add the parent to be checked
+//			//												   vvv - added this to fix bug - vvv
+//			if (line.getStatement() instanceof Conjunction || line.getStatement() instanceof Quantifier) {
+//				for (BranchLine t : targetLines) {
+//					targetBranches.add(t.getParent());
+//				}
+//			}
+//			// Loop through each of the selected branches where the premise is decomposed
+//			for (Branch t : targetBranches) {
+//				// Only look at cases where the target has an open terminator below it
+//				if (checkForOpenBranch(t)) {
+//					// Check if the selected branch is a parent of the open branch
+//					for (Branch openBranch : openBranches) {
+//						if (openBranch.isChildOf(t)) {
+//							if (line.getStatement() instanceof Decomposable
+//									&& !(line.getStatement() instanceof Negation)) {
+//								// Mark that this premise is decomposed
+//								premiseMap.put(line, true);
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//		for (BranchLine l : premiseMap.keySet()) {
+//			if (premiseMap.get(l) == false) {
+//				error += "Premise " + l.getStatement() + " is not decomposed in the open branch.\n";
+//			}
+//		}
+//		return error;
 	}
 
 	/**
@@ -685,7 +702,7 @@ public class TreePanel extends JPanel {
 			for (int i = 0; i < b.numLines(); ++i) {
 				BranchLine line = b.getLine(i);
 
-				String vRet = line.verifyOpenDecomposition();
+				String vRet = line.verifyDecompositionOpen();
 				if (vRet != null) {
 					ret += vRet;
 				}
@@ -735,23 +752,30 @@ public class TreePanel extends JPanel {
 
 		else if (completionVal == 1) // At least one open branch
 			if (verifyEndings) {
-
-				String checkRet = verifyPremisesOpenBranch(premises);
-				if (checkRet != null)
-					returnVal = returnVal + checkRet;
-
-				String varRet = checkBranchConstants(root);
-				if (!varRet.equals(""))
-					returnVal = returnVal + varRet;
-
-				// String branchVal = checkBranch(root);
-				// if (branchVal != null)
-				// returnVal = returnVal + "root!! " + branchVal;
-
-				if (returnVal.equals(""))
-					return null;
-				else
-					return returnVal;
+				String error = openVerifyLines(premises);
+				if(error != null)
+					return error;
+				error = openVerifyLines(root);
+				if(error != null)
+					return error;
+				return null;
+				
+//				String checkRet = verifyPremisesOpenBranch(premises);
+//				if (checkRet != null)
+//					returnVal += checkRet;
+//
+//				String varRet = checkBranchConstants(root);
+//				if (!varRet.equals(""))
+//					returnVal += varRet;
+//
+//				// String branchVal = checkBranch(root);
+//				// if (branchVal != null)
+//				// returnVal = returnVal + "root!! " + branchVal;
+//
+//				if (returnVal.equals(""))
+//					return null;
+//				else
+//					return returnVal;
 			} else
 				return "Not all premises are decomposed on open branch OR Invalid usage of open branch.";
 

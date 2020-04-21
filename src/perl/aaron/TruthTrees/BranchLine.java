@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import perl.aaron.TruthTrees.graphics.TreePanel;
 import perl.aaron.TruthTrees.logic.AtomicStatement;
 //import perl.aaron.TruthTrees.logic.Composable;
 import perl.aaron.TruthTrees.logic.Decomposable;
@@ -109,133 +110,28 @@ public class BranchLine {
 		return parent;
 	}
 	
-	
-	public String verifyOpenDecomposition()
-	{
-		// Check if the statement is decomposable and it is not the negation of an atomic statement
-		if (statement == null)
-			return null;
-		
-		if (decomposedFrom == null && !isPremise) {
-			return "Unexpected statement \"" + statement.toString() + "\" in tree";
-
-		}
-		if (statement instanceof Decomposable &&
-				!(statement instanceof Negation && (((Negation)statement).getNegand() instanceof AtomicStatement)))
-		{
-			if (selectedBranches.size() > 0) // branching decomposition (disjunction)
-			{
-				Set<BranchLine> usedLines = new LinkedHashSet<BranchLine>();
-				for (Branch curRootBranch : selectedBranches)
-				{
-					List<List<Statement>> curTotalSet = new ArrayList<List<Statement>>();
-					for (Branch curBranch : curRootBranch.getBranches())
-					{
-						List<Statement> curBranchSet = new ArrayList<Statement>();
-						for (BranchLine curLine : selectedLines)
-						{
-							if (curLine.getParent() == curBranch)
-							{
-								curBranchSet.add(curLine.getStatement());
-								usedLines.add(curLine);
-							}
-						}
-						curTotalSet.add(curBranchSet);
-					}
-					if (selectedLines.size() > 0 &&
-							!((Decomposable)statement).verifyDecomposition(curTotalSet,
-							parent.getConstants(),
-							parent.getConstantsBefore(selectedLines.iterator().next())))
-						return "Invalid decomposition of statement \"" + statement.toString() + "\"";
-				}
-				if (!usedLines.equals(selectedLines)) // extra lines that were unused
-					return "Too many statements decomposed from \"" + statement.toString() + "\"";
-			}
-			else // non-branching decomposition (conjunction)
-			{
-				// A map of leaf branches to a list of statements in that branch and up that are selected
-				Map<Branch, List<Statement>> branchMap = new LinkedHashMap<Branch, List<Statement>>();
-				Set<Branch> selectedBranches = new LinkedHashSet<Branch>();
-				// Add all branches that contain selected lines
-				for (BranchLine curLine : selectedLines)
-				{
-					selectedBranches.add(curLine.getParent());
-				}
-				for (BranchLine curLine : selectedLines)
-				{
-					List<Statement> curList = null;
-					// Check if this branch is in the map and add the statement to it
-					if (branchMap.containsKey(curLine.getParent()))
-						curList = branchMap.get(curLine.getParent());
-					else // Check for child branches and add this line to all of those
-					{
-						boolean foundChildren = false;
-						for (Branch curBranch : selectedBranches)
-						{
-							if (curBranch != curLine.getParent() && curBranch.isChildOf(curLine.getParent()))
-							{
-								foundChildren = true;
-								if (branchMap.containsKey(curBranch))
-								{
-									branchMap.get(curBranch).add(curLine.getStatement());
-								}
-								else
-								{
-									List<Statement> newList = new ArrayList<Statement>();
-									newList.add(curLine.getStatement());
-									branchMap.put(curBranch, newList);
-								}
-							}
-						}
-						if (!foundChildren)
-						{
-							curList = new ArrayList<Statement>();
-							branchMap.put(curLine.getParent(), curList);
-						}
-					}
-					if (curList != null)
-						curList.add(curLine.getStatement());
-				}
-				for (Branch curBranch : branchMap.keySet())
-				{
-					List<List<Statement>> currentDecomp = new ArrayList<List<Statement>>();
-					currentDecomp.add(branchMap.get(curBranch));
-					if (!((Decomposable) statement).verifyDecomposition(currentDecomp,
-							curBranch.getConstants(),
-							curBranch.getConstantsBefore(selectedLines.iterator().next())))
-					{
-						return "Invalid decomposition of statement \"" + statement.toString() + "\"";
-					}
-				}
-
-			}
-		}
-		return null;
+	public String verifyDecomposition() {
+		return verifyDecomposition(false, false);
 	}
 	
+	public String verifyDecompositionOpen() {
+		return verifyDecomposition(true, false);
+	}
 	
+	public String verifyDecompositionOpen(boolean lax) {
+		return verifyDecomposition(true, lax);
+	}
 	
-	public String verifyDecomposition()
+	public String verifyDecomposition(boolean open, boolean lax)
 	{
+		// if lax and no decomposition attempted, ignore
+		// also make sure decoposedFrom exists, i.e. not pulled from thin air
+		if(lax && decomposedFrom != null && selectedLines.isEmpty())
+			return null;
+		
 		// Check if the statement is decomposable and it is not the negation of an atomic statement
 		if (statement == null)
 			return null;
-		
-//		// also check if the statement is not branching on any statement + negation of that statement
-//		if (verifyIsBranchOn()) {
-//			return null;
-//		}
-		
-//		if (statement instanceof Composable && !(statement instanceof Negation)) {
-//			String resultComposable = ((Composable) statement).verifyComposition(selectedLines);
-//			
-//			if (resultComposable.equals("composable")) {
-//				return null;
-//			}
-//			if (!resultComposable.equals("X")) {
-//				return resultComposable;
-//			}
-//		}
 		
 		if (decomposedFrom == null && !isPremise) {
 			return "Unexpected statement \"" + statement.toString() + "\" in tree";
@@ -266,13 +162,14 @@ public class BranchLine {
 					if (selectedLines.size() > 0 &&
 							!((Decomposable)statement).verifyDecomposition(curTotalSet,
 							parent.getConstants(),
-							parent.getConstantsBefore(selectedLines.iterator().next())))
+							parent.getConstantsBefore(selectedLines.iterator().next()))) {
 						return "Invalid decomposition of statement \"" + statement.toString() + "\"";
+					}
 				}
 				if (!usedLines.equals(selectedLines)) // extra lines that were unused
 					return "Too many statements decomposed from \"" + statement.toString() + "\"";
-				if (!BranchLine.satisfiesAllBranches(parent, selectedBranches))
-					return "Statement \"" + statement.toString() + "\" not decomposed in every child branch";
+				if (!BranchLine.satisfiesAllBranchesOpen(parent, selectedBranches))
+					return "Statement \"" + statement.toString() + "\" not decomposed in every " + (open? "open ": "") + "child branch";
 			}
 			else // non-branching decomposition (conjunction)
 			{
@@ -340,9 +237,11 @@ public class BranchLine {
 					else
 						return null;
 				}
-				if(!BranchLine.satisfiesAllBranches(parent, branchMap.keySet()))
+				
+				//EDIT: Fixed this for open case
+				if(!BranchLine.satisfiesAllBranches(parent, branchMap.keySet(), open))
 				{
-					return "Statement \"" + statement.toString() + "\" not decomposed in every child branch";
+					return "Statement \"" + statement.toString() + "\" not decomposed in every " + (open? "open ": "") + "child branch";
 				}
 			}
 		}
@@ -380,9 +279,23 @@ public class BranchLine {
 		
 		
 	}
-
-	public static boolean satisfiesAllBranches(Branch root, Set<Branch> descendents)
+	
+	public static boolean satisfiesAllBranches(Branch root, Set<Branch> descendents) {
+		return satisfiesAllBranches(root, descendents, false);
+	}
+	
+	public static boolean satisfiesAllBranchesOpen(Branch root, Set<Branch> descendents) {
+		return satisfiesAllBranches(root, descendents, true);
+	}
+	
+	// EDIT: when a branch is open, only check if open branches satisfied            vvvvvvvvv
+	public static boolean satisfiesAllBranches(Branch root, Set<Branch> descendents, boolean open)
 	{
+		///////////////////////////////// EDIT
+		if(open && !TreePanel.checkForOpenBranch(root))
+			return true;
+		/////////////////////////////////
+		
 		if (descendents.contains(root) || root.isClosed())
 			return true;
 		else
@@ -391,7 +304,7 @@ public class BranchLine {
 			{
 				for (Branch curBranch : root.getBranches())
 				{
-					if (!satisfiesAllBranches(curBranch, descendents))
+					if (!satisfiesAllBranches(curBranch, descendents, open))
 						return false;
 				}
 				return true;
