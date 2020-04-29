@@ -69,8 +69,6 @@ public class TruthTrees {
 		menuBar.add(treeMenu);
 		menuBar.add(helpMenu);
 
-		// frame.getContentPane().add(zoompanel,BorderLayout.EAST);
-		
 		JMenuItem checkButton = new JMenuItem("Check Tree");
 		
 		treeMenu.add(checkButton);
@@ -220,8 +218,6 @@ public class TruthTrees {
 				String ret = ((TreePanel)frame.getContentPane().getComponent(0)).split();
 				if (ret != null)
 					JOptionPane.showMessageDialog(null, ret);				
-				// else
-				// 	JOptionPane.showMessageDialog(null, ret);
 			}
 		});
 		JMenuItem tickButton = new JMenuItem("Mark Decomposition");
@@ -234,8 +230,6 @@ public class TruthTrees {
 				String ret = ((TreePanel)frame.getContentPane().getComponent(0)).mark();
 				if (ret != null)
 					JOptionPane.showMessageDialog(null, ret);				
-				// else
-				// 	JOptionPane.showMessageDialog(null, ret);
 			}
 		});
 		JMenuItem zoomInButton = new JMenuItem("Zoom in");
@@ -287,7 +281,6 @@ public class TruthTrees {
 		
 		treeMenu.add(deleteButton);
 		deleteButton.setAccelerator(KeyStroke.getKeyStroke('D', InputEvent.CTRL_MASK));
-//		deleteButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
 		deleteButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -314,7 +307,6 @@ public class TruthTrees {
 		
 		treeMenu.add(premiseButton);
 		premiseButton.setAccelerator(KeyStroke.getKeyStroke('P', InputEvent.CTRL_MASK));
-//		deleteButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
 		premiseButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -400,7 +392,6 @@ public class TruthTrees {
         treePanel.moveComponents();
     }
 	});
-		// frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		

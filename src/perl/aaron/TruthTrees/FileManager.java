@@ -41,16 +41,6 @@ public class FileManager {
   {
     // codes needs to be updated to allow choosing a directory with JFileChooser
     // look at http://www.rgagnon.com/javadetails/java-0370.html
-    /*
-    final JFileChooser fileChooser = new JFileChooser(SAVEDIR);
-    if (fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION)
-    {
-      File file = fileChooser.getSelectedFile();
-      System.out.println(file.getName());
-      return listFolderFiles(file);
-    }
-    return null;
-    */
     File dir = new File("grading");
     return listFolderFiles(dir);
   }
@@ -323,17 +313,12 @@ public class FileManager {
 			LinkedHashMap<Branch, Integer> branchIndexMap = new LinkedHashMap<Branch, Integer>();
 			LinkedHashMap<BranchLine, Integer> lineIndexMap = new LinkedHashMap<BranchLine, Integer>();
 			createIndexMaps(root.getRoot(), branchIndexMap, lineIndexMap);
-//			for (BranchLine b : lineIndexMap.keySet())
-//			{
-//				System.out.println(b.toString() + " - index " + lineIndexMap.get(b).toString());
-//			}
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document doc = builder.newDocument();
 			
 			Element rootElement = doc.createElement("Tree");
 			doc.appendChild(rootElement);
-//			for (BranchLine b : premises)
 			saveBranch(root.getRoot(), doc, rootElement, branchIndexMap, lineIndexMap);
 			
 			TransformerFactory tfactory = TransformerFactory.newInstance();

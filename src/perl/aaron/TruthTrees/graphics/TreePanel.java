@@ -67,19 +67,14 @@ class RadioPanel extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	// Declaration of object of JRadioButton class.
 	JRadioButton jRadioButton1;
 
-	// Declaration of object of JRadioButton class.
 	JRadioButton jRadioButton2;
 
-	// Declaration of object of JButton class.
 	JButton jButton;
 
-	// Declaration of object of ButtonGroup class.
 	ButtonGroup buttonGroup;
 
-	// Declaration of object of JLabel class.
 	JLabel label;
 
 	ArrayList<JRadioButton> buttons;
@@ -630,60 +625,6 @@ public class TreePanel extends JPanel {
 		}
 		return null;
 		
-//		String error = "";
-//		int linec = b.numLines();
-//		Set<Branch> openBranches = new HashSet<Branch>();
-//		openBranches = findOpenBranches(root, openBranches);
-//
-//		HashMap<BranchLine, Boolean> premiseMap = new HashMap<BranchLine, Boolean>();
-//
-//		// Initialize map of all premises to false
-//		for (int i = 0; i < linec; ++i) {
-//			if (b.getLine(i).getStatement() instanceof Decomposable
-//					&& !(b.getLine(i).getStatement() instanceof Negation)) {
-//				premiseMap.put(b.getLine(i), false);
-//			}
-//		}
-//
-//		// Loop through each premise and check if it's decomposition is a parent of the
-//		// open termination
-//		for (int i = 0; i < linec; ++i) {
-//
-//			BranchLine line = b.getLine(i);
-//
-//			Set<Branch> targetBranches = line.getSelectedBranches();
-//			Set<BranchLine> targetLines = line.getSelectedLines();
-//
-//			// For cases such as conjunctions where the decomposition results in new lines
-//			// add the parent to be checked
-//			//												   vvv - added this to fix bug - vvv
-//			if (line.getStatement() instanceof Conjunction || line.getStatement() instanceof Quantifier) {
-//				for (BranchLine t : targetLines) {
-//					targetBranches.add(t.getParent());
-//				}
-//			}
-//			// Loop through each of the selected branches where the premise is decomposed
-//			for (Branch t : targetBranches) {
-//				// Only look at cases where the target has an open terminator below it
-//				if (checkForOpenBranch(t)) {
-//					// Check if the selected branch is a parent of the open branch
-//					for (Branch openBranch : openBranches) {
-//						if (openBranch.isChildOf(t)) {
-//							if (line.getStatement() instanceof Decomposable
-//									&& !(line.getStatement() instanceof Negation)) {
-//								// Mark that this premise is decomposed
-//								premiseMap.put(line, true);
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-//		for (BranchLine l : premiseMap.keySet()) {
-//			if (premiseMap.get(l) == false) {
-//				error += "Premise " + l.getStatement() + " is not decomposed in the open branch.\n";
-//			}
-//		}
 //		return error;
 	}
 
@@ -707,23 +648,6 @@ public class TreePanel extends JPanel {
 					ret += vRet;
 				}
 			}
-
-			// Set<String> preConsts = new LinkedHashSet<String>();
-			// Set<String> thisConsts = new LinkedHashSet<String>();
-			// System.out.println(b.getConstants().size());
-			//
-			// preConsts.addAll(b.getConstantsBefore(b.getLine(0)));
-			// thisConsts.addAll(b.getConstantsThis());
-			// System.out.println("Before: " + String.join(", ",
-			// b.getConstantsBefore(b.getLine(0))) + "\n");
-			// System.out.println("This: " + thisConsts.toString() + "\n");
-			// thisConsts.removeAll(preConsts);
-			//
-			// if (preConsts.size() > 0) {
-			// for (String c : thisConsts) {
-			// ret += "Unexpected constant " + c + " in tree.\n";
-			// }
-			// }
 		}
 
 		for (Branch child : b.getBranches()) {
@@ -759,23 +683,6 @@ public class TreePanel extends JPanel {
 				if(error != null)
 					return error;
 				return null;
-				
-//				String checkRet = verifyPremisesOpenBranch(premises);
-//				if (checkRet != null)
-//					returnVal += checkRet;
-//
-//				String varRet = checkBranchConstants(root);
-//				if (!varRet.equals(""))
-//					returnVal += varRet;
-//
-//				// String branchVal = checkBranch(root);
-//				// if (branchVal != null)
-//				// returnVal = returnVal + "root!! " + branchVal;
-//
-//				if (returnVal.equals(""))
-//					return null;
-//				else
-//					return returnVal;
 			} else
 				return "Not all premises are decomposed on open branch OR Invalid usage of open branch.";
 
@@ -843,7 +750,6 @@ public class TreePanel extends JPanel {
 
 	public Branch addBranch(Branch parent, boolean addFirstLine, boolean wasNotTyped, Statement s) {
 		recordState();
-		// System.out.println("Statement:"+s);
 		Branch newBranch = new Branch(parent);
 		newBranch.setFontMetrics(getFontMetrics(getFont()));
 		makeButtonsForBranch(newBranch);
@@ -881,7 +787,6 @@ public class TreePanel extends JPanel {
 		branchButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// if (myBranch.numLines() == 0) return;
 				addBranch(myBranch);
 			}
 		});
@@ -976,11 +881,6 @@ public class TreePanel extends JPanel {
 		for (int i = 0; i < b.numLines(); i++) {
 			BranchLine curLine = b.getLine(i);
 			JTextField curField = reverseLineMap.get(curLine);
-			// if (curField == null)
-			// {
-			// System.out.println(curLine.toString());
-			// System.exit(-1);
-			// }
 			if (isSelected(curLine))
 				curField.setBackground(BranchLine.SELECTED_COLOR);
 			else if (curLine == editLine)
@@ -996,7 +896,6 @@ public class TreePanel extends JPanel {
 				Graphics2D g2d = (Graphics2D)this.getGraphics();
 				Point p = curField.getLocation();
 				p.setLocation((p.getX()+curField.getWidth()+10), (p.getY()+(curField.getHeight()/2)+7));
-				// drawStringAt(g2d, new Point(center.x + getWidth() / 2, center.y + getHeight() / 2), tickMark);
 				drawStringAt(g2d, p, tickMark);
 			}
 		}
@@ -1625,7 +1524,6 @@ public class TreePanel extends JPanel {
 		Font oldF = getFont();
 		Font newF = oldF.deriveFont((float) (oldF.getSize2D() * ratio));
 		size = size * (float) ratio;
-		// Font newF2 = this.getFont().deriveFont(size);
 		setFont(newF);
 		for (Branch branch : addBranchMap.keySet()) {
 			int numLines = branch.numLines();
@@ -1654,7 +1552,6 @@ public class TreePanel extends JPanel {
 		Font oldF = getFont();
 		Font newF = oldF.deriveFont( (float)( oldF.getSize2D() * ratio )  );
 		size = size * (float)ratio;
-		// Font newF2 = this.getFont().deriveFont(size);
 		setFont( newF );      
 		for (Branch branch : addBranchMap.keySet()) {
 			int numLines = branch.numLines();

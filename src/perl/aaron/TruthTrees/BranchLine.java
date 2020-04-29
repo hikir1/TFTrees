@@ -27,7 +27,6 @@ import perl.aaron.TruthTrees.logic.Negation;
 public class BranchLine {
 	protected Branch parent;
 	protected Statement statement;
-//	protected Set<Set<BranchLine>> decomposition;
 	protected Set<Branch> selectedBranches; // holds the parent of the split that decomposes this line
 	protected Set<BranchLine> selectedLines;
 	protected BranchLine decomposedFrom;
@@ -43,7 +42,6 @@ public class BranchLine {
 	{
 		parent = branch;
 		statement = null;
-//		decomposition = new LinkedHashSet<Set<BranchLine>>();
 		selectedBranches = new LinkedHashSet<Branch>();
 		selectedLines = new LinkedHashSet<BranchLine>();
 		isPremise = false;
@@ -319,14 +317,6 @@ public class BranchLine {
 		ExpressionParser.parseExpression(statement.toString());
 		ArrayList<String> varList = ExpressionParser.variableList;
 		
-		// if line.charAt(0) != '\u00AC'
-
-		// for(int i = 1; i < line.length(); i++){
-		// 	if (line.charAt(i) == '(')
-		// 		count++;
-		// 	else if (line.charAt(i) == ')')
-		// 		count--;
-		// }
 		return new HashSet<String>(varList);
 	}
 

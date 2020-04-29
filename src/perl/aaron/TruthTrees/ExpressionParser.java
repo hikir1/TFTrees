@@ -22,7 +22,6 @@ public class ExpressionParser {
 	private static final String constantPattern;
 	private static final String quantifiers;
 	public static ArrayList<String> variableList;
-//	private static final Pattern operatorPattern;
 	
 	static
 	{
@@ -54,11 +53,6 @@ public class ExpressionParser {
 		constantPattern = "[a-zA-Z0-9]+";
 		quantifiers = "[\u2200\u2203]";
 		
-//		operatorString = "";
-//		for (char curOperator : operators)
-//			operatorString += curOperator;
-//		
-//		operatorPattern = Pattern.compile("[\\s]*[" + operatorString + "][\\s]*");
 	}
 	
 	private ExpressionParser() {}
@@ -112,7 +106,6 @@ public class ExpressionParser {
 		if (objectString.matches("[a-z][A-Z0-9]*\\(.+\\)"))
 		{
 			String symbol = objectString.substring(0, objectString.indexOf('('));
-//			System.out.println("Function symbol: " + symbol);
 			String argsString =
 				objectString.substring(
 					objectString.indexOf('(') + 1,
@@ -127,12 +120,10 @@ public class ExpressionParser {
 		}
 		else if (objectString.matches(variablePattern))
 		{
-//			System.out.println("Variable: " + objectString);
 			return new Variable(objectString);
 		}
 		else if (objectString.matches(constantPattern))
 		{
-//			System.out.println("Constant: " + objectString);
 			return new Constant(objectString);
 		}
 		else
@@ -161,26 +152,20 @@ public class ExpressionParser {
 			}
 		}
 		
-//		System.out.println("Operator set = " + operatorSet);
-		
 		if (operatorSet == -1)
 		{
-//			System.out.println(subExpression);
 			if (subExpression.matches("\\w+") || subExpression.matches("(\\w+)"))
 			{
-//				System.out.println("Atomic Statement : " + subExpression);
 				variableList.add(subExpression);
 				return new AtomicStatement(subExpression);
 			}
 			else if (subExpression.startsWith("(") && subExpression.endsWith(")"))
 			{
-//				System.out.println("Parenthesis around " + subExpression.substring(1,subExpression.length() -1));
 				return recurseStatement(
 						subExpression.substring(1, subExpression.length() - 1));
 			}
 			else if (subExpression.matches(negationPattern + ".+"))
 			{
-//				System.out.println("Negation of " + subExpression.substring(1));
 				return new Negation(recurseStatement(subExpression.substring(1)));
 			}
 			// Equality (not implemented)
@@ -195,7 +180,6 @@ public class ExpressionParser {
 			else if (subExpression.matches("[A-Z][a-zA-Z0-9]*(.+)"))
 			{
 				String symbol = subExpression.substring(0, subExpression.indexOf('('));
-//				System.out.println("Predicate symbol: " + symbol);
 				String argumentsString =
 					subExpression.substring(
 						subExpression.indexOf('(') + 1,
@@ -229,9 +213,6 @@ public class ExpressionParser {
 				
 				if (var == null || statement == null) return null;
 				
-//				System.out.println("Univeral Quantifier:");
-//				System.out.println("\tQuantified Variable: " + var);
-//				System.out.println("\tQuantified Statement: " + statement);
 				return new UniversalQuantifier(var, statement);						
 			}
 			// exists [var] ...
@@ -251,9 +232,6 @@ public class ExpressionParser {
 				
 				if (var == null || statement == null) return null;
 				
-//				System.out.println("Existential Quantifier:");
-//				System.out.println("\tQuantified Variable: " + var);
-//				System.out.println("\tQuantified Statement: " + statement);
 				return new ExistentialQuantifier(var, statement);						
 			}
 			return null;
@@ -296,14 +274,9 @@ public class ExpressionParser {
 	
 	public static Statement parseExpression(String expression)
 	{
-//		if (checkForMismatchedParenthesis(expression))
-//			throw new ...
 		Statement statement = recurseStatement(expression.replaceAll("\\s", ""));
 		if (statement != null)
 		{
-//			System.out.println("Expression: " + statement.toString());
-//			System.out.println("Constants: " + statement.getConstants());
-//			System.out.println("Variables: " + statement.getVariables());
 			if (statement.getVariables().size() != 0)
 			{
 				JOptionPane.showMessageDialog(null, "This statement has unbound variables: " +
