@@ -154,27 +154,34 @@ public class TreePanel extends JPanel {
 	private static final int REDO_STACK_SIZE = 32;
 	public static String var;
 
-	private Branch root;
-	private Point center;
-	private Point prevCenter;
-	private Point clickPoint;
-	private float size;
-	private BranchLine editLine;
-	private Map<Branch, JButton> addBranchMap;
-	private Map<Branch, JButton> addLineMap;
-	private Map<Branch, JButton> branchMap;
-	private Map<Branch, JButton> terminateMap;
-	private Map<JTextField, BranchLine> lineMap;
-	private Map<BranchLine, JTextField> reverseLineMap;
-	private Set<BranchLine> selectedLines;
-	private Set<Branch> selectedBranches;
-	private Branch premises;
-	private Deque<Branch> undoStack;
-	private Deque<Branch> redoStack;
-	private int zoomLevel;
-	private int decompNumber;
+	private Point center = new Point(0, -50);
+	private Point prevCenter = null; //TODO: remove global
+	private Point clickPoint = null; //TODO: remove global
+	private float size = 12;
+	private BranchLine editLine = null;
+	private final Map<Branch, JButton> addBranchMap = new HashMap<>();
+	private final Map<Branch, JButton> addLineMap = new HashMap<>();
+	private final Map<Branch, JButton> branchMap = new HashMap<>();
+	private final Map<Branch, JButton> terminateMap = new HashMap<>();
+	private final Map<JTextField, BranchLine> lineMap = new HashMap<>();
+	private final Map<BranchLine, JTextField> reverseLineMap = new HashMap<>();
+	private Set<BranchLine> selectedLines = null; //TODO: remove global
+	private Set<Branch> selectedBranches = null; //TODO: remove global
+	private Branch premises = addBranch(null, true);
+	private final Deque<Branch> undoStack = new ArrayDeque<>(UNDO_STACK_SIZE);
+	private final Deque<Branch> redoStack = new ArrayDeque<>(REDO_STACK_SIZE);
+	private int zoomLevel = 0;
+	private int decompNumber = 1;
+	
+	private Branch root = addBranch(premises, false);
 
 	private double zoomMultiplicationFactor = 1.1;
+	
+	private enum Completion {
+		ALL_CLOSED,
+		ONE_OPEN,
+		INVALID
+	}
 
 	public TreePanel() {
 		this(true);
@@ -191,16 +198,16 @@ public class TreePanel extends JPanel {
 		editLine = null;
 		selectedLines = null;
 		selectedBranches = null;
-		addBranchMap = new HashMap<Branch, JButton>();
-		addLineMap = new HashMap<Branch, JButton>();
-		branchMap = new HashMap<Branch, JButton>();
-		terminateMap = new HashMap<Branch, JButton>();
-		lineMap = new HashMap<JTextField, BranchLine>();
-		reverseLineMap = new HashMap<BranchLine, JTextField>();
+		addBranchMap.clear();
+		addLineMap.clear();
+		branchMap.clear();
+		terminateMap.clear();
+		lineMap.clear();
+		reverseLineMap.clear();
 		this.setFont(this.getFont().deriveFont(size));
 		premises = addBranch(null, true);
-		undoStack = new ArrayDeque<Branch>(UNDO_STACK_SIZE);
-		redoStack = new ArrayDeque<Branch>(REDO_STACK_SIZE);
+		undoStack.clear();
+		redoStack.clear();
 
 		root = addBranch(premises, false);
 	}
@@ -211,8 +218,6 @@ public class TreePanel extends JPanel {
 		setBackground(new Color(0, 0, 0, 0));
 		setLayout(null);
 		
-		resetVars(); // TODO: initialize fileds outside, make fields final, use Option
-
 		setFocusable(true);
 		addMouseListener(new MouseListener() {
 
@@ -268,7 +273,7 @@ public class TreePanel extends JPanel {
 			addLineReferences(lineMap, branchMap);
 
 			undoStack.push(treeCopy);
-			redoStack = new ArrayDeque<>();
+			redoStack.clear();
 		}
 	}
 
@@ -365,38 +370,14 @@ public class TreePanel extends JPanel {
 	 * Deletes all components saved and recreates them for the current tree.
 	 */
 	private void resetAllComponents() {
-		deleteAllButtons();
-
-		addBranchMap = new HashMap<Branch, JButton>();
-		addLineMap = new HashMap<Branch, JButton>();
-		branchMap = new HashMap<Branch, JButton>();
-		terminateMap = new HashMap<Branch, JButton>();
-		lineMap = new HashMap<JTextField, BranchLine>();
-		reverseLineMap = new HashMap<BranchLine, JTextField>();
+		addBranchMap.clear();
+		addLineMap.clear();
+		branchMap.clear();
+		terminateMap.clear();
+		lineMap.clear();
+		reverseLineMap.clear();
 
 		addComponentsRecursively(premises);
-	}
-
-	/**
-	 * Deletes all of the components associated with the tree.
-	 */
-	private void deleteAllButtons() {
-		removeComponentsInMap(addBranchMap);
-		removeComponentsInMap(addLineMap);
-		removeComponentsInMap(branchMap);
-		removeComponentsInMap(terminateMap);
-		removeComponentsInMap(reverseLineMap);
-	}
-
-	/**
-	 * Removes all components in the value set of a map from this panel.
-	 * 
-	 * @param componentMap The map of objects to components to remove.
-	 */
-	private void removeComponentsInMap(Map<? extends Object, ? extends JComponent> componentMap) {
-		for (JComponent comp : componentMap.values()) {
-			remove(comp);
-		}
 	}
 
 	/**
@@ -454,7 +435,7 @@ public class TreePanel extends JPanel {
 	 * @param b Branch being checked
 	 * @return null if decomposed properly, an error message otherwise
 	 */
-	private String checkBranch(Branch b) {
+	private void checkBranch(Branch b) throws UserError { //TODO: change returns to throws
 		for (int i = 0; i < b.numLines(); i++) {
 			BranchLine curLine = b.getLine(i);
 			String ret = checkLine(curLine);
@@ -476,15 +457,15 @@ public class TreePanel extends JPanel {
 	 * @return 0 if all branches close with no open branches, 1 if all branches
 	 *         terminate but at least one is marked open, -1 otherwise
 	 */
-	public int checkCompletion() {
+	public Completion checkCompletion() {
 		boolean isOpen = checkForOpenBranch(root);
 		boolean allClosed = checkForAllClosed(root);
 		if (!isOpen && allClosed)
-			return 0;
+			return Completion.ALL_CLOSED;
 		else if (!allClosed && !isOpen)
-			return -1;
+			return Completion.INVALID;
 		else
-			return 1;
+			return Completion.ONE_OPEN;
 	}
 
 	/**
@@ -525,11 +506,8 @@ public class TreePanel extends JPanel {
 	 * @param b the branch being checked for a valid open branch
 	 * @return true if b has a valid open terminator, false otherwise
 	 */
-	private boolean verifyOpenTerminator(Branch b) {
+	private void verifyOpenTerminator(Branch b) throws UserError {
 		// If there are no open branches anywhere return false
-		if (!checkForOpenBranch(b)) {
-			return false;
-		}
 
 		if (b.getBranches().size() == 0 && b.isOpen()) {
 			return b.verifyTerminations();
@@ -555,18 +533,13 @@ public class TreePanel extends JPanel {
 	 * @return false if b or one of its children has a terminator that is not
 	 *         verified, true otherwise
 	 */
-	private boolean verifyTerminators(Branch b) {
-		boolean hasOpen = checkForOpenBranch(b);
+	private void verifyTerminators(Branch b) throws UserError { //TODO: change returns to throws
 
-		if (hasOpen) { // If there are open branches in the current level or below
+		if (checkForOpenBranch(b)) { // If there are open branches in the current level or below
 
 			// Check that the open branch is valid
-			boolean validOpen = verifyOpenTerminator(b);
-			if (validOpen) {
-				return true;
-			} else {
-				return false;
-			}
+			verifyOpenTerminator(b);
+			
 		} else { // No open branches in tree, proceed as normal
 			if (b.getBranches().size() == 0 && !b.verifyTerminations()) {
 				return false;
@@ -615,12 +588,12 @@ public class TreePanel extends JPanel {
 		return open;
 	}
 	
-	private String openVerifyLines(Branch b) {
-		return openVerifyLines(b, false);
+	private void openVerifyLines(Branch b) throws UserError {
+		openVerifyLines(b, false);
 	}
 
 	// 'lax' indicates that lines need not be decomposed, but still check for validity if they are
-	private String openVerifyLines(Branch b, boolean lax) {
+	private void openVerifyLines(Branch b, boolean lax) throws UserError { //TODO throw instead of return
 		
 		String error;
 		for(BranchLine line: b.getLines())
@@ -663,6 +636,8 @@ public class TreePanel extends JPanel {
 		}
 		return ret;
 	}
+	
+	//TODO
 
 	/**
 	 * Runs all of the "check" methods on the whole tree.
@@ -670,45 +645,20 @@ public class TreePanel extends JPanel {
 	 * @return null if tree is correct and complete, error message otherwise
 	 */
 	public void check() throws UserError {
-		String returnVal = "";
-	
-		int completionVal = checkCompletion();
-		System.out.println("completetionVal: " + completionVal);
-		boolean verifyEndings = verifyTerminators(root);
+		verifyTerminators(root);
 
-		if (completionVal == 0) // No open branches
-			if (verifyEndings)
-				return;
-			else
-				throw new UserError("There are Branch Terminators that are not referencing correct lines.\n");
-
-		else if (completionVal == 1) // At least one open branch
-			if (verifyEndings) {
-				String error = openVerifyLines(premises);
-				if(error != null)
-					return error;
-				error = openVerifyLines(root);
-				if(error != null)
-					return error;
-				return null;
-			} else
-				return "Not all premises are decomposed on open branch OR Invalid usage of open branch.";
-
-		else if (completionVal == -1)
-			returnVal = returnVal + "Not all branches are closed and no branch has been marked as open!\n";
-
-		String checkRet = checkBranch(premises);
-		if (checkRet != null)
-			returnVal = returnVal + checkRet;
-
-		String branchVal = checkBranch(root);
-		if (branchVal != null)
-			returnVal = returnVal + branchVal;
-
-		if (returnVal.equals(""))
-			return null;
-		else
-			return returnVal;
+		switch (checkCompletion()) {
+		case ALL_CLOSED:
+			checkBranch(premises);
+			checkBranch(root);
+			return;
+		case ONE_OPEN:
+			openVerifyLines(premises);
+			openVerifyLines(root);
+			return;
+		default: // INVALID
+			throw new UserError("Not all branches are closed and no branch has been marked as open!");
+		}
 	}
 
 	/**
