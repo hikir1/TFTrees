@@ -30,16 +30,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.plaf.basic.BasicTextFieldUI;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
@@ -51,32 +42,34 @@ import perl.aaron.TruthTrees.BranchLine;
 import perl.aaron.TruthTrees.BranchTerminator;
 import perl.aaron.TruthTrees.ExpressionParser;
 import perl.aaron.TruthTrees.logic.Statement;
+import perl.aaron.TruthTrees.util.NoneResult;
+import perl.aaron.TruthTrees.util.Option;
 import perl.aaron.TruthTrees.util.UserError;
 
 class Global {
-	public static String var;
-	public static Statement s1;
-	public static Statement s2;
+	static String var;
+	static Statement s1;
+	static Statement s2;
 }
 
 class RadioPanel extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	JRadioButton jRadioButton1;
+	private JRadioButton jRadioButton1;
 
-	JRadioButton jRadioButton2;
+	private JRadioButton jRadioButton2;
 
-	JButton jButton;
+	private JButton jButton;
 
-	ButtonGroup buttonGroup;
+	private ButtonGroup buttonGroup;
 
-	JLabel label;
+	private JLabel label;
 
-	ArrayList<JRadioButton> buttons;
+	private ArrayList<JRadioButton> buttons;
 
 	// Constructor of Demo class.
-	public RadioPanel(Set<String> variables) {
+	 RadioPanel(Set<String> variables) {
 		// Setting layout as null of JFrame.
 		this.setLayout(null);
 
@@ -158,7 +151,7 @@ public class TreePanel extends JPanel {
 	private Point prevCenter = null; //TODO: remove global
 	private Point clickPoint = null; //TODO: remove global
 	private float size = 12;
-	private BranchLine editLine = null;
+	private Option<BranchLine> editLine = new Option.None<>();
 	private final Map<Branch, JButton> addBranchMap = new HashMap<>();
 	private final Map<Branch, JButton> addLineMap = new HashMap<>();
 	private final Map<Branch, JButton> branchMap = new HashMap<>();
@@ -436,18 +429,12 @@ public class TreePanel extends JPanel {
 	 * @return null if decomposed properly, an error message otherwise
 	 */
 	private void checkBranch(Branch b) throws UserError { //TODO: change returns to throws
-		for (int i = 0; i < b.numLines(); i++) {
-			BranchLine curLine = b.getLine(i);
-			String ret = checkLine(curLine);
-			if (ret != null)
-				return ret;
-		}
-		for (Branch curBranch : b.getBranches()) {
-			String ret = checkBranch(curBranch);
-			if (ret != null)
-				return ret;
-		}
-		return null;
+		for (int i = 0; i < b.numLines(); i++)
+			checkLine(b.getLine(i));
+
+		for (Branch curBranch : b.getBranches())
+			checkBranch(curBranch);
+
 	}
 
 	/**
@@ -510,19 +497,16 @@ public class TreePanel extends JPanel {
 		// If there are no open branches anywhere return false
 
 		if (b.getBranches().size() == 0 && b.isOpen()) {
-			return b.verifyTerminations();
+			b.verifyTerminations();
 		}
-
-		if (b.getBranches().size() == 0 && !b.isOpen())
-			return false;
 
 		for (Branch child : b.getBranches()) {
 			if (checkForOpenBranch(child)) {
-				return verifyOpenTerminator(child);
+				verifyOpenTerminator(child);
+				return;
 			}
 		}
-
-		return false;
+		throw new UserError("Not all sentences are decompose in the open branch.");
 
 	}
 
@@ -541,18 +525,13 @@ public class TreePanel extends JPanel {
 			verifyOpenTerminator(b);
 			
 		} else { // No open branches in tree, proceed as normal
-			if (b.getBranches().size() == 0 && !b.verifyTerminations()) {
-				return false;
-			}
+			if (b.getBranches().size() == 0)
+				b.verifyTerminations();
 
-			for (Branch child : b.getBranches()) {
-				if (!verifyTerminators(child)) {
-					return false;
-				}
-			}
+			for (Branch child : b.getBranches())
+				verifyTerminators(child);
+
 		}
-
-		return true;
 	}
 
 	/**
@@ -594,19 +573,14 @@ public class TreePanel extends JPanel {
 
 	// 'lax' indicates that lines need not be decomposed, but still check for validity if they are
 	private void openVerifyLines(Branch b, boolean lax) throws UserError { //TODO throw instead of return
-		
-		String error;
 		for(BranchLine line: b.getLines())
-			if((error = line.verifyDecompositionOpen(lax)) != null)
-				return error;
+			line.verifyDecompositionOpen(lax);
+
 		for(Branch child: b.getBranches()) {
 			boolean doLax = lax || !checkForOpenBranch(child);
-			if((error = openVerifyLines(child, doLax)) != null)
-				return error;
+			openVerifyLines(child, doLax);
 		}
-		return null;
-		
-//		return error;
+
 	}
 
 	/**
@@ -667,9 +641,11 @@ public class TreePanel extends JPanel {
 	 * @return null if the line is fine, and an error message otherwise
 	 */
 	public void checkSelectedLine() throws UserError {
-		if (editLine != null) //TODO: change editline to Option, throw UserError
-			return checkLine(editLine);
-		return "No statement is currently selected!";
+		try {
+			checkLine(editLine.unwrap());
+		} catch (NoneResult e) {
+			throw new UserError("No statement is currently selected!");
+		}
 	}
 
 	/**
@@ -765,14 +741,19 @@ public class TreePanel extends JPanel {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				if (selectedBranches != null && (SwingUtilities.isRightMouseButton(e) || e.isControlDown())) {
-					if (selectedBranches.contains(myBranch)) {
-						selectedBranches.remove(myBranch);
-						myBranch.setDecomposedFrom(null);
-					} else if (myBranch.getDecomposedFrom() == null) {
-						selectedBranches.add(myBranch);
-						myBranch.setDecomposedFrom(editLine);
+					try {
+
+						if (selectedBranches.contains(myBranch)) {
+							selectedBranches.remove(myBranch);
+							myBranch.setDecomposedFrom(null);
+						} else if (myBranch.getDecomposedFrom() == null) {
+							selectedBranches.add(myBranch);
+							myBranch.setDecomposedFrom(editLine.unwrap());
+						}
+						TreePanel.this.repaint();
+					} catch(NoneResult e) {
+//						TODO NOTE
 					}
-					TreePanel.this.repaint();
 				}
 			}
 
@@ -815,16 +796,20 @@ public class TreePanel extends JPanel {
 	}
 
 	private void toggleSelected(BranchLine b, Set<BranchLine> curSelected) {
-		if (curSelected.contains(b)) {
-			curSelected.remove(b);
-			reverseLineMap.get(b).setBackground(BranchLine.DEFAULT_COLOR);
-			if (!(editLine instanceof BranchTerminator))
-				b.setDecomposedFrom(null);
-		} else {
-			curSelected.add(b);
-			reverseLineMap.get(b).setBackground(BranchLine.SELECTED_COLOR);
-			if (!(editLine instanceof BranchTerminator))
-				b.setDecomposedFrom(editLine);
+		try {
+			if (curSelected.contains(b)) {
+				curSelected.remove(b);
+				reverseLineMap.get(b).setBackground(BranchLine.DEFAULT_COLOR);
+				if (!(editLine.unwrap() instanceof BranchTerminator))
+					b.setDecomposedFrom(null);
+			} else {
+				curSelected.add(b);
+				reverseLineMap.get(b).setBackground(BranchLine.SELECTED_COLOR);
+				if (!(editLine.unwrap() instanceof BranchTerminator))
+					b.setDecomposedFrom(editLine.unwrap());
+			}
+		} catch(NoneResult e) {
+//			TODO NOTE
 		}
 	}
 
