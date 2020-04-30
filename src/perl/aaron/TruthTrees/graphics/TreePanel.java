@@ -179,12 +179,11 @@ public class TreePanel extends JPanel {
 	public TreePanel() {
 		this(true);
 	}
-
-	public TreePanel(boolean addFirstLine) {
-		super();
-		setOpaque(false);
-		setBackground(new Color(0, 0, 0, 0));
-		setLayout(null);
+	
+	private void resetVars() {
+		clickPoint = null;
+		prevCenter = null;
+		
 		center = new Point(0, -50);
 		size = 12f;
 		zoomLevel = 0;
@@ -204,6 +203,15 @@ public class TreePanel extends JPanel {
 		redoStack = new ArrayDeque<Branch>(REDO_STACK_SIZE);
 
 		root = addBranch(premises, false);
+	}
+
+	public TreePanel(boolean addFirstLine) {
+		super();
+		setOpaque(false);
+		setBackground(new Color(0, 0, 0, 0));
+		setLayout(null);
+		
+		resetVars(); // TODO: initialize fileds outside, make fields final, use Option
 
 		setFocusable(true);
 		addMouseListener(new MouseListener() {
@@ -347,6 +355,10 @@ public class TreePanel extends JPanel {
 			moveComponents();
 			repaint();
 		}
+	}
+	
+	public void clear() {
+		resetVars();
 	}
 
 	/**
@@ -1569,10 +1581,10 @@ public class TreePanel extends JPanel {
 	}
 
 	// intermediate function
-	public String split() {
-		if (editLine != null)
-			return split(editLine);
-		return "No statement is currently selected!";
+	public void split() throws UserError {
+		if (editLine != null) //TODO: change editLine to Option
+			return split(editLine); //TODO: change this to void throws UserError
+		throw new UserError("No statement is currently selected!");
 	}
 
 	/**
@@ -1623,10 +1635,10 @@ public class TreePanel extends JPanel {
 	}
 
 	// intermediate function
-	public String mark() {
-		if (editLine != null)
+	public void mark() throws UserError {
+		if (editLine != null) //TODO: fix this
 			return mark(editLine);
-		return "No statement is currently selected!";
+		throw new UserError("No statement is currently selected!");
 	}
 
 	// helper function
