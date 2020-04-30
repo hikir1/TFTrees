@@ -49,7 +49,6 @@ public class TruthTrees {
 	}
 
 	// Starts new window
-	@SuppressWarnings("preview")
 	private static void createNewInstance() {
 		final JFrame frame = new JFrame("Truth Tree");
 		frame.setLayout(new BorderLayout());
