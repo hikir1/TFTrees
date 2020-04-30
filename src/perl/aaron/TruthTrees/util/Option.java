@@ -1,11 +1,11 @@
 package perl.aaron.TruthTrees.util;
 
-public class Option {
-	public Object unwrap() throws NoneResult {
+public class Option<T> {
+	public T unwrap() throws NoneResult {
 		throw new NoneResult();
 	}
 	
-	public static final class Some<T> extends Option {
+	public static final class Some<T> extends Option<T> {
 		private final T val;
 		
 		public Some(final T val) {
@@ -18,5 +18,5 @@ public class Option {
 		}
 	}
 	
-	public static final class None extends Option {}
+	public static final class None<T> extends Option<T> {}
 }
