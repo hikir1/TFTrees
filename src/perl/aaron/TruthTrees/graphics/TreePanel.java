@@ -506,7 +506,7 @@ public class TreePanel extends JPanel {
 	 * @param b the branch being checked for a valid open branch
 	 * @return true if b has a valid open terminator, false otherwise
 	 */
-	private void verifyOpenTerminator(Branch b) throws UserError {
+	private void verifyOpenTerminator(Branch b) throws UserError { //TODO: make open part of state
 		// If there are no open branches anywhere return false
 
 		if (b.getBranches().size() == 0 && b.isOpen()) {
