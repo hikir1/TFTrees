@@ -26,7 +26,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -51,11 +50,8 @@ import perl.aaron.TruthTrees.Branch;
 import perl.aaron.TruthTrees.BranchLine;
 import perl.aaron.TruthTrees.BranchTerminator;
 import perl.aaron.TruthTrees.ExpressionParser;
-import perl.aaron.TruthTrees.logic.Conjunction;
-import perl.aaron.TruthTrees.logic.Decomposable;
-import perl.aaron.TruthTrees.logic.Negation;
-import perl.aaron.TruthTrees.logic.Quantifier;
 import perl.aaron.TruthTrees.logic.Statement;
+import perl.aaron.TruthTrees.util.UserError;
 
 class Global {
 	public static String var;
@@ -661,18 +657,18 @@ public class TreePanel extends JPanel {
 	 * 
 	 * @return null if tree is correct and complete, error message otherwise
 	 */
-	public String check() {
+	public void check() throws UserError {
 		String returnVal = "";
-
+	
 		int completionVal = checkCompletion();
 		System.out.println("completetionVal: " + completionVal);
 		boolean verifyEndings = verifyTerminators(root);
 
 		if (completionVal == 0) // No open branches
 			if (verifyEndings)
-				return null;
+				return;
 			else
-				return "There are Branch Terminators that are not referencing correct lines.\n";
+				throw new UserError("There are Branch Terminators that are not referencing correct lines.\n");
 
 		else if (completionVal == 1) // At least one open branch
 			if (verifyEndings) {
