@@ -30,27 +30,27 @@ public class TruthTrees {
 
 	private static int instances = 0;
 
-	public static final String VERSION = "1.3";
+	private static final String VERSION = "1.3";
 
 	// keeps track of all instances
-	public static void close() {
+	private static void close() {
 		instances--;
 		if (instances == 0) {
 			System.exit(0);
 		}
 	}
 	
-	public static void showMessage(String msg, String title) {
+	private static void showMessage(String msg, String title) {
 		JOptionPane.showMessageDialog(null, msg, title, JOptionPane.PLAIN_MESSAGE);
 	}
 	
-	public static void showError(String msg) {
+	private static void showError(String msg) {
 		JOptionPane.showMessageDialog(null, msg, "Error", JOptionPane.ERROR_MESSAGE);
 	}
 
 	// Starts new window
 	@SuppressWarnings("preview")
-	public static void createNewInstance() {
+	private static void createNewInstance() {
 		final JFrame frame = new JFrame("Truth Tree");
 		frame.setLayout(new BorderLayout());
 
@@ -297,15 +297,15 @@ public class TruthTrees {
 
 		JMenuItem symbolsButton = new JMenuItem("Symbols");
 		symbolsButton.addActionListener(event -> showMessage(
-				"""
-				\u2228 : |
-				\u2227 : &
-				\u2192 : $
-				\u2194 : %
-				\u00AC : ~,!
-				\u2200 : @
-				\u2203 : /
-				""",
+
+				"\u2228 : |\n" +
+				"\u2227 : &\n" +
+				"\u2192 : $\n" +
+				"\u2194 : %\n" +
+				"\u00AC : ~,!\n" +
+				"\u2200 : @\n" +
+				"\u2203 : /",
+
 				"Symbols"));
 		helpMenu.add(symbolsButton);
 		
@@ -316,11 +316,11 @@ public class TruthTrees {
 		JMenuItem aboutButton = new JMenuItem("About");
 		aboutButton.addActionListener(event -> showMessage(
 				String.format(
-					"""
-					TFTrees : Copyright Aaron Perl 2016
-					Version %s
-					Repository : https://github.com/Bram-Hub/TFTrees
-					""",
+
+					"TFTrees : Copyright Aaron Perl 2016\n"+
+					"Version %s\n"+
+					"Repository : https://github.com/Bram-Hub/TFTrees"
+					,
 				VERSION),
 				"About TFTrees"));
 
@@ -334,38 +334,38 @@ public class TruthTrees {
 		usageButton.addActionListener(event ->
 				JOptionPane.showMessageDialog(null,
 				new JLabel(String.format(
-						"""		
-						<html>
-							<body>
-								<p style="width: 500px;">
-									How to Use Truth Trees %s <br><br>
-									You can Select a cell by left-clicking it, and it will turn green.<br><br>
-									Symbols to be used can be found under Help. Symbols will show up in their proper
-									logical form once you click outside the cell. At that time, the cell will also
-									resize if needed to show the whole statement.<br><br>
-									To add further premises, use CTRL-P, or use the menu item under Tree.<br><br>
-									For the application of the rules, there are the following options:<br>
-								<ul style="padding-left:20px; width: 500px;">
-									<li>Add line.
-										This is for the decomposition of statements that do not branch,
-										e.g. ~~P. Fill in the resulting statement in the newly created cell, and then
-										Select the cell where the statement came from (so it is green), and then
-										right-click on the statement(s) that were the result of decomposing the
-										selected statement (they will turn light blue)
-									<li>Add branch.
-										You only add one branch at a time. The program does not assume that branching
-										will also result in exactly two branches, so that it can handle general
-										disjunctions with more than 2 disjuncts (each becomes its own branch). So,
-										create as many branches as needed, and again fill in the appropriate statements
-										in the cells. Then Select the statement that lead to the branching, and right-click
-										the resulting statements … and ALSO right-click the branch structure itself.
-									<li>Terminate.
-										This is to indicate that a branch is closed (X)
-										or finished and open (O). Right-click to switch
-										between X and O. If you select X, you will need
-										to say where the X comes from by rightclicking
-										those cells (which will turn blue)
-						""", VERSION)),
+
+						"<html>" +
+							"<body>" +
+								"<p style=\"width: 500px;\">" +
+									"How to Use Truth Trees %s <br><br>" +
+									"You can Select a cell by left-clicking it, and it will turn green.<br><br>"+
+									"Symbols to be used can be found under Help. Symbols will show up in their proper"+
+									"logical form once you click outside the cell. At that time, the cell will also"+
+									"resize if needed to show the whole statement.<br><br>"+
+									"To add further premises, use CTRL-P, or use the menu item under Tree.<br><br>"+
+									"For the application of the rules, there are the following options:<br>"+
+								"<ul style=\"padding-left:20px; width: 500px;\">"+
+									"<li>Add line."+
+										"This is for the decomposition of statements that do not branch,"+
+										"e.g. ~~P. Fill in the resulting statement in the newly created cell, and then"+
+										"Select the cell where the statement came from (so it is green), and then"+
+										"right-click on the statement(s) that were the result of decomposing the"+
+										"selected statement (they will turn light blue)"+
+									"<li>Add branch."+
+										"You only add one branch at a time. The program does not assume that branching"+
+										"will also result in exactly two branches, so that it can handle general"+
+										"disjunctions with more than 2 disjuncts (each becomes its own branch). So,"+
+										"create as many branches as needed, and again fill in the appropriate statements"+
+										"in the cells. Then Select the statement that lead to the branching, and right-click"+
+										"the resulting statements … and ALSO right-click the branch structure itself."+
+									"<li>Terminate."+
+										"This is to indicate that a branch is closed (X)"+
+										"or finished and open (O). Right-click to switch"+
+										"between X and O. If you select X, you will need"+
+										"to say where the X comes from by rightclicking"+
+										"those cells (which will turn blue)"
+						, VERSION)),
 				"About TFTrees",
 				JOptionPane.PLAIN_MESSAGE)
 		);

@@ -18,6 +18,7 @@ import perl.aaron.TruthTrees.logic.AtomicStatement;
 import perl.aaron.TruthTrees.logic.Decomposable;
 import perl.aaron.TruthTrees.logic.Statement;
 import perl.aaron.TruthTrees.logic.Negation;
+import perl.aaron.TruthTrees.util.UserError;
 
 /**
  * A class that represents a single line in a branch, used for storing and verifying decompositions
@@ -116,7 +117,7 @@ public class BranchLine {
 		return verifyDecomposition(true, false);
 	}
 	
-	public String verifyDecompositionOpen(boolean lax) {
+	public void verifyDecompositionOpen(boolean lax) throws UserError {
 		return verifyDecomposition(true, lax);
 	}
 	
