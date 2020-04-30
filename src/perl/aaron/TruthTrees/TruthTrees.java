@@ -70,7 +70,7 @@ public class TruthTrees {
 		menuBar.add(helpMenu);
 
 		/////////////////////////////
-		// Check Tree
+		// Check Tree Button
 		/////////////////////////////
 
 		JMenuItem checkButton = new JMenuItem("Check Tree");
@@ -90,33 +90,6 @@ public class TruthTrees {
 					msg = "The tree is invalid!\n" + userError.getMessage();
 				}
 				JOptionPane.showMessageDialog(null, msg);
-			}
-		});
-
-		////////////////////////////////
-		// Check Folder
-		////////////////////////////////
-
-		JMenuItem checkFolderButton = new JMenuItem("Check Tree Folder");
-
-		treeMenu.add(checkFolderButton);
-		checkFolderButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				ArrayList<File> files = FileManager.listFolderFilesStart(treePanel);
-				if (files != null)
-				{
-					for (int i = 0; i < files.size(); i ++)
-					{
-						System.out.println(files.get(i));
-						TreePanel newPanel = FileManager.loadFromFile(files.get(i));
-						String ret = newPanel.check();
-						if (ret == null)
-							JOptionPane.showMessageDialog(null, "The tree in file "+files.get(i).getPath()+" is correct!");	
-						else
-							JOptionPane.showMessageDialog(null, "The tree in file "+files.get(i).getPath()+" is invalid!\n"+ret);
-					}
-				}
 			}
 		});
 
