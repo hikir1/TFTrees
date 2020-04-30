@@ -704,8 +704,8 @@ public class TreePanel extends JPanel {
 	 * 
 	 * @return null if the line is fine, and an error message otherwise
 	 */
-	public String checkSelectedLine() {
-		if (editLine != null)
+	public void checkSelectedLine() throws UserError {
+		if (editLine != null) //TODO: change editline to Option, throw UserError
 			return checkLine(editLine);
 		return "No statement is currently selected!";
 	}

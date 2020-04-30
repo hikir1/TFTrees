@@ -92,20 +92,28 @@ public class TruthTrees {
 				JOptionPane.showMessageDialog(null, msg);
 			}
 		});
+		
+		////////////////////////////
+		// Verify Line Button
+		////////////////////////////
 
 		JMenuItem checkLineButton = new JMenuItem("Verify Current Line");
 
 		treeMenu.add(checkLineButton);
-		checkLineButton.setAccelerator(KeyStroke.getKeyStroke('L', InputEvent.CTRL_MASK));
+		checkLineButton.setAccelerator(KeyStroke.getKeyStroke('L', InputEvent.CTRL_DOWN_MASK));
 		checkLineButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String ret = ((TreePanel)frame.getContentPane().getComponent(0)).checkSelectedLine();
-				if (ret == null)
-					JOptionPane.showMessageDialog(null, "This line is correctly decomposed!");				
-				else
-					JOptionPane.showMessageDialog(null, ret);
+				String msg;
+				try {
+					treePanel.checkSelectedLine();
+					msg = "This line is correctly decomposed!";
+				}
+				catch(UserError userError) {
+					msg = userError.getMessage();
+				}
+				JOptionPane.showMessageDialog(null, msg);				
 			}
 		});
 
