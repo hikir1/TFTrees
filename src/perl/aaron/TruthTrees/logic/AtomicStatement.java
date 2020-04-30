@@ -96,16 +96,11 @@ public class AtomicStatement extends Statement implements Composable {
 			
 			for (int i = 0; i < selectedStatements.size(); i++) {
 				
-				//System.out.println("no conditionals found yet...");
-				
-				
 				if (selectedStatements.get(i) instanceof Conditional) {
-					//System.out.println("conditionals found...");
 					List<Statement> operands = ((Conditional)selectedStatements.get(i)).getOperands();
 					
 					// MODUS PONENS
 					if (operands.get(1).toString().equals(toString()) && operands.get(0).toString().equals(selectedStatements.get(i%1).toString())) {
-						//System.out.println("we good");
 						return "composable";
 					}
 					
@@ -117,7 +112,6 @@ public class AtomicStatement extends Statement implements Composable {
 					
 					
 					if (operands.get(0).toString().equals(toString()) && negSecondOperand.toString().equals(selectedStatements.get(i%1).toString())) {
-						//System.out.println("we good negations");
 						return "composable";
 					}
 				}			
