@@ -1,23 +1,12 @@
 package perl.aaron.TruthTrees;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -41,11 +30,7 @@ public class TruthTrees {
 
 	private static int instances = 0;
 
-	public static final String version = "1.3";
-	public static final String errorLogDir = "logs/";
-	public static final String errorFrameName = "Truth Trees Error";
-	public static final String errorMessageErrorLogFile = "Error writing to log file";
-	public static final String errorMessageSystemLookAndFeel = "Error setting system look and feel";
+	public static final String VERSION = "1.3";
 
 	// keeps track of all instances
 	public static void close() {
@@ -336,7 +321,7 @@ public class TruthTrees {
 					Version %s
 					Repository : https://github.com/Bram-Hub/TFTrees
 					""",
-				version),
+				VERSION),
 				"About TFTrees"));
 
 		helpMenu.add(aboutButton);
@@ -380,7 +365,7 @@ public class TruthTrees {
 										between X and O. If you select X, you will need
 										to say where the X comes from by rightclicking
 										those cells (which will turn blue)
-						""", version)),
+						""", VERSION)),
 				"About TFTrees",
 				JOptionPane.PLAIN_MESSAGE)
 		);
@@ -413,77 +398,16 @@ public class TruthTrees {
 		instances++;
 	}
 
-	public static void popupException(Exception e, String errorMessage)
-	{
-		// get error string
-		StringWriter sw = new StringWriter();
-		e.printStackTrace(new PrintWriter(sw));
-		String errorString = sw.toString().trim();
-
-		// trim error to 5 lines to prevent large popup dialogs
-		int newlinePos = errorString.indexOf("\n");
-		int newlines = 1;
-		while (newlinePos != -1 && newlines < 5)
-		{
-			newlinePos = errorString.indexOf("\n",newlinePos + 1);
-			newlines++;
-		}
-
-		// get number of error lines trimmed
-		int newlinesRemaining = 0;
-		int newlinePosNext = newlinePos;
-		while (newlinePosNext != -1)
-		{
-			newlinesRemaining++;
-			newlinePosNext = errorString.indexOf("\n",newlinePosNext + 1);
-		}
-
-		// string to append to error displaying number of lines trimmed
-		String extraError = "";
-		if (newlinesRemaining > 1)
-			extraError = "\nand " + Integer.toString(newlinesRemaining) + " more...";
-
-		JOptionPane.showMessageDialog(null, errorMessage+"\n"+errorString.substring(0,newlinePos)+extraError,
-				TruthTrees.errorFrameName,
-				JOptionPane.ERROR_MESSAGE);
-	}
-
-	public static void logException(Exception e, String errorMessage)
-	{
-		// file name based on timestamp
-		DateFormat format = new SimpleDateFormat("MM-dd-yyyy_HH-mm-ss");
-		String dateString = format.format(new Date());
-		File errorFile = new File(errorLogDir + dateString + ".txt");
-		try
-		{
-			PrintWriter errorpw = new PrintWriter(errorFile);
-			errorpw.println(errorMessage);
-			e.printStackTrace(errorpw);
-			errorpw.close();
-		}
-		catch (FileNotFoundException fileError)
-		{
-			popupException(fileError, errorMessageErrorLogFile);
-		}
-	}
-
-	public static void logExceptionPopup(Exception e, String errorMessage)
-	{
-		logException(e, errorMessage);
-		popupException(e, errorMessage);
-	}
-
 	public static void main(String[] args) {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException
 				| IllegalAccessException | UnsupportedLookAndFeelException e) {
-			logExceptionPopup(e, errorMessageSystemLookAndFeel);
+			showError("Error setting system look and feel: " + e.getMessage());
 			System.exit(1);
 		}
 
 		createNewInstance();
-
 	}
 
 }
