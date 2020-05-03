@@ -8,8 +8,13 @@ public class History {
 	private final Deque<Action> undoStack;
 	private final Deque<Action> redoStack;
 	
-	public interface Action {
-		public Action run();
+	private static class Action {
+		final Runnable undo;
+		final Runnable redo;
+		Action(final Runnable redo, final Runnable undo) {
+			this.redo = redo;
+			this.undo = undo;
+		}
 	}
 	
 	public History(final int capacity) {
@@ -18,18 +23,20 @@ public class History {
 		redoStack = new ArrayDeque<>(capacity);
 	}
 	
-	public void push(final Action act) {
+	public void push(final Runnable redo, final Runnable undo) {
 		redoStack.clear();
 		if(undoStack.size() == capacity)
 			undoStack.removeLast();
-		undoStack.push(act.run());
+		undoStack.push(new Action(redo, undo));
 	}
 	
 	public boolean redo() {
 		if (redoStack.isEmpty())
 			return false;
 		assert undoStack.size() != capacity : "Undo stack should not be full when redoStack is non-empty";
-		undoStack.push(redoStack.pop().run());
+		final Action act = redoStack.pop();
+		act.redo.run();
+		undoStack.push(act);
 		return true;
 	}
 	
@@ -37,7 +44,9 @@ public class History {
 		if (undoStack.isEmpty())
 			return false;
 		assert redoStack.size() != capacity : "Redo stack should never be full when undoStack is non-empty";
-		redoStack.push(undoStack.pop().run());
+		final Action act = undoStack.pop();
+		act.undo.run();
+		redoStack.push(act);
 		return true;
 	}
 	
