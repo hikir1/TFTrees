@@ -22,15 +22,20 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.*;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.plaf.basic.BasicTextFieldUI;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
@@ -42,8 +47,10 @@ import perl.aaron.TruthTrees.BranchLine;
 import perl.aaron.TruthTrees.BranchTerminator;
 import perl.aaron.TruthTrees.ExpressionParser;
 import perl.aaron.TruthTrees.logic.Statement;
+import perl.aaron.TruthTrees.util.History;
+import perl.aaron.TruthTrees.util.MutOption;
+import perl.aaron.TruthTrees.util.NonNull;
 import perl.aaron.TruthTrees.util.NoneResult;
-import perl.aaron.TruthTrees.util.Option;
 import perl.aaron.TruthTrees.util.UserError;
 
 class Global {
@@ -81,7 +88,7 @@ class RadioPanel extends JFrame {
 		int y = 200;
 		buttons = new ArrayList<>();
 
-		Iterator itr = variables.iterator();
+		var itr = variables.iterator();
 		while (itr.hasNext()) {
 			JRadioButton button = new JRadioButton();
 			button.setText(itr.next().toString());
@@ -142,32 +149,29 @@ class RadioPanel extends JFrame {
  */
 public class TreePanel extends JPanel {
 
-	private static final long serialVersionUID = 2267768929169530856L;
+	private static final long serialVersionUID = 1;
 	private static final int UNDO_STACK_SIZE = 32;
 	private static final int REDO_STACK_SIZE = 32;
-	public static String var;
 
-	private Point center = new Point(0, -50);
-	private Point prevCenter = null; //TODO: remove global
-	private Point clickPoint = null; //TODO: remove global
-	private float size = 12;
-	private Option<BranchLine> editLine = new Option.None<>();
+	private final Point center = new Point(0, -50);
+	private final Point prevCenter = new Point(center);
+	private final Point clickPoint = new Point();
+	private final MutOption<BranchLine> editLine = new MutOption<>();
 	private final Map<Branch, JButton> addBranchMap = new HashMap<>();
 	private final Map<Branch, JButton> addLineMap = new HashMap<>();
 	private final Map<Branch, JButton> branchMap = new HashMap<>();
 	private final Map<Branch, JButton> terminateMap = new HashMap<>();
 	private final Map<JTextField, BranchLine> lineMap = new HashMap<>();
 	private final Map<BranchLine, JTextField> reverseLineMap = new HashMap<>();
-	private Set<BranchLine> selectedLines = null; //TODO: remove global
-	private Set<Branch> selectedBranches = null; //TODO: remove global
-	private Branch premises = addBranch(null, true);
-	private final Deque<Branch> undoStack = new ArrayDeque<>(UNDO_STACK_SIZE);
-	private final Deque<Branch> redoStack = new ArrayDeque<>(REDO_STACK_SIZE);
+	private final MutOption<Set<BranchLine>> selectedLines = new MutOption<>();
+	private final MutOption<Set<Branch>> selectedBranches = new MutOption<>();
+	private final NonNull<Branch> premises = new NonNull<>(addBranch(null, true));
+	private final NonNull<Branch> root = new NonNull<>(addBranch(premises.get(), false));
+	private final History hist = new History(UNDO_STACK_SIZE);
+	
 	private int zoomLevel = 0;
 	private int decompNumber = 1;
-	
-	private Branch root = addBranch(premises, false);
-
+	private float size = 12;
 	private double zoomMultiplicationFactor = 1.1;
 	
 	private enum Completion {
@@ -175,22 +179,28 @@ public class TreePanel extends JPanel {
 		ONE_OPEN,
 		INVALID
 	}
-
-	public TreePanel() {
-		this(true);
-	}
 	
+	private static final Map<String,String> SYMBOLS =
+			Map.of(
+				"$", "\u2192",
+				"%", "\u2194",
+				"@", "\u2200",
+				"/", "\u2203",
+				"|", "\u2228",
+				"&", "\u2227",
+				"~", "\u00AC",
+				"!", "\u00AC"
+			);
+
 	private void resetVars() {
-		clickPoint = null;
-		prevCenter = null;
-		
-		center = new Point(0, -50);
+		center.setLocation(0, -50);
+		prevCenter.setLocation(center);
 		size = 12f;
 		zoomLevel = 0;
 		decompNumber = 1;
-		editLine = null;
-		selectedLines = null;
-		selectedBranches = null;
+		editLine.setNone();
+		selectedLines.setNone();
+		selectedBranches.setNone();
 		addBranchMap.clear();
 		addLineMap.clear();
 		branchMap.clear();
@@ -198,14 +208,13 @@ public class TreePanel extends JPanel {
 		lineMap.clear();
 		reverseLineMap.clear();
 		this.setFont(this.getFont().deriveFont(size));
-		premises = addBranch(null, true);
-		undoStack.clear();
-		redoStack.clear();
+		premises.set(addBranch(null, true));
+		hist.clear();
 
-		root = addBranch(premises, false);
+		root.set(addBranch(premises.get(), false));
 	}
 
-	public TreePanel(boolean addFirstLine) {
+	public TreePanel() {
 		super();
 		setOpaque(false);
 		setBackground(new Color(0, 0, 0, 0));
@@ -220,8 +229,8 @@ public class TreePanel extends JPanel {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				prevCenter = center;
-				clickPoint = e.getPoint();
+				prevCenter.setLocation(center);
+				clickPoint.setLocation(e.getPoint());
 				requestFocus();
 			}
 
@@ -245,7 +254,7 @@ public class TreePanel extends JPanel {
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				center = new Point(e.getPoint().x - clickPoint.x + prevCenter.x,
+				center.setLocation(e.getPoint().x - clickPoint.x + prevCenter.x,
 						e.getPoint().y - clickPoint.y + prevCenter.y);
 				moveComponents();
 				validate();
@@ -255,156 +264,7 @@ public class TreePanel extends JPanel {
 
 	}
 
-	private void recordState() {
-		if (premises != null) {
-			Branch treeCopy = premises.deepCopy();
-
-			Map<BranchLine, BranchLine> lineMap = new HashMap<BranchLine, BranchLine>();
-			Map<Branch, Branch> branchMap = new HashMap<Branch, Branch>();
-
-			mapNewToOld(premises, treeCopy, lineMap, branchMap);
-			addLineReferences(lineMap, branchMap);
-
-			undoStack.push(treeCopy);
-			redoStack.clear();
-		}
-	}
-
-	/**
-	 * Maps every item in a copy of a branch to the corresponding item in the
-	 * original
-	 * 
-	 * @param oldBranch The original branch
-	 * @param newBranch The copy of the original branch
-	 * @param lineMap   A map of old lines to new lines to be populated
-	 * @param branchMap A map of old branches to new branches to be populated
-	 */
-	private void mapNewToOld(Branch oldBranch, Branch newBranch, Map<BranchLine, BranchLine> lineMap,
-			Map<Branch, Branch> branchMap) {
-		branchMap.put(oldBranch, newBranch);
-		for (int i = 0; i < oldBranch.numLines(); i++) {
-			lineMap.put(oldBranch.getLine(i), newBranch.getLine(i));
-		}
-		Iterator<Branch> oldIter = oldBranch.getBranches().iterator();
-		Iterator<Branch> newIter = newBranch.getBranches().iterator();
-		while (oldIter.hasNext()) {
-			mapNewToOld(oldIter.next(), newIter.next(), lineMap, branchMap);
-		}
-	}
-
-	/**
-	 * Adds all references (decompositions, etc.) from lines in a tree to a copy of
-	 * that tree, updating them to point to the components in the copy
-	 * 
-	 * @param lineMap   The map of old lines to each corresponding lines in the copy
-	 * @param branchMap The map of branches to each corresponding branch in the copy
-	 */
-	private void addLineReferences(Map<BranchLine, BranchLine> lineMap, Map<Branch, Branch> branchMap) {
-		for (BranchLine oldLine : lineMap.keySet()) {
-			BranchLine newLine = lineMap.get(oldLine);
-
-			BranchLine oldDecomposedFrom = oldLine.getDecomposedFrom();
-			BranchLine newDecomposedFrom = lineMap.get(oldDecomposedFrom);
-			newLine.setDecomposedFrom(newDecomposedFrom);
-
-			Set<BranchLine> oldSelectedLineSet = oldLine.getSelectedLines();
-			Set<BranchLine> newSelectedLineSet = newLine.getSelectedLines();
-			for (BranchLine oldSelected : oldSelectedLineSet) {
-				BranchLine newSelected = lineMap.get(oldSelected);
-				newSelectedLineSet.add(newSelected);
-			}
-
-			Set<Branch> oldSelectedBranchSet = oldLine.getSelectedBranches();
-			Set<Branch> newSelectedBranchSet = newLine.getSelectedBranches();
-			for (Branch oldSelected : oldSelectedBranchSet) {
-				Branch newSelected = branchMap.get(oldSelected);
-				newSelectedBranchSet.add(newSelected);
-			}
-
-			newLine.setIsPremise(oldLine.isPremise());
-		}
-	}
-
-	/**
-	 * Undoes the previous state change.
-	 */
-	public void undoState() {
-		if (!undoStack.isEmpty()) {
-			redoStack.push(premises.deepCopy());
-			premises = undoStack.pop();
-			root = premises.getBranches().iterator().next();
-			editLine = null;
-			resetAllComponents();
-			moveComponents();
-			repaint();
-		}
-	}
-
-	/**
-	 * Performs the previously undone state change again
-	 */
-	public void redoState() {
-		if (!redoStack.isEmpty()) {
-			undoStack.push(premises.deepCopy());
-			premises = redoStack.pop();
-			root = premises.getBranches().iterator().next();
-			editLine = null;
-			resetAllComponents();
-			moveComponents();
-			repaint();
-		}
-	}
 	
-	public void clear() {
-		resetVars();
-	}
-
-	/**
-	 * Deletes all components saved and recreates them for the current tree.
-	 */
-	private void resetAllComponents() {
-		addBranchMap.clear();
-		addLineMap.clear();
-		branchMap.clear();
-		terminateMap.clear();
-		lineMap.clear();
-		reverseLineMap.clear();
-
-		addComponentsRecursively(premises);
-	}
-
-	/**
-	 * Creates all associated component for a given branch and its ancestors
-	 * 
-	 * @param b The branch to recursively create components for
-	 */
-	private void addComponentsRecursively(Branch b) {
-		makeButtonsForBranch(b);
-		for (int i = 0; i < b.numLines(); i++) {
-			BranchLine line = b.getLine(i);
-			makeTextFieldForLine(line, b, line instanceof BranchTerminator);
-		}
-		for (Branch child : b.getBranches()) {
-			addComponentsRecursively(child);
-		}
-	}
-
-	/**
-	 * Makes a new BranchLine that is a premise, and sets its statement to s
-	 * 
-	 * @param s The premise that is added
-	 */
-	public void addPremise(Statement s) {
-		recordState();
-		BranchLine newLine = addLine(premises);
-		newLine.setIsPremise(true);
-		if (s != null) {
-			newLine.setStatement(s);
-			reverseLineMap.get(newLine).setText(s.toString());
-			moveComponents();
-		}
-	}
-
 	/**
 	 * Makes a new BranchLine that is a premise, with no statement
 	 */
@@ -412,6 +272,21 @@ public class TreePanel extends JPanel {
 		addPremise(null);
 	}
 
+	/**
+	 * Makes a new BranchLine that is a premise, and sets its statement to s
+	 * 
+	 * @param s The premise that is added
+	 */
+	public void addPremise(final Statement s) { // TODO: worry anout removing first premise?
+		BranchLine newLine = addLine(premises.get());
+		newLine.setIsPremise(true);
+		if (s != null) {
+			newLine.setStatement(s);
+			reverseLineMap.get(newLine).setText(s.toString());
+			moveComponents();
+		}
+	}
+	
 	/**
 	 * Checks that the line is decomposed properly
 	 * 
@@ -428,7 +303,7 @@ public class TreePanel extends JPanel {
 	 * @param b Branch being checked
 	 * @return null if decomposed properly, an error message otherwise
 	 */
-	private void checkBranch(Branch b) throws UserError { //TODO: change returns to throws
+	private void checkBranch(Branch b) throws UserError {
 		for (int i = 0; i < b.numLines(); i++)
 			checkLine(b.getLine(i));
 
@@ -445,8 +320,8 @@ public class TreePanel extends JPanel {
 	 *         terminate but at least one is marked open, -1 otherwise
 	 */
 	public Completion checkCompletion() {
-		boolean isOpen = checkForOpenBranch(root);
-		boolean allClosed = checkForAllClosed(root);
+		boolean isOpen = checkForOpenBranch(root.get());
+		boolean allClosed = checkForAllClosed(root.get());
 		if (!isOpen && allClosed)
 			return Completion.ALL_CLOSED;
 		else if (!allClosed && !isOpen)
@@ -517,7 +392,7 @@ public class TreePanel extends JPanel {
 	 * @return false if b or one of its children has a terminator that is not
 	 *         verified, true otherwise
 	 */
-	private void verifyTerminators(Branch b) throws UserError { //TODO: change returns to throws
+	private void verifyTerminators(Branch b) throws UserError {
 
 		if (checkForOpenBranch(b)) { // If there are open branches in the current level or below
 
@@ -533,46 +408,13 @@ public class TreePanel extends JPanel {
 
 		}
 	}
-
-	/**
-	 * Walks through the tree and returns a set of the bottom branches that contain
-	 * an open terminator
-	 * 
-	 * @param b    Branch to start searching at
-	 * @param open Empty set of Branches (for recursion)
-	 * @return The set of all branches with an open terminator
-	 */
-	private Set<Branch> findOpenBranches(Branch b, Set<Branch> open) {
-		boolean hasOpen = checkForOpenBranch(b);
-		if (hasOpen) {
-
-			if (b.getBranches().size() > 0) {
-				// Has children
-				for (Branch child : b.getBranches()) {
-
-					if (checkForOpenBranch(child)) { // Recurse into children with open branches
-						return findOpenBranches(child, open);
-					}
-				}
-			} else {
-				// No children
-				open.add(b);
-				return open;
-			}
-		} else {
-			// No open branch
-			open.add(b);
-			return open;
-		}
-		return open;
-	}
 	
 	private void openVerifyLines(Branch b) throws UserError {
 		openVerifyLines(b, false);
 	}
 
 	// 'lax' indicates that lines need not be decomposed, but still check for validity if they are
-	private void openVerifyLines(Branch b, boolean lax) throws UserError { //TODO throw instead of return
+	private void openVerifyLines(Branch b, boolean lax) throws UserError {
 		for(BranchLine line: b.getLines())
 			line.verifyDecompositionOpen(lax);
 
@@ -611,24 +453,22 @@ public class TreePanel extends JPanel {
 		return ret;
 	}
 	
-	//TODO
-
 	/**
 	 * Runs all of the "check" methods on the whole tree.
 	 * 
 	 * @return null if tree is correct and complete, error message otherwise
 	 */
 	public void check() throws UserError {
-		verifyTerminators(root);
+		verifyTerminators(root.get());
 
 		switch (checkCompletion()) {
 		case ALL_CLOSED:
-			checkBranch(premises);
-			checkBranch(root);
+			checkBranch(premises.get());
+			checkBranch(root.get());
 			return;
 		case ONE_OPEN:
-			openVerifyLines(premises);
-			openVerifyLines(root);
+			openVerifyLines(premises.get());
+			openVerifyLines(root.get());
 			return;
 		default: // INVALID
 			throw new UserError("Not all branches are closed and no branch has been marked as open!");
@@ -653,8 +493,8 @@ public class TreePanel extends JPanel {
 	 * @param parent
 	 * @return
 	 */
-	public Branch addBranch(Branch parent) {
-		return addBranch(parent, true);
+	public void addBranch(Branch parent) {
+		addBranch(parent, true);
 	}
 
 	/**
@@ -666,32 +506,22 @@ public class TreePanel extends JPanel {
 	 * @return the new branch that was added
 	 */
 	public Branch addBranch(Branch parent, boolean addFirstLine) {
-		recordState();
-		Branch newBranch = new Branch(parent);
-		newBranch.setFontMetrics(getFontMetrics(getFont()));
-		makeButtonsForBranch(newBranch);
-		if (parent != null)
-			parent.addBranch(newBranch);
-		if (addFirstLine) {
-			addLine(newBranch);
-			if (parent == null)
-				newBranch.getLine(0).setIsPremise(true);
-		}
-		moveComponents();
-		repaint();
-		return newBranch;
+		return addBranch(parent, addFirstLine, null);
 	}
 
-	public Branch addBranch(Branch parent, boolean addFirstLine, boolean wasNotTyped, Statement s) {
-		recordState();
-		Branch newBranch = new Branch(parent);
+	public Branch addBranch(final Branch parent, final boolean addFirstLine, final Statement s) {
+		final Branch newBranch = new Branch(parent);
 		newBranch.setFontMetrics(getFontMetrics(getFont()));
 		makeButtonsForBranch(newBranch);
 		if (parent != null)
 			parent.addBranch(newBranch);
 		if (addFirstLine) {
-			addLine(newBranch, s);
-			newBranch.getLine(0).setIsPremise(true);
+			if(s != null) {
+				addLine(newBranch, s);
+				newBranch.getLine(0).setIsPremise(true);
+			}
+			else
+				addLine(newBranch);
 			if (parent == null)
 				newBranch.getLine(0).setIsPremise(true);
 		}
@@ -740,38 +570,35 @@ public class TreePanel extends JPanel {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				if (selectedBranches != null && (SwingUtilities.isRightMouseButton(e) || e.isControlDown())) {
-					try {
-
-						if (selectedBranches.contains(myBranch)) {
-							selectedBranches.remove(myBranch);
-							myBranch.setDecomposedFrom(null);
-						} else if (myBranch.getDecomposedFrom() == null) {
-							selectedBranches.add(myBranch);
-							myBranch.setDecomposedFrom(editLine.unwrap());
+				selectedBranches.if_some(selectedBranches -> {
+					if (SwingUtilities.isRightMouseButton(e) || e.isControlDown()) {
+						try {
+							if (selectedBranches.contains(myBranch)) {
+								selectedBranches.remove(myBranch);
+								myBranch.setDecomposedFrom(null);
+							} else if (myBranch.getDecomposedFrom() == null) {
+								myBranch.setDecomposedFrom(editLine.unwrap());
+								selectedBranches.add(myBranch);
+							}
+							TreePanel.this.repaint();
+						} catch(NoneResult r) {
+							r.printStackTrace();
 						}
-						TreePanel.this.repaint();
-					} catch(NoneResult e) {
-//						TODO NOTE
 					}
-				}
+				});
 			}
 
 			@Override
-			public void mouseClicked(MouseEvent e) {
-			}
+			public void mouseClicked(MouseEvent e) {}
 
 			@Override
-			public void mouseEntered(MouseEvent e) {
-			}
+			public void mouseEntered(MouseEvent e) {}
 
 			@Override
-			public void mouseExited(MouseEvent e) {
-			}
+			public void mouseExited(MouseEvent e) {}
 
 			@Override
-			public void mouseReleased(MouseEvent e) {
-			}
+			public void mouseReleased(MouseEvent e) {}
 		});
 		add(branchButton);
 		add(lineButton);
@@ -790,9 +617,12 @@ public class TreePanel extends JPanel {
 	 * @return true if b is selected, false otherwise
 	 */
 	private boolean isSelected(BranchLine b) {
-		if (selectedLines != null)
-			return selectedLines.contains(b);
-		return false;
+		try {
+			return selectedLines.unwrap().contains(b);
+		}
+		catch(NoneResult r) {
+			return false;
+		}
 	}
 
 	private void toggleSelected(BranchLine b, Set<BranchLine> curSelected) {
@@ -808,13 +638,18 @@ public class TreePanel extends JPanel {
 				if (!(editLine.unwrap() instanceof BranchTerminator))
 					b.setDecomposedFrom(editLine.unwrap());
 			}
-		} catch(NoneResult e) {
-//			TODO NOTE
+		} catch(NoneResult r) {
+			r.printStackTrace();
 		}
 	}
 
 	private void toggleSelected(BranchLine b) {
-		toggleSelected(b, selectedLines);
+		try {
+			toggleSelected(b, selectedLines.unwrap());
+		}
+		catch(NoneResult r) {
+			r.printStackTrace();
+		}
 	}
 
 	private void moveBranch(Branch b, Point origin) {
@@ -826,7 +661,7 @@ public class TreePanel extends JPanel {
 			JTextField curField = reverseLineMap.get(curLine);
 			if (isSelected(curLine))
 				curField.setBackground(BranchLine.SELECTED_COLOR);
-			else if (curLine == editLine)
+			else if (editLine.valEquals(curLine))
 				curField.setBackground(BranchLine.EDIT_COLOR);
 			else
 				curField.setBackground(BranchLine.DEFAULT_COLOR);
@@ -842,7 +677,7 @@ public class TreePanel extends JPanel {
 				drawStringAt(g2d, p, tickMark);
 			}
 		}
-		if (b != premises) {
+		if (b != premises.get()) {
 			JButton lineButton = addLineMap.get(b);
 			JButton addButton = addBranchMap.get(b);
 			JButton branchButton = branchMap.get(b);
@@ -898,12 +733,12 @@ public class TreePanel extends JPanel {
 	public void moveComponents() {
 		Point origin = new Point(center.x + getWidth() / 2, center.y + getHeight() / 2);
 		if (premises != null) {
-			moveBranch(premises, origin);
-			origin.translate(0, premises.getLineHeight() * premises.numLines());
+			moveBranch(premises.get(), origin);
+			origin.translate(0, premises.get().getLineHeight() * premises.get().numLines());
 		}
 		origin.translate(0, 20);
 		if (root != null) {
-			moveBranch(root, origin);
+			moveBranch(root.get(), origin);
 		}
 	}
 
@@ -954,7 +789,6 @@ public class TreePanel extends JPanel {
 	 * @return the BranchLine that was added
 	 */
 	private BranchLine addLine(final Branch b, final boolean isTerminator, final boolean isClose) {
-		recordState();
 		final BranchLine newLine;
 		if (isTerminator) {
 			newLine = new BranchTerminator(b);
@@ -982,7 +816,6 @@ public class TreePanel extends JPanel {
 	 */
 	private BranchLine addLine(final Branch b, final boolean isTerminator, final boolean isClose,
 			final boolean wasNotTyped, final Statement s) {
-		recordState();
 		final BranchLine newLine;
 		if (wasNotTyped) {
 			newLine = b.addStatement(s);
@@ -999,37 +832,38 @@ public class TreePanel extends JPanel {
 		moveComponents();
 		return newLine;
 	}
-
-	public void addLineBefore() {
-		if (editLine != null) {
-			System.out.println("Adding line before " + editLine);
-			for (int i = 0; i < editLine.getParent().numLines(); i++) {
-				if (editLine.getParent().getLine(i) == editLine) {
-					final BranchLine newline;
-					newline = editLine.getParent().addStatement(null, i);
-					makeTextFieldForLine(newline, editLine.getParent(), false);
-					moveComponents();
-					return;
-				}
-			}
-		}
+	
+	private enum LinePlacement {
+		BEFORE, AFTER
 	}
 
-	public void addLineAfter() {
-		if (editLine != null && !(editLine instanceof BranchTerminator)) {
-			System.out.println("Adding line after " + editLine);
+	public void addLineBefore() throws UserError {
+		addLine(LinePlacement.BEFORE);
+	}
+	
+	public void addLineAfter() throws UserError {
+		addLine(LinePlacement.AFTER);
+	}
+	
+	private void addLine(final LinePlacement placement) throws UserError {
+		try {
+			BranchLine editLine = this.editLine.unwrap();
+			BranchLine newLine = null;
 			for (int i = 0; i < editLine.getParent().numLines(); i++) {
 				if (editLine.getParent().getLine(i) == editLine) {
-					final BranchLine newline;
-					newline = editLine.getParent().addStatement(null, i + 1);
-					makeTextFieldForLine(newline, editLine.getParent(), false);
-					moveComponents();
-					return;
+					newLine = editLine.getParent().addStatement(null, placement == LinePlacement.BEFORE? i + 1: i);
+					break;
 				}
 			}
+			assert newLine != null : "editLine not found?";
+			makeTextFieldForLine(newLine, editLine.getParent(), false);
+			moveComponents();
 		}
+		catch(NoneResult r) {
+			throw new UserError("No line selected.");
+		}		
 	}
-
+	
 	private void makeTextFieldForLine(final BranchLine line, final Branch b, final boolean isTerminator) {
 		final JTextField newField = new JTextField("");
 		newField.setUI(new BasicTextFieldUI() {
@@ -1050,60 +884,22 @@ public class TreePanel extends JPanel {
 			newField.setText(line.toString());
 			newField.setForeground(new Color(0.7f, 0.0f, 0.0f));
 		}
-		if (b == premises)
+		if (b == premises.get())
 			line.setIsPremise(true);
 		newField.setEditable(false);
 		newField.setFocusable(false);
 		newField.setHorizontalAlignment(JTextField.CENTER);
 		newField.setFont(this.getFont().deriveFont(size));
 		((AbstractDocument) newField.getDocument()).setDocumentFilter(new DocumentFilter() {
+			@Override
 			public void insertString(DocumentFilter.FilterBypass fb, int offset, String string, AttributeSet attr)
 					throws BadLocationException {
-				if (string.equals("$"))
-					super.insertString(fb, offset, "\u2192", attr);
-				else if (string.equals("%"))
-					super.insertString(fb, offset, "\u2194", attr);
-				else if (string.equals("@"))
-					super.insertString(fb, offset, "\u2200", attr);
-				else if (string.equals("/"))
-					super.insertString(fb, offset, "\u2203", attr);
-				else if (string.equals("|"))
-					super.insertString(fb, offset, "\u2228", attr);
-				else if (string.equals("&"))
-					super.insertString(fb, offset, "\u2227", attr);
-				else if (string.equals("~"))
-					super.insertString(fb, offset, "\u00AC", attr);
-				else if (string.equals("!"))
-					super.insertString(fb, offset, "\u00AC", attr);
-				else
-					super.insertString(fb, offset, string, attr);
-			}
-
-			public void remove(DocumentFilter.FilterBypass fb, int offset, int length) throws BadLocationException {
-				super.remove(fb, offset, length);
+				super.insertString(fb, offset, SYMBOLS.getOrDefault(string, string), attr);
 			}
 
 			public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
 					throws BadLocationException {
-				if (text.equals("$"))
-					super.replace(fb, offset, length, "\u2192", attrs);
-				else if (text.equals("%"))
-					super.replace(fb, offset, length, "\u2194", attrs);
-				else if (text.equals("@"))
-					super.replace(fb, offset, length, "\u2200", attrs);
-				else if (text.equals("/"))
-					super.replace(fb, offset, length, "\u2203", attrs);
-				else if (text.equals("|"))
-					super.replace(fb, offset, length, "\u2228", attrs);
-				else if (text.equals("&"))
-					super.replace(fb, offset, length, "\u2227", attrs);
-				else if (text.equals("~"))
-					super.replace(fb, offset, length, "\u00AC", attrs);
-				else if (text.equals("!"))
-					super.replace(fb, offset, length, "\u00AC", attrs);
-				else
-					super.replace(fb, offset, length, text, attrs);
-
+				super.replace(fb, offset, length, SYMBOLS.getOrDefault(text, text), attrs);
 			}
 		});
 		newField.addMouseListener(new MouseListener() {
@@ -1115,26 +911,28 @@ public class TreePanel extends JPanel {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				if (SwingUtilities.isLeftMouseButton(e) && !e.isControlDown()) {
-					if (editLine != null) {
+					editLine.if_some(editLine -> {
 						reverseLineMap.get(editLine).setEditable(false);
 						reverseLineMap.get(editLine).setFocusable(false);
-					}
+					});
 					if (!isTerminator) {
 						newField.setEditable(true);
 						newField.setFocusable(true);
 					}
 					newField.requestFocus();
-					editLine = lineMap.get(newField);
-					selectedLines = lineMap.get(newField).getSelectedLines();
-					selectedBranches = lineMap.get(newField).getSelectedBranches();
+					editLine.set(lineMap.get(newField));
+					selectedLines.set(lineMap.get(newField).getSelectedLines());
+					selectedBranches.set(lineMap.get(newField).getSelectedBranches());
 					moveComponents();
 					repaint();
 				} else if (SwingUtilities.isRightMouseButton(e) || e.isControlDown()) {
 					BranchLine curLine = lineMap.get(newField);
 					if (!isTerminator) {
-						if (editLine != curLine && editLine != null && (editLine == curLine.getDecomposedFrom()
-								|| curLine.getDecomposedFrom() == null || editLine instanceof BranchTerminator))
-							toggleSelected(curLine);
+						editLine.if_some(editLine -> {
+							if (editLine != curLine && (editLine != curLine.getDecomposedFrom()
+									|| curLine.getDecomposedFrom() == null || editLine instanceof BranchTerminator))
+								toggleSelected(curLine);
+						});
 					} else {
 						((BranchTerminator) lineMap.get(newField)).switchIsClose();
 						newField.setText(lineMap.get(newField).toString());
@@ -1243,7 +1041,7 @@ public class TreePanel extends JPanel {
 	 * @param s the Statement added to the tree
 	 */
 	public void addStatement(Statement s) {
-		addStatement(root, s);
+		addStatement(root.get(), s);
 	}
 
 	/**
@@ -1267,10 +1065,12 @@ public class TreePanel extends JPanel {
 	}
 
 	public void drawBranching(Branch b, Graphics2D g) {
-		if (selectedBranches != null && selectedBranches.contains(b))
-			g.setColor(BranchLine.SELECTED_COLOR);
-		else
-			g.setColor(BranchLine.DEFAULT_COLOR);
+		g.setColor(BranchLine.DEFAULT_COLOR);
+		selectedBranches.if_some(selectedBranches -> {
+			if (selectedBranches.contains(b))
+				g.setColor(BranchLine.SELECTED_COLOR);
+		});
+			
 		JButton addButton = addBranchMap.get(b);
 		if (addButton != null) {
 			int midX = addButton.getX() + addButton.getWidth() / 2;
@@ -1307,7 +1107,7 @@ public class TreePanel extends JPanel {
 		drawStringAt(g2d, new Point(center.x + getWidth() / 2, center.y + getHeight() / 2), "Premises");
 
 		drawStringAt(g2d, new Point(center.x + getWidth() / 2,
-				center.y + getHeight() / 2 + premises.numLines() * premises.getLineHeight() + Branch.VERTICAL_GAP),
+				center.y + getHeight() / 2 + premises.get().numLines() * premises.get().getLineHeight() + Branch.VERTICAL_GAP),
 				"Decomposition");
 
 		for (BranchLine l : reverseLineMap.keySet()){
@@ -1322,8 +1122,8 @@ public class TreePanel extends JPanel {
 
 
 
-		if (root.getBranches().size() > 0)
-			drawBranching(root, g2d);
+		if (root.get().getBranches().size() > 0)
+			drawBranching(root.get(), g2d);
 	}
 
 	private void drawStringAt(Graphics2D g2d, Point p, String toDraw) {
@@ -1344,7 +1144,7 @@ public class TreePanel extends JPanel {
 	 * @return the Branch that is root of the tree
 	 */
 	public Branch getRootBranch() {
-		return root;
+		return root.get();
 	}
 
 	/**
@@ -1353,9 +1153,9 @@ public class TreePanel extends JPanel {
 	 * @param newRoot the Branch that is to be the new root of the tree
 	 */
 	public void setRoot(Branch newRoot) {
-		root = newRoot;
-		root.setFontMetrics(this.getFontMetrics(this.getFont()));
-		root.getWidth();
+		root.set(newRoot);
+		newRoot.setFontMetrics(this.getFontMetrics(this.getFont()));
+		newRoot.getWidth();
 	}
 
 	/**
@@ -1364,7 +1164,6 @@ public class TreePanel extends JPanel {
 	 * @param removedLine The line to remove
 	 */
 	private void removeLine(BranchLine removedLine) {
-		recordState();
 		BranchLine decomposedFrom = removedLine.getDecomposedFrom();
 		if (decomposedFrom != null) {
 			toggleSelected(removedLine, decomposedFrom.getSelectedLines());
@@ -1390,21 +1189,21 @@ public class TreePanel extends JPanel {
 	 * Unselects the currently selected line, modifying the context as such
 	 */
 	private void deselectCurrentLine() {
-		editLine = null;
-		selectedBranches = null;
-		selectedLines = null;
+		editLine.setNone();
+		selectedBranches.setNone();
+		selectedLines.setNone();
 	}
 
 	/**
 	 * Deletes the currently selected line
 	 */
 	public void deleteCurrentLine() {
-		if (editLine == null && !editLine.isPremise())
-			return;
-		removeLine(editLine);
-		deselectCurrentLine();
-		moveComponents();
-		repaint();
+		editLine.if_some(editLine -> {
+			removeLine(editLine);
+			deselectCurrentLine();
+			moveComponents();
+			repaint();
+		});
 	}
 
 	/**
@@ -1414,7 +1213,6 @@ public class TreePanel extends JPanel {
 	 * @param b The branch to be removed
 	 */
 	private void deleteBranch(Branch b) {
-		recordState();
 		for (Branch curChild : b.getBranches())
 			deleteBranch(curChild);
 		for (int i = 0; i < b.numLines(); i++) {
@@ -1441,22 +1239,21 @@ public class TreePanel extends JPanel {
 	 * 
 	 * @return : False if the current branch is the root branch, true otherwise
 	 */
-	public boolean deleteCurrentBranch() {
-		Branch selectedBranch = editLine.getParent();
-		if (selectedBranch == root || selectedBranch == premises) {
-			JOptionPane.showMessageDialog(null, "Cannot delete root and premise branches!", "Delete branch error",
-					JOptionPane.ERROR_MESSAGE);
-			return false;
+	public void deleteCurrentBranch() throws UserError {
+		try {
+			Branch selectedBranch = editLine.unwrap().getParent();
+			if (selectedBranch == root.get() || selectedBranch == premises.get())
+				throw new UserError("Cannot delete root and premise branches!");
+			deleteBranch(selectedBranch);
+			deselectCurrentLine();
+			moveComponents();
+			repaint();
 		}
-		deleteBranch(selectedBranch);
-		deselectCurrentLine();
-		moveComponents();
-		repaint();
-		return true;
+		catch(NoneResult r) {}
 	}
 
 	public void deleteFirstPremise() {
-		removeLine(premises.getLine(0));
+		removeLine(premises.get().getLine(0));
 	}
 
 	public void zoomIn() {
@@ -1517,9 +1314,12 @@ public class TreePanel extends JPanel {
 
 	// intermediate function
 	public void split() throws UserError {
-		if (editLine != null) //TODO: change editLine to Option
-			return split(editLine); //TODO: change this to void throws UserError
-		throw new UserError("No statement is currently selected!");
+		try {
+			split(editLine.unwrap());
+		}
+		catch (NoneResult r) {
+			throw new UserError("No statement is currently selected!");
+		}
 	}
 
 	/**
@@ -1530,7 +1330,6 @@ public class TreePanel extends JPanel {
 	 * @return String that describes success
 	 */
 	public String split(final BranchLine l) {
-		ButtonGroup buttons = new ButtonGroup();
 		Set<String> vars = l.split();
 		RadioPanel rp = new RadioPanel(vars);
 		// Setting Bounds of JFrame. 
@@ -1555,9 +1354,9 @@ public class TreePanel extends JPanel {
 				String var = Global.var;
 				Global.s1 = ExpressionParser.parseExpression(var);
 				Global.s2 = ExpressionParser.parseExpression("\u00AC"+var);
-				if (l.getParent() == premises){
-					TreePanel.this.addBranch(root, true, true, Global.s1);
-					TreePanel.this.addBranch(root, true, true, Global.s2);
+				if (l.getParent() == premises.get()){
+					TreePanel.this.addBranch(root.get(), true, true, Global.s1);
+					TreePanel.this.addBranch(root.get(), true, true, Global.s2);
 				}
 				else{
 					TreePanel.this.addBranch(l.getParent(), true, true, Global.s1);
@@ -1571,9 +1370,12 @@ public class TreePanel extends JPanel {
 
 	// intermediate function
 	public void mark() throws UserError {
-		if (editLine != null) //TODO: fix this
-			return mark(editLine);
-		throw new UserError("No statement is currently selected!");
+		try {
+			mark(editLine.unwrap());
+		}
+		catch(NoneResult r) {
+			throw new UserError("No statement is currently selected!");
+		}
 	}
 
 	// helper function

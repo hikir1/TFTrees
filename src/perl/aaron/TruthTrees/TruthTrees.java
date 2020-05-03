@@ -7,6 +7,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -276,8 +277,15 @@ public class TruthTrees {
 		deleteBranchButton.setAccelerator(KeyStroke.getKeyStroke('D', InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
 		deleteBranchButton.addActionListener(event -> {
 			int dialogResult = JOptionPane.showConfirmDialog(null, "Would you like to delete the current branch?");
-			if (dialogResult == JOptionPane.YES_OPTION)
-				treePanel.deleteCurrentBranch();
+			if (dialogResult == JOptionPane.YES_OPTION) {
+				try {
+					treePanel.deleteCurrentBranch();
+				}
+				catch(UserError er) {
+					showError(er.getMessage());
+				}
+			}
+				
 		});
 		
 		/////////////////////////////////////
