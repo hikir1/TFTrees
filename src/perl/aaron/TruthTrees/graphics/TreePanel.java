@@ -263,6 +263,14 @@ public class TreePanel extends JPanel {
 		});
 
 	}
+	
+	public void undoState() {
+		
+	}
+	
+	public void redoState() {
+		
+	}
 
 	
 	/**
