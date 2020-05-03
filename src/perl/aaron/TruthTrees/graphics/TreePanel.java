@@ -165,8 +165,10 @@ public class TreePanel extends JPanel {
 	private final Map<BranchLine, JTextField> reverseLineMap = new HashMap<>();
 	private final MutOption<Set<BranchLine>> selectedLines = new MutOption<>();
 	private final MutOption<Set<Branch>> selectedBranches = new MutOption<>();
-	private final NonNull<Branch> premises = new NonNull<>(addBranch(null, true));
-	private final NonNull<Branch> root = new NonNull<>(addBranch(premises.get(), false));
+	private final NonNull<Branch> premises = new NonNull<>(privAddBranch(null, true));
+//	private final Deque<Branch> undoStack = new ArrayDeque<>(UNDO_STACK_SIZE);
+//	private final Deque<Branch> redoStack = new ArrayDeque<>(REDO_STACK_SIZE);
+	private final NonNull<Branch> root = new NonNull<>(privAddBranch(premises.get(), false));
 	private final History hist = new History(UNDO_STACK_SIZE);
 	
 	private int zoomLevel = 0;
@@ -208,10 +210,10 @@ public class TreePanel extends JPanel {
 		lineMap.clear();
 		reverseLineMap.clear();
 		this.setFont(this.getFont().deriveFont(size));
-		premises.set(addBranch(null, true));
+		premises.set(privAddBranch(null, true));
 		hist.clear();
 
-		root.set(addBranch(premises.get(), false));
+		root.set(privAddBranch(premises.get(), false));
 	}
 
 	public TreePanel() {
@@ -263,15 +265,140 @@ public class TreePanel extends JPanel {
 		});
 
 	}
-	
+
+//	private void recordState() {
+//		Branch treeCopy = premises.get().deepCopy();
+//
+//		Map<BranchLine, BranchLine> lineMap = new HashMap<BranchLine, BranchLine>();
+//		Map<Branch, Branch> branchMap = new HashMap<Branch, Branch>();
+//
+//		mapNewToOld(premises.get(), treeCopy, lineMap, branchMap);
+//		addLineReferences(lineMap, branchMap);
+//
+//		undoStack.push(treeCopy);
+//		redoStack.clear();
+//	}
+
+	/**
+	 * Maps every item in a copy of a branch to the corresponding item in the
+	 * original
+	 * 
+	 * @param oldBranch The original branch
+	 * @param newBranch The copy of the original branch
+	 * @param lineMap   A map of old lines to new lines to be populated
+	 * @param branchMap A map of old branches to new branches to be populated
+	 */
+//	private void mapNewToOld(Branch oldBranch, Branch newBranch, Map<BranchLine, BranchLine> lineMap,
+//			Map<Branch, Branch> branchMap) {
+//		branchMap.put(oldBranch, newBranch);
+//		for (int i = 0; i < oldBranch.numLines(); i++) {
+//			lineMap.put(oldBranch.getLine(i), newBranch.getLine(i));
+//		}
+//		Iterator<Branch> oldIter = oldBranch.getBranches().iterator();
+//		Iterator<Branch> newIter = newBranch.getBranches().iterator();
+//		while (oldIter.hasNext()) {
+//			mapNewToOld(oldIter.next(), newIter.next(), lineMap, branchMap);
+//		}
+//	}
+
+	/**
+	 * Adds all references (decompositions, etc.) from lines in a tree to a copy of
+	 * that tree, updating them to point to the components in the copy
+	 * 
+	 * @param lineMap   The map of old lines to each corresponding lines in the copy
+	 * @param branchMap The map of branches to each corresponding branch in the copy
+	 */
+//	private void addLineReferences(Map<BranchLine, BranchLine> lineMap, Map<Branch, Branch> branchMap) {
+//		for (BranchLine oldLine : lineMap.keySet()) {
+//			BranchLine newLine = lineMap.get(oldLine);
+//
+//			BranchLine oldDecomposedFrom = oldLine.getDecomposedFrom();
+//			BranchLine newDecomposedFrom = lineMap.get(oldDecomposedFrom);
+//			newLine.setDecomposedFrom(newDecomposedFrom);
+//
+//			Set<BranchLine> oldSelectedLineSet = oldLine.getSelectedLines();
+//			Set<BranchLine> newSelectedLineSet = newLine.getSelectedLines();
+//			for (BranchLine oldSelected : oldSelectedLineSet) {
+//				BranchLine newSelected = lineMap.get(oldSelected);
+//				newSelectedLineSet.add(newSelected);
+//			}
+//
+//			Set<Branch> oldSelectedBranchSet = oldLine.getSelectedBranches();
+//			Set<Branch> newSelectedBranchSet = newLine.getSelectedBranches();
+//			for (Branch oldSelected : oldSelectedBranchSet) {
+//				Branch newSelected = branchMap.get(oldSelected);
+//				newSelectedBranchSet.add(newSelected);
+//			}
+//
+//			newLine.setIsPremise(oldLine.isPremise());
+//		}
+//	}
+
+	/**
+	 * Undoes the previous state change.
+	 */
 	public void undoState() {
-		
-	}
-	
-	public void redoState() {
-		
+		hist.undo();
+//		if (!undoStack.isEmpty()) {
+//			redoStack.push(premises.get().deepCopy());
+//			premises.set(undoStack.pop());
+//			root.set(premises.get().getBranches().iterator().next());
+//			editLine.setNone();
+//			resetAllComponents();
+//			moveComponents();
+//			repaint();
+//		}
 	}
 
+	/**
+	 * Performs the previously undone state change again
+	 */
+	public void redoState() {
+		hist.redo();
+//		if (!redoStack.isEmpty()) {
+//			undoStack.push(premises.get().deepCopy());
+//			premises.set(redoStack.pop());
+//			root.set(premises.get().getBranches().iterator().next());
+//			editLine.setNone();
+//			resetAllComponents();
+//			moveComponents();
+//			repaint();
+//		}
+	}
+	
+	public void clear() {
+		resetVars();
+	}
+
+	/**
+	 * Deletes all components saved and recreates them for the current tree.
+	 */
+//	private void resetAllComponents() {
+//		addBranchMap.clear();
+//		addLineMap.clear();
+//		branchMap.clear();
+//		terminateMap.clear();
+//		lineMap.clear();
+//		reverseLineMap.clear();
+//
+//		addComponentsRecursively(premises.get());
+//	}
+
+	/**
+	 * Creates all associated component for a given branch and its ancestors
+	 * 
+	 * @param b The branch to recursively create components for
+	 */
+//	private void addComponentsRecursively(Branch b) {
+//		makeButtonsForBranch(b);
+//		for (int i = 0; i < b.numLines(); i++) {
+//			BranchLine line = b.getLine(i);
+//			makeTextFieldForLine(line, b, line instanceof BranchTerminator);
+//		}
+//		for (Branch child : b.getBranches()) {
+//			addComponentsRecursively(child);
+//		}
+//	}
 	
 	/**
 	 * Makes a new BranchLine that is a premise, with no statement
@@ -513,11 +640,24 @@ public class TreePanel extends JPanel {
 	 * @param addFirstLine if true, the method will add a line to the new branch
 	 * @return the new branch that was added
 	 */
-	public Branch addBranch(Branch parent, boolean addFirstLine) {
-		return addBranch(parent, addFirstLine, null);
+	public void addBranch(Branch parent, boolean addFirstLine) {
+		addBranch(parent, addFirstLine, null);
 	}
 
-	public Branch addBranch(final Branch parent, final boolean addFirstLine, final Statement s) {
+	public void addBranch(final Branch parent, final boolean addFirstLine, final Statement s) {
+		hist.push(() -> histAddBranch(parent, addFirstLine, s));
+	}
+	
+	private History.Action histAddBranch(final Branch parent, final boolean addFirstLine, final Statement s) {
+		final Branch newBranch = privAddBranch(parent, addFirstLine, s);
+		return () -> histDelBranch(newBranch);
+	}
+	
+	private Branch privAddBranch(Branch parent, boolean addFirstLine) {
+		return privAddBranch(parent, addFirstLine, null);
+	}
+	
+	private Branch privAddBranch(final Branch parent, final boolean addFirstLine, final Statement s) {
 		final Branch newBranch = new Branch(parent);
 		newBranch.setFontMetrics(getFontMetrics(getFont()));
 		makeButtonsForBranch(newBranch);
@@ -535,7 +675,6 @@ public class TreePanel extends JPanel {
 		}
 		moveComponents();
 		repaint();
-		return newBranch;
 	}
 
 	/**
@@ -855,21 +994,30 @@ public class TreePanel extends JPanel {
 	
 	private void addLine(final LinePlacement placement) throws UserError {
 		try {
-			BranchLine editLine = this.editLine.unwrap();
-			BranchLine newLine = null;
-			for (int i = 0; i < editLine.getParent().numLines(); i++) {
-				if (editLine.getParent().getLine(i) == editLine) {
-					newLine = editLine.getParent().addStatement(null, placement == LinePlacement.BEFORE? i + 1: i);
-					break;
-				}
-			}
-			assert newLine != null : "editLine not found?";
-			makeTextFieldForLine(newLine, editLine.getParent(), false);
-			moveComponents();
+			histAddLine(placement, editLine.unwrap());
 		}
 		catch(NoneResult r) {
 			throw new UserError("No line selected.");
 		}		
+	}
+	
+	private History.Action histAddLine(final LinePlacement placement, final BranchLine editLine) {
+		assert editLine != null;
+		final BranchLine newLine;
+		for (int i = 0; i < editLine.getParent().numLines(); i++) {
+			if (editLine.getParent().getLine(i) == editLine) {
+				newLine = editLine.getParent().addStatement(null, placement == LinePlacement.BEFORE? i + 1: i);
+				break;
+			}
+		}
+		makeTextFieldForLine(newLine, editLine.getParent(), false);
+		moveComponents();
+		return () -> histDelLine(newLine);
+	}
+	
+	private History.Action histDelLine(final BranchLine line) {
+		removeLine(line);
+		return () -> histAddLine()
 	}
 	
 	private void makeTextFieldForLine(final BranchLine line, final Branch b, final boolean isTerminator) {
