@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2e11ecb6-2d89-4d20-aebe-d833e241eb3d" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/src/perl/aaron/TruthTrees/Branch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/perl/aaron/TruthTrees/Branch.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/perl/aaron/TruthTrees/BranchLine.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/perl/aaron/TruthTrees/BranchLine.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/perl/aaron/TruthTrees/TruthTrees.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/perl/aaron/TruthTrees/TruthTrees.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/perl/aaron/TruthTrees/graphics/TreePanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/perl/aaron/TruthTrees/graphics/TreePanel.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/bin/" />
@@ -20,15 +19,8 @@
       <file leaf-file-name="TruthTrees.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/perl/aaron/TruthTrees/TruthTrees.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
-              <caret line="30" column="37" lean-forward="true" selection-start-line="30" selection-start-column="37" selection-end-line="30" selection-end-column="37" />
-              <folding>
-                <element signature="e#1377#1405#0" expanded="true" />
-                <element signature="e#12365#12471#0" expanded="true" />
-                <element signature="e#12470#12471#0" expanded="true" />
-                <element signature="e#12504#12634#0" expanded="true" />
-                <element signature="e#12633#12634#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="360">
+              <caret line="31" column="37" selection-start-line="31" selection-start-column="37" selection-end-line="31" selection-end-column="37" />
             </state>
           </provider>
         </entry>
@@ -36,32 +28,42 @@
       <file leaf-file-name="TreePanel.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/perl/aaron/TruthTrees/graphics/TreePanel.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="476">
-              <caret line="90" column="43" lean-forward="true" selection-start-line="90" selection-start-column="43" selection-end-line="90" selection-end-column="43" />
+            <state relative-caret-position="465">
+              <caret line="1382" lean-forward="true" selection-start-line="1382" selection-end-line="1382" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#17774#17775#0" expanded="true" />
-                <element signature="e#17811#17812#0" expanded="true" />
-                <element signature="e#22038#22039#0" expanded="true" />
-                <element signature="e#22077#22078#0" expanded="true" />
-                <element signature="e#25538#25539#0" expanded="true" />
-                <element signature="e#25575#25576#0" expanded="true" />
-                <element signature="e#25782#25783#0" expanded="true" />
-                <element signature="e#25813#25814#0" expanded="true" />
-                <element signature="e#26171#26172#0" expanded="true" />
-                <element signature="e#26217#26218#0" expanded="true" />
-                <element signature="e#26544#26545#0" expanded="true" />
-                <element signature="e#26588#26589#0" expanded="true" />
-                <element signature="e#36169#36170#0" expanded="true" />
-                <element signature="e#36197#36198#0" expanded="true" />
-                <element signature="e#36427#36428#0" expanded="true" />
-                <element signature="e#36482#36483#0" expanded="true" />
-                <element signature="e#36715#36716#0" expanded="true" />
-                <element signature="e#36771#36772#0" expanded="true" />
-                <element signature="e#39429#39430#0" expanded="true" />
-                <element signature="e#39447#39448#0" expanded="true" />
-                <element signature="e#42394#42395#0" expanded="true" />
-                <element signature="e#42432#42433#0" expanded="true" />
+                <element signature="e#6493#6494#0" expanded="true" />
+                <element signature="e#6511#6512#0" expanded="true" />
+                <element signature="e#6603#6604#0" expanded="true" />
+                <element signature="e#6621#6622#0" expanded="true" />
+                <element signature="e#7233#7234#0" expanded="true" />
+                <element signature="e#7256#7257#0" expanded="true" />
+                <element signature="e#12938#12939#0" expanded="true" />
+                <element signature="e#12968#12969#0" expanded="true" />
+                <element signature="e#13344#13345#0" expanded="true" />
+                <element signature="e#13395#13396#0" expanded="true" />
+                <element signature="e#20776#20777#0" expanded="true" />
+                <element signature="e#20813#20814#0" expanded="true" />
+                <element signature="e#21020#21021#0" expanded="true" />
+                <element signature="e#21051#21052#0" expanded="true" />
+                <element signature="e#21409#21410#0" expanded="true" />
+                <element signature="e#21455#21456#0" expanded="true" />
+                <element signature="e#21782#21783#0" expanded="true" />
+                <element signature="e#21826#21827#0" expanded="true" />
+                <element signature="e#24746#25008#0" expanded="true" />
+                <element signature="e#25007#25008#0" expanded="true" />
+                <element signature="e#27675#27676#0" expanded="true" />
+                <element signature="e#27717#27718#0" expanded="true" />
+                <element signature="e#27772#27773#0" expanded="true" />
+                <element signature="e#27814#27815#0" expanded="true" />
+                <element signature="e#29828#29829#0" expanded="true" />
+                <element signature="e#29883#29884#0" expanded="true" />
+                <element signature="e#30116#30117#0" expanded="true" />
+                <element signature="e#30172#30173#0" expanded="true" />
+                <element signature="e#32879#32880#0" expanded="true" />
+                <element signature="e#32903#32904#0" expanded="true" />
+                <element signature="e#35787#35788#0" expanded="true" />
+                <element signature="e#35831#35832#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -70,8 +72,8 @@
       <file leaf-file-name="BranchLine.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/perl/aaron/TruthTrees/BranchLine.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="231">
-              <caret line="121" column="5" lean-forward="true" selection-start-line="121" selection-start-column="5" selection-end-line="121" selection-end-column="5" />
+            <state relative-caret-position="347">
+              <caret line="128" column="24" lean-forward="true" selection-start-line="128" selection-start-column="24" selection-end-line="128" selection-end-column="24" />
             </state>
           </provider>
         </entry>
@@ -79,7 +81,7 @@
       <file leaf-file-name="Branch.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/perl/aaron/TruthTrees/Branch.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="193">
+            <state relative-caret-position="4695">
               <caret line="353" column="16" selection-start-line="353" selection-start-column="16" selection-end-line="353" selection-end-column="16" />
             </state>
           </provider>
@@ -88,8 +90,8 @@
       <file leaf-file-name="BranchTerminator.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/perl/aaron/TruthTrees/BranchTerminator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="64">
-              <caret line="13" column="33" lean-forward="true" selection-start-line="13" selection-start-column="33" selection-end-line="13" selection-end-column="33" />
+            <state relative-caret-position="90">
+              <caret line="13" column="33" selection-start-line="13" selection-start-column="33" selection-end-line="13" selection-end-column="33" />
             </state>
           </provider>
         </entry>
@@ -99,6 +101,7 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>verifyTerminations</find>
+      <find>REDO</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -131,6 +134,7 @@
     </navigator>
     <panes>
       <pane id="AndroidView" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -168,7 +172,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
       <pane id="PackagesPane" />
     </panes>
   </component>
@@ -266,12 +269,13 @@
       <updated>1588282869927</updated>
       <workItem from="1588282883379" duration="1120000" />
       <workItem from="1588284182390" duration="461000" />
-      <workItem from="1588284668719" duration="4637000" />
+      <workItem from="1588284668719" duration="4855000" />
+      <workItem from="1588289853685" duration="5049000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="6218000" />
+    <option name="totallyTimeSpent" value="11485000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="877" extended-state="0" />
@@ -279,7 +283,7 @@
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Messages" order="7" visible="true" weight="0.21793275" />
+      <window_info active="true" anchor="bottom" id="Messages" order="7" visible="true" weight="0.21793275" />
       <window_info anchor="right" id="Palette&#9;" order="3" />
       <window_info id="Image Layers" order="2" />
       <window_info anchor="right" id="Capture Analysis" order="3" />
@@ -291,7 +295,7 @@
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -316,15 +320,78 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/perl/aaron/TruthTrees/TruthTrees.java">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="30" column="37" lean-forward="true" selection-start-line="30" selection-start-column="37" selection-end-line="30" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/perl/aaron/TruthTrees/BranchLine.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1080">
+          <caret line="121" column="5" lean-forward="true" selection-start-line="121" selection-start-column="5" selection-end-line="121" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/perl/aaron/TruthTrees/Branch.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4695">
+          <caret line="353" column="16" selection-start-line="353" selection-start-column="16" selection-end-line="353" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/perl/aaron/TruthTrees/BranchTerminator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="13" column="33" lean-forward="true" selection-start-line="13" selection-start-column="33" selection-end-line="13" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/perl/aaron/TruthTrees/graphics/TreePanel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1350">
+          <caret line="90" column="43" lean-forward="true" selection-start-line="90" selection-start-column="43" selection-end-line="90" selection-end-column="43" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#6493#6494#0" expanded="true" />
+            <element signature="e#6511#6512#0" expanded="true" />
+            <element signature="e#6603#6604#0" expanded="true" />
+            <element signature="e#6621#6622#0" expanded="true" />
+            <element signature="e#7233#7234#0" expanded="true" />
+            <element signature="e#7256#7257#0" expanded="true" />
+            <element signature="e#12938#12939#0" expanded="true" />
+            <element signature="e#12968#12969#0" expanded="true" />
+            <element signature="e#13344#13345#0" expanded="true" />
+            <element signature="e#13395#13396#0" expanded="true" />
+            <element signature="e#20776#20777#0" expanded="true" />
+            <element signature="e#20813#20814#0" expanded="true" />
+            <element signature="e#21020#21021#0" expanded="true" />
+            <element signature="e#21051#21052#0" expanded="true" />
+            <element signature="e#21409#21410#0" expanded="true" />
+            <element signature="e#21455#21456#0" expanded="true" />
+            <element signature="e#21782#21783#0" expanded="true" />
+            <element signature="e#21826#21827#0" expanded="true" />
+            <element signature="e#24746#25008#0" expanded="true" />
+            <element signature="e#25007#25008#0" expanded="true" />
+            <element signature="e#27675#27676#0" expanded="true" />
+            <element signature="e#27717#27718#0" expanded="true" />
+            <element signature="e#27772#27773#0" expanded="true" />
+            <element signature="e#27814#27815#0" expanded="true" />
+            <element signature="e#29828#29829#0" expanded="true" />
+            <element signature="e#29883#29884#0" expanded="true" />
+            <element signature="e#30116#30117#0" expanded="true" />
+            <element signature="e#30172#30173#0" expanded="true" />
+            <element signature="e#32879#32880#0" expanded="true" />
+            <element signature="e#32903#32904#0" expanded="true" />
+            <element signature="e#35787#35788#0" expanded="true" />
+            <element signature="e#35831#35832#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/perl/aaron/TruthTrees/TruthTrees.java">
+      <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4320">
           <caret line="312" column="23" lean-forward="true" selection-start-line="312" selection-start-column="23" selection-end-line="312" selection-end-column="23" />
-          <folding>
-            <element signature="e#1377#1405#0" expanded="true" />
-            <element signature="e#12365#12471#0" expanded="true" />
-            <element signature="e#12470#12471#0" expanded="true" />
-            <element signature="e#12504#12634#0" expanded="true" />
-            <element signature="e#12633#12634#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -337,67 +404,77 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/perl/aaron/TruthTrees/TruthTrees.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="30" column="37" lean-forward="true" selection-start-line="30" selection-start-column="37" selection-end-line="30" selection-end-column="37" />
-          <folding>
-            <element signature="e#1377#1405#0" expanded="true" />
-            <element signature="e#12365#12471#0" expanded="true" />
-            <element signature="e#12470#12471#0" expanded="true" />
-            <element signature="e#12504#12634#0" expanded="true" />
-            <element signature="e#12633#12634#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="360">
+          <caret line="31" column="37" selection-start-line="31" selection-start-column="37" selection-end-line="31" selection-end-column="37" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/perl/aaron/TruthTrees/BranchTerminator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="64">
-          <caret line="13" column="33" lean-forward="true" selection-start-line="13" selection-start-column="33" selection-end-line="13" selection-end-column="33" />
+        <state relative-caret-position="90">
+          <caret line="13" column="33" selection-start-line="13" selection-start-column="33" selection-end-line="13" selection-end-column="33" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/perl/aaron/TruthTrees/Branch.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="193">
+        <state relative-caret-position="4695">
           <caret line="353" column="16" selection-start-line="353" selection-start-column="16" selection-end-line="353" selection-end-column="16" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/perl/aaron/TruthTrees/BranchLine.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="121" column="5" lean-forward="true" selection-start-line="121" selection-start-column="5" selection-end-line="121" selection-end-column="5" />
+        <state relative-caret-position="347">
+          <caret line="128" column="24" lean-forward="true" selection-start-line="128" selection-start-column="24" selection-end-line="128" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///Library/Java/JavaVirtualMachines/adoptopenjdk-14.jdk/Contents/Home/lib/src.zip!/java.desktop/java/awt/event/ActionListener.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="405">
+          <caret line="50" column="16" selection-start-line="50" selection-start-column="16" selection-end-line="50" selection-end-column="16" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/perl/aaron/TruthTrees/graphics/TreePanel.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="476">
-          <caret line="90" column="43" lean-forward="true" selection-start-line="90" selection-start-column="43" selection-end-line="90" selection-end-column="43" />
+        <state relative-caret-position="465">
+          <caret line="1382" lean-forward="true" selection-start-line="1382" selection-end-line="1382" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#17774#17775#0" expanded="true" />
-            <element signature="e#17811#17812#0" expanded="true" />
-            <element signature="e#22038#22039#0" expanded="true" />
-            <element signature="e#22077#22078#0" expanded="true" />
-            <element signature="e#25538#25539#0" expanded="true" />
-            <element signature="e#25575#25576#0" expanded="true" />
-            <element signature="e#25782#25783#0" expanded="true" />
-            <element signature="e#25813#25814#0" expanded="true" />
-            <element signature="e#26171#26172#0" expanded="true" />
-            <element signature="e#26217#26218#0" expanded="true" />
-            <element signature="e#26544#26545#0" expanded="true" />
-            <element signature="e#26588#26589#0" expanded="true" />
-            <element signature="e#36169#36170#0" expanded="true" />
-            <element signature="e#36197#36198#0" expanded="true" />
-            <element signature="e#36427#36428#0" expanded="true" />
-            <element signature="e#36482#36483#0" expanded="true" />
-            <element signature="e#36715#36716#0" expanded="true" />
-            <element signature="e#36771#36772#0" expanded="true" />
-            <element signature="e#39429#39430#0" expanded="true" />
-            <element signature="e#39447#39448#0" expanded="true" />
-            <element signature="e#42394#42395#0" expanded="true" />
-            <element signature="e#42432#42433#0" expanded="true" />
+            <element signature="e#6493#6494#0" expanded="true" />
+            <element signature="e#6511#6512#0" expanded="true" />
+            <element signature="e#6603#6604#0" expanded="true" />
+            <element signature="e#6621#6622#0" expanded="true" />
+            <element signature="e#7233#7234#0" expanded="true" />
+            <element signature="e#7256#7257#0" expanded="true" />
+            <element signature="e#12938#12939#0" expanded="true" />
+            <element signature="e#12968#12969#0" expanded="true" />
+            <element signature="e#13344#13345#0" expanded="true" />
+            <element signature="e#13395#13396#0" expanded="true" />
+            <element signature="e#20776#20777#0" expanded="true" />
+            <element signature="e#20813#20814#0" expanded="true" />
+            <element signature="e#21020#21021#0" expanded="true" />
+            <element signature="e#21051#21052#0" expanded="true" />
+            <element signature="e#21409#21410#0" expanded="true" />
+            <element signature="e#21455#21456#0" expanded="true" />
+            <element signature="e#21782#21783#0" expanded="true" />
+            <element signature="e#21826#21827#0" expanded="true" />
+            <element signature="e#24746#25008#0" expanded="true" />
+            <element signature="e#25007#25008#0" expanded="true" />
+            <element signature="e#27675#27676#0" expanded="true" />
+            <element signature="e#27717#27718#0" expanded="true" />
+            <element signature="e#27772#27773#0" expanded="true" />
+            <element signature="e#27814#27815#0" expanded="true" />
+            <element signature="e#29828#29829#0" expanded="true" />
+            <element signature="e#29883#29884#0" expanded="true" />
+            <element signature="e#30116#30117#0" expanded="true" />
+            <element signature="e#30172#30173#0" expanded="true" />
+            <element signature="e#32879#32880#0" expanded="true" />
+            <element signature="e#32903#32904#0" expanded="true" />
+            <element signature="e#35787#35788#0" expanded="true" />
+            <element signature="e#35831#35832#0" expanded="true" />
           </folding>
         </state>
       </provider>

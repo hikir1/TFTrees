@@ -109,19 +109,19 @@ public class BranchLine {
 		return parent;
 	}
 	
-	public String verifyDecomposition() {
-		return verifyDecomposition(false, false);
+	public void verifyDecomposition() throws UserError {
+		verifyDecomposition(false, false);
 	}
 	
-	public String verifyDecompositionOpen() {
-		return verifyDecomposition(true, false);
+	public void verifyDecompositionOpen() throws UserError {
+		verifyDecomposition(true, false);
 	}
 	
 	public void verifyDecompositionOpen(boolean lax) throws UserError {
-		return verifyDecomposition(true, lax);
+		verifyDecomposition(true, lax);
 	}
 	
-	public String verifyDecomposition(boolean open, boolean lax)
+	public void verifyDecomposition(boolean open, boolean lax) throws UserError
 	{
 		// if lax and no decomposition attempted, ignore
 		// also make sure decoposedFrom exists, i.e. not pulled from thin air

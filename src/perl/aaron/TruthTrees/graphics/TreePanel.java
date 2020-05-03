@@ -133,7 +133,7 @@ class RadioPanel extends JFrame {
 
 				// MessageDialog to show information selected radion buttons.
 				JOptionPane.showMessageDialog(RadioPanel.this, qual);
-				Global.var = new String(qual);
+				Global.var = qual;
 				RadioPanel.this.dispose();
 			}
 		});
@@ -151,7 +151,6 @@ public class TreePanel extends JPanel {
 
 	private static final long serialVersionUID = 1;
 	private static final int UNDO_STACK_SIZE = 32;
-	private static final int REDO_STACK_SIZE = 32;
 
 	private final Point center = new Point(0, -50);
 	private final Point prevCenter = new Point(center);
@@ -287,10 +286,10 @@ public class TreePanel extends JPanel {
 
 	/**
 	 * Makes a new BranchLine that is a premise, and sets its statement to s
-	 * 
+	 *
 	 * @param s The premise that is added
 	 */
-	public void addPremise(final Statement s) { // TODO: worry anout removing first premise?
+	private void addPremise(final Statement s) { // TODO: worry about removing first premise?
 		BranchLine newLine = addLine(premises.get());
 		newLine.setIsPremise(true);
 		if (s != null) {
@@ -306,8 +305,8 @@ public class TreePanel extends JPanel {
 	 * @param l The BranchLine that is being checked
 	 * @return null if decomposed properly, an error message otherwise
 	 */
-	private String checkLine(BranchLine l) {
-		return l.verifyDecomposition();
+	private void checkLine(BranchLine l) throws UserError {
+		l.verifyDecomposition();
 	}
 
 	/**
@@ -332,7 +331,7 @@ public class TreePanel extends JPanel {
 	 * @return 0 if all branches close with no open branches, 1 if all branches
 	 *         terminate but at least one is marked open, -1 otherwise
 	 */
-	public Completion checkCompletion() {
+	private Completion checkCompletion() {
 		boolean isOpen = checkForOpenBranch(root.get());
 		boolean allClosed = checkForAllClosed(root.get());
 		if (!isOpen && allClosed)
@@ -384,9 +383,9 @@ public class TreePanel extends JPanel {
 	private void verifyOpenTerminator(Branch b) throws UserError { //TODO: make open part of state
 		// If there are no open branches anywhere return false
 
-		if (b.getBranches().size() == 0 && b.isOpen()) {
+		if (b.getBranches().size() == 0 && b.isOpen())
 			b.verifyTerminations();
-		}
+
 
 		for (Branch child : b.getBranches()) {
 			if (checkForOpenBranch(child)) {
@@ -402,7 +401,6 @@ public class TreePanel extends JPanel {
 	 * Recursively checks if b and all if its children are have verified Terminators
 	 * 
 	 * @param b the Branch being checked for verified terminators
-	 * @return false if b or one of its children has a terminator that is not
 	 *         verified, true otherwise
 	 */
 	private void verifyTerminators(Branch b) throws UserError {
@@ -444,27 +442,23 @@ public class TreePanel extends JPanel {
 	 * @param b Branch to be checked
 	 * @return Empty string if ok, error message if problem
 	 */
-	public String checkBranchConstants(Branch b) {
-
-		String ret = "";
+	/*
+	private void checkBranchConstants(Branch b) throws UserError {
 
 		if (b.numLines() > 0) {
 
 			for (int i = 0; i < b.numLines(); ++i) {
 				BranchLine line = b.getLine(i);
 
-				String vRet = line.verifyDecompositionOpen();
-				if (vRet != null) {
-					ret += vRet;
-				}
+				line.verifyDecompositionOpen();
+
 			}
 		}
 
-		for (Branch child : b.getBranches()) {
-			ret += checkBranchConstants(child);
-		}
-		return ret;
+		for (Branch child : b.getBranches())
+			checkBranchConstants(child);
 	}
+	*/
 	
 	/**
 	 * Runs all of the "check" methods on the whole tree.
@@ -490,8 +484,7 @@ public class TreePanel extends JPanel {
 
 	/**
 	 * Checks the selected line.
-	 * 
-	 * @return null if the line is fine, and an error message otherwise
+	 *
 	 */
 	public void checkSelectedLine() throws UserError {
 		try {
@@ -504,9 +497,8 @@ public class TreePanel extends JPanel {
 	/**
 	 * 
 	 * @param parent
-	 * @return
 	 */
-	public void addBranch(Branch parent) {
+	private void addBranch(Branch parent) {
 		addBranch(parent, true);
 	}
 
@@ -561,24 +553,9 @@ public class TreePanel extends JPanel {
 		branchButton.setMargin(new Insets(1, 1, 1, 1));
 		lineButton.setMargin(new Insets(1, 1, 1, 1));
 		terminateButton.setMargin(new Insets(1, 1, 1, 1));
-		branchButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				addBranch(myBranch);
-			}
-		});
-		lineButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				addLine(myBranch);
-			}
-		});
-		terminateButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				addTerminator(myBranch);
-			}
-		});
+		branchButton.addActionListener(e -> addBranch(myBranch));
+		lineButton.addActionListener(e -> addLine(myBranch));
+		terminateButton.addActionListener(e -> addTerminator(myBranch));
 		decompButton.addMouseListener(new MouseListener() {
 
 			@Override
@@ -745,14 +722,10 @@ public class TreePanel extends JPanel {
 
 	public void moveComponents() {
 		Point origin = new Point(center.x + getWidth() / 2, center.y + getHeight() / 2);
-		if (premises != null) {
-			moveBranch(premises.get(), origin);
-			origin.translate(0, premises.get().getLineHeight() * premises.get().numLines());
-		}
+		moveBranch(premises.get(), origin);
+		origin.translate(0, premises.get().getLineHeight() * premises.get().numLines());
 		origin.translate(0, 20);
-		if (root != null) {
-			moveBranch(root.get(), origin);
-		}
+		moveBranch(root.get(), origin);
 	}
 
 	public Dimension getPreferredSize() {
@@ -775,11 +748,11 @@ public class TreePanel extends JPanel {
 	 * 
 	 * @param b the Branch that the BranchLine is added to
 	 * @param s the Statement that is added to the Branchline
-	 * 
-	 * @return the BranchLine that was added
+	 *
+
 	 */
-	private BranchLine addLine(final Branch b, final Statement s) {
-		return addLine(b, false, true, true, s);
+	private void addLine(final Branch b, final Statement s) {
+		addLine(b, false, true, true, s);
 	}
 
 	/**
@@ -802,17 +775,9 @@ public class TreePanel extends JPanel {
 	 * @return the BranchLine that was added
 	 */
 	private BranchLine addLine(final Branch b, final boolean isTerminator, final boolean isClose) {
-		final BranchLine newLine;
-		if (isTerminator) {
-			newLine = new BranchTerminator(b);
-			if (!isClose)
-				((BranchTerminator) newLine).switchIsClose();
-			b.addTerminator((BranchTerminator) newLine);
-		} else
-			newLine = b.addStatement(null);
-		makeTextFieldForLine(newLine, b, isTerminator);
-		moveComponents();
-		return newLine;
+
+		return addLine(b, isTerminator, isClose, false, null);
+
 	}
 
 	/**
@@ -827,7 +792,7 @@ public class TreePanel extends JPanel {
 	 * 
 	 * @return the BranchLine that was added
 	 */
-	private BranchLine addLine(final Branch b, final boolean isTerminator, final boolean isClose,
+	private BranchLine  addLine(final Branch b, final boolean isTerminator, final boolean isClose,
 			final boolean wasNotTyped, final Statement s) {
 		final BranchLine newLine;
 		if (wasNotTyped) {
@@ -839,8 +804,6 @@ public class TreePanel extends JPanel {
 			b.addTerminator((BranchTerminator) newLine);
 		} else
 			newLine = b.addStatement(null);
-		if (newLine.getStatement() != null)
-			System.out.println("newline:" + newLine.getStatement().toString());
 		makeTextFieldForLine(newLine, b, isTerminator);
 		moveComponents();
 		return newLine;
@@ -998,9 +961,7 @@ public class TreePanel extends JPanel {
 				line.typing = false;
 				Statement newStatement = ExpressionParser.parseExpression(newField.getText());
 				if (newStatement != null) {
-					if (newField.getParent() != null) // Ensures that the state isn't recorded twice when deleting a
-														// branch
-						recordState();
+
 					line.setStatement(newStatement);
 					b.calculateWidestLine();
 					newField.setText(newStatement.toString());
@@ -1013,9 +974,7 @@ public class TreePanel extends JPanel {
 						JOptionPane.showMessageDialog(null, "Error: Invalid logical statement", "Error",
 								JOptionPane.ERROR_MESSAGE);
 					} else {
-						if (newField.getParent() != null) // Ensures that the state isn't recorded twice when deleting a
-															// branch
-							recordState();
+
 						line.setStatement(null);
 					}
 				}
@@ -1053,9 +1012,11 @@ public class TreePanel extends JPanel {
 	 * 
 	 * @param s the Statement added to the tree
 	 */
+	/*
 	public void addStatement(Statement s) {
 		addStatement(root.get(), s);
 	}
+	*/
 
 	/**
 	 * Adds a closed BranchTerminator to a branch
@@ -1077,7 +1038,7 @@ public class TreePanel extends JPanel {
 		return (BranchTerminator) addLine(b, true, false);
 	}
 
-	public void drawBranching(Branch b, Graphics2D g) {
+	private void drawBranching(Branch b, Graphics2D g) {
 		g.setColor(BranchLine.DEFAULT_COLOR);
 		selectedBranches.if_some(selectedBranches -> {
 			if (selectedBranches.contains(b))
@@ -1165,11 +1126,13 @@ public class TreePanel extends JPanel {
 	 * 
 	 * @param newRoot the Branch that is to be the new root of the tree
 	 */
+	/*
 	public void setRoot(Branch newRoot) {
 		root.set(newRoot);
 		newRoot.setFontMetrics(this.getFontMetrics(this.getFont()));
 		newRoot.getWidth();
 	}
+	*/
 
 	/**
 	 * Removes a line from the tree
@@ -1249,8 +1212,6 @@ public class TreePanel extends JPanel {
 
 	/**
 	 * Deletes the currently selected branch
-	 * 
-	 * @return : False if the current branch is the root branch, true otherwise
 	 */
 	public void deleteCurrentBranch() throws UserError {
 		try {
@@ -1262,7 +1223,9 @@ public class TreePanel extends JPanel {
 			moveComponents();
 			repaint();
 		}
-		catch(NoneResult r) {}
+		catch(NoneResult r) {
+			throw new UserError("None line selected.");
+		}
 	}
 
 	public void deleteFirstPremise() {
@@ -1342,7 +1305,7 @@ public class TreePanel extends JPanel {
 	 * 
 	 * @return String that describes success
 	 */
-	public String split(final BranchLine l) {
+	private void split(final BranchLine l) {
 		Set<String> vars = l.split();
 		RadioPanel rp = new RadioPanel(vars);
 		// Setting Bounds of JFrame. 
@@ -1368,17 +1331,16 @@ public class TreePanel extends JPanel {
 				Global.s1 = ExpressionParser.parseExpression(var);
 				Global.s2 = ExpressionParser.parseExpression("\u00AC"+var);
 				if (l.getParent() == premises.get()){
-					TreePanel.this.addBranch(root.get(), true, true, Global.s1);
-					TreePanel.this.addBranch(root.get(), true, true, Global.s2);
+					TreePanel.this.addBranch(root.get(), true, Global.s1);
+					TreePanel.this.addBranch(root.get(), true, Global.s2);
 				}
 				else{
-					TreePanel.this.addBranch(l.getParent(), true, true, Global.s1);
-					TreePanel.this.addBranch(l.getParent(), true, true, Global.s2);
+					TreePanel.this.addBranch(l.getParent(),  true, Global.s1);
+					TreePanel.this.addBranch(l.getParent(),  true, Global.s2);
 				}
 			}
 		});
 
-		return null;
 	}
 
 	// intermediate function
@@ -1392,7 +1354,7 @@ public class TreePanel extends JPanel {
 	}
 
 	// helper function
-	public String generateSubscript(int i) {
+	private String generateSubscript(int i) {
 		StringBuilder sb = new StringBuilder();
 		for (char ch : String.valueOf(i).toCharArray()) {
 			sb.append((char) ('\u2080' + (ch - '0')));
@@ -1407,7 +1369,7 @@ public class TreePanel extends JPanel {
 	 * 
 	 * @return String that describes success
 	 */
-	public String mark(final BranchLine l) {
+	private void mark(final BranchLine l) {
 		String tickMark = "\u221A" + generateSubscript(decompNumber);
 		l.decompNum = decompNumber;
 		decompNumber++;
@@ -1416,6 +1378,5 @@ public class TreePanel extends JPanel {
 		Point p = field.getLocation();
 		p.setLocation((p.getX()+field.getWidth()+10), (p.getY()+(field.getHeight()/2)+7));
 		drawStringAt(g2d, p, tickMark);
-		return null;
 	}
 }
