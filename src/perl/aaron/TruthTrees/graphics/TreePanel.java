@@ -164,8 +164,8 @@ public class TreePanel extends JPanel {
 	private final Map<BranchLine, JTextField> reverseLineMap = new HashMap<>();
 	private final MutOption<Set<BranchLine>> selectedLines = new MutOption<>();
 	private final MutOption<Set<Branch>> selectedBranches = new MutOption<>();
-	private final NonNull<Branch> premises = new NonNull<>(addBranch(null, true));
-	private final NonNull<Branch> root = new NonNull<>(addBranch(premises.get(), false));
+	private final NonNull<Branch> premises = new NonNull<>(addBranchNoMove(null, false, null));
+	private final NonNull<Branch> root = new NonNull<>(addBranchNoMove(premises.get(), false, null));
 	private final History hist = new History(UNDO_STACK_SIZE);
 	
 	private int zoomLevel = 0;
@@ -196,6 +196,8 @@ public class TreePanel extends JPanel {
 		setOpaque(false);
 		setBackground(new Color(0, 0, 0, 0));
 		setLayout(null);
+		
+		addPremise();
 		
 		setFocusable(true);
 		addMouseListener(new MouseListener() {
@@ -383,9 +385,10 @@ public class TreePanel extends JPanel {
 	private void verifyOpenTerminator(Branch b) throws UserError { //TODO: make open part of state
 		// If there are no open branches anywhere return false
 
-		if (b.getBranches().size() == 0 && b.isOpen())
+		if (b.getBranches().size() == 0 && b.isOpen()) {
 			b.verifyTerminations();
-
+			return;
+		}
 
 		for (Branch child : b.getBranches()) {
 			if (checkForOpenBranch(child)) {
@@ -393,7 +396,7 @@ public class TreePanel extends JPanel {
 				return;
 			}
 		}
-		throw new UserError("Not all sentences are decompose in the open branch.");
+		throw new UserError("There is no open branch");
 
 	}
 
@@ -436,30 +439,6 @@ public class TreePanel extends JPanel {
 
 	}
 
-	/**
-	 * Checks for any unexpected constants in a branch
-	 * 
-	 * @param b Branch to be checked
-	 * @return Empty string if ok, error message if problem
-	 */
-	/*
-	private void checkBranchConstants(Branch b) throws UserError {
-
-		if (b.numLines() > 0) {
-
-			for (int i = 0; i < b.numLines(); ++i) {
-				BranchLine line = b.getLine(i);
-
-				line.verifyDecompositionOpen();
-
-			}
-		}
-
-		for (Branch child : b.getBranches())
-			checkBranchConstants(child);
-	}
-	*/
-	
 	/**
 	 * Runs all of the "check" methods on the whole tree.
 	 * 
@@ -515,6 +494,13 @@ public class TreePanel extends JPanel {
 	}
 
 	public Branch addBranch(final Branch parent, final boolean addFirstLine, final Statement s) {
+		final Branch newBranch = addBranchNoMove(parent, addFirstLine, s);
+		moveComponents();
+		repaint();
+		return newBranch;
+	}
+	
+	public Branch addBranchNoMove(final Branch parent, final boolean addFirstLine, final Statement s) {
 		final Branch newBranch = new Branch(parent);
 		newBranch.setFontMetrics(getFontMetrics(getFont()));
 		makeButtonsForBranch(newBranch);
@@ -530,8 +516,6 @@ public class TreePanel extends JPanel {
 			if (parent == null)
 				newBranch.getLine(0).setIsPremise(true);
 		}
-		moveComponents();
-		repaint();
 		return newBranch;
 	}
 	
@@ -823,11 +807,11 @@ public class TreePanel extends JPanel {
 	
 	private void addLine(final LinePlacement placement) throws UserError {
 		try {
-			BranchLine editLine = this.editLine.unwrap();
+			final BranchLine editLine = this.editLine.unwrap();
 			BranchLine newLine = null;
 			for (int i = 0; i < editLine.getParent().numLines(); i++) {
 				if (editLine.getParent().getLine(i) == editLine) {
-					newLine = editLine.getParent().addStatement(null, placement == LinePlacement.BEFORE? i + 1: i);
+					newLine = editLine.getParent().addStatement(null, placement == LinePlacement.AFTER? i + 1: i);
 					break;
 				}
 			}
@@ -905,8 +889,7 @@ public class TreePanel extends JPanel {
 					BranchLine curLine = lineMap.get(newField);
 					if (!isTerminator) {
 						editLine.if_some(editLine -> {
-							if (editLine != curLine && (editLine != curLine.getDecomposedFrom()
-									|| curLine.getDecomposedFrom() == null || editLine instanceof BranchTerminator))
+							if (editLine != curLine && !(curLine instanceof BranchTerminator))
 								toggleSelected(curLine);
 						});
 					} else {
@@ -1120,19 +1103,6 @@ public class TreePanel extends JPanel {
 	public Branch getRootBranch() {
 		return root.get();
 	}
-
-	/**
-	 * Sets the root of the tree
-	 * 
-	 * @param newRoot the Branch that is to be the new root of the tree
-	 */
-	/*
-	public void setRoot(Branch newRoot) {
-		root.set(newRoot);
-		newRoot.setFontMetrics(this.getFontMetrics(this.getFont()));
-		newRoot.getWidth();
-	}
-	*/
 
 	/**
 	 * Removes a line from the tree
