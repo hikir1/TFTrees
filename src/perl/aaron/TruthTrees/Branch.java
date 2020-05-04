@@ -353,18 +353,9 @@ public class Branch {
 	 */
 	public void verifyTerminations() throws UserError
 	{
-		System.out.println("Branch - Lines Size: " + lines.size());
 		for (int i = lines.size() - 1; i >= 0; i--) // start from the end, since it should be the last line
-		{
-//			System.out.println("Branch - On Line: " + lines.get(i).toString());
-//			if (lines.get(i) instanceof BranchTerminator ) {
-//				System.out.println("Decomposed: " + ((BranchTerminator)(lines.get(i))).verifyDecomposition());
-//			}
-			if (lines.get(i) instanceof BranchTerminator &&
-					((BranchTerminator)(lines.get(i))).verifyDecomposition() == null)
-				return true;
-		}
-		return false;
+			if (lines.get(i) instanceof BranchTerminator)
+					lines.get(i).verifyDecomposition();
 	}
 	
 	/**

@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import perl.aaron.TruthTrees.logic.AtomicStatement;
 import perl.aaron.TruthTrees.logic.Decomposable;
 import perl.aaron.TruthTrees.logic.Negation;
 import perl.aaron.TruthTrees.logic.Statement;
+import perl.aaron.TruthTrees.util.UserError;
 
 public class BranchTerminator extends BranchLine {
 
@@ -31,14 +31,12 @@ public class BranchTerminator extends BranchLine {
 	public void setDecomposedFrom(BranchLine decomposedFrom) {}
 	public BranchLine getDecomposedFrom() { return null; }
 	
-	public String verifyDecomposition()
+	public void verifyDecomposition() throws UserError
 	{
 		if (close)
 		{
 			if (selectedLines.size() != 2)
-			{
-				return "Invalid number of supporting statements for branch termination";
-			}
+				throw new UserError("Invalid number of supporting statements for branch termination");
 			ArrayList<BranchLine> selectedList = new ArrayList<BranchLine>();
 			selectedList.addAll(selectedLines);
 			Statement atomic;
@@ -54,15 +52,14 @@ public class BranchTerminator extends BranchLine {
 				negatedStatement = selectedList.get(0).getStatement();
 			}
 			else
-				return "No atomic statement found in branch termination justification";
+				throw new UserError("No atomic statement found in branch termination justification");
 			
 			if (!(negatedStatement instanceof Negation))
-				return "No negation found in branch termination justification";
+				throw new UserError("No negation found in branch termination justification");
 			
 			Negation negated = (Negation) negatedStatement;
 			if (!negated.getNegand().equals(atomic))
-				return "Incorrect atomic statement/negation pair in branch termination justification";
-			return null;
+				throw new UserError("Incorrect atomic statement/negation pair in branch termination justification");
 		}
 		else // Open branch
 		{
@@ -86,25 +83,18 @@ public class BranchTerminator extends BranchLine {
 								returnError = false;
 						}
 						if (curLine.getSelectedLines().size() == 0 && returnError)
-						{
-							return "There are statements in this branch that still need to be decomposed!";
-						}
+							throw new UserError("There are statements in this branch that still need to be decomposed!");
 					}
 					else if (curLine.getStatement() != null)
-					{
 						atomics.add(curLine.getStatement());
-					}
 				}
 				curBranch = curBranch.getRoot();
 			}
 			for (Statement curAtomic : atomics)
 			{
 				if (negations.contains(new Negation(curAtomic)))
-				{
-					return "There exists an atomic statement and its negation in this branch!";
-				}
+					throw new UserError("There exists an atomic statement and its negation in this branch!");
 			}
-			return null;
 		}
 	}
 	

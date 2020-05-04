@@ -5,7 +5,6 @@ import java.awt.FontMetrics;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -16,8 +15,8 @@ import perl.aaron.TruthTrees.graphics.TreePanel;
 import perl.aaron.TruthTrees.logic.AtomicStatement;
 //import perl.aaron.TruthTrees.logic.Composable;
 import perl.aaron.TruthTrees.logic.Decomposable;
-import perl.aaron.TruthTrees.logic.Statement;
 import perl.aaron.TruthTrees.logic.Negation;
+import perl.aaron.TruthTrees.logic.Statement;
 import perl.aaron.TruthTrees.util.UserError;
 
 /**
@@ -126,16 +125,15 @@ public class BranchLine {
 		// if lax and no decomposition attempted, ignore
 		// also make sure decoposedFrom exists, i.e. not pulled from thin air
 		if(lax && decomposedFrom != null && selectedLines.isEmpty())
-			return null;
+			return;
 		
 		// Check if the statement is decomposable and it is not the negation of an atomic statement
 		if (statement == null)
-			return null;
+			return;
 		
-		if (decomposedFrom == null && !isPremise) {
-			return "Unexpected statement \"" + statement.toString() + "\" in tree";
-
-		}
+		if (decomposedFrom == null && !isPremise)
+			throw new UserError("Unexpected statement \"" + statement.toString() + "\" in tree");
+		
 		if (statement instanceof Decomposable &&
 				!(statement instanceof Negation && (((Negation)statement).getNegand() instanceof AtomicStatement)))
 		{
@@ -162,13 +160,13 @@ public class BranchLine {
 							!((Decomposable)statement).verifyDecomposition(curTotalSet,
 							parent.getConstants(),
 							parent.getConstantsBefore(selectedLines.iterator().next()))) {
-						return "Invalid decomposition of statement \"" + statement.toString() + "\"";
+						throw new UserError("Invalid decomposition of statement \"" + statement.toString() + "\"");
 					}
 				}
 				if (!usedLines.equals(selectedLines)) // extra lines that were unused
-					return "Too many statements decomposed from \"" + statement.toString() + "\"";
+					throw new UserError("Too many statements decomposed from \"" + statement.toString() + "\"");
 				if (!BranchLine.satisfiesAllBranchesOpen(parent, selectedBranches))
-					return "Statement \"" + statement.toString() + "\" not decomposed in every " + (open? "open ": "") + "child branch";
+					throw new UserError("Statement \"" + statement.toString() + "\" not decomposed in every " + (open? "open ": "") + "child branch");
 			}
 			else // non-branching decomposition (conjunction)
 			{
@@ -224,7 +222,7 @@ public class BranchLine {
 							curBranch.getConstants(),
 							curBranch.getConstantsBefore(selectedLines.iterator().next())))
 					{
-						return "Invalid decomposition of statement \"" + statement.toString() + "\"";
+						throw new UserError("Invalid decomposition of statement \"" + statement.toString() + "\"");
 					}
 				}
 				if (branchMap.size() == 0)
@@ -232,51 +230,16 @@ public class BranchLine {
 					List<List<Statement>> currentDecomp = Collections.emptyList();
 					Set<String> constants = Collections.emptySet();
 					if (!((Decomposable) statement).verifyDecomposition(currentDecomp,constants,constants))
-						return "Statement \"" + statement.toString() + "\" has not been decomposed!";
+						throw new UserError("Statement \"" + statement.toString() + "\" has not been decomposed!");
 					else
-						return null;
+						return;
 				}
 				
 				//EDIT: Fixed this for open case
 				if(!BranchLine.satisfiesAllBranches(parent, branchMap.keySet(), open))
-				{
-					return "Statement \"" + statement.toString() + "\" not decomposed in every " + (open? "open ": "") + "child branch";
-				}
+					throw new UserError("Statement \"" + statement.toString() + "\" not decomposed in every " + (open? "open ": "") + "child branch");
 			}
 		}
-		return null;
-	}
-	
-	/**
-	 * Verifies if this statement is part of a statement and its negation branching (branch on any P and ~P, for example)
-	 * @return true if this is a valid BranchOn, false otherwise
-	 */
-	private boolean verifyIsBranchOn() {
-
-		// if the direct root has more or less than 2 branches, or if this BranchLine is not the first BranchLine in this branch,
-		// then will return false 
-		if (parent.getRoot() == null || parent.getRoot().getBranches().size() != 2 || !parent.getStatement(0).equals(statement)) {
-			return false;
-		}
-		else { // compare to the first BranchLine in the sister branch to see if they are each other's negations
-			Iterator<Branch> branchItr = parent.getRoot().getBranches().iterator();
-
-			while (branchItr.hasNext()) {
-				Branch temp = branchItr.next();
-				if (!temp.getStatement(0).equals(statement)) { // then it is the other branch in this set of two branches
-					if ((temp.getStatement(0) instanceof Negation && ((Negation)temp.getStatement(0)).getNegand().equals(statement)) ||
-							(statement instanceof Negation && ((Negation)statement).getNegand().equals(temp.getStatement(0))) ) {
-						return true;
-					} else {
-						return false;
-					}
-				}
-			}
-			return false;
-		}
-		
-		
-		
 	}
 	
 	public static boolean satisfiesAllBranches(Branch root, Set<Branch> descendents) {
