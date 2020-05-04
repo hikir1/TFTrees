@@ -7,7 +7,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -245,7 +244,14 @@ public class TruthTrees {
 
 		treeMenu.add(addLineAfterButton);
 		addLineAfterButton.setAccelerator(KeyStroke.getKeyStroke('A', InputEvent.CTRL_DOWN_MASK));
-		addLineAfterButton.addActionListener(event -> treePanel.addLineAfter());
+		addLineAfterButton.addActionListener(event -> {
+			try {
+				treePanel.addLineAfter();
+			}
+			catch(UserError er) {
+				showError(er.getMessage());
+			}
+		});
 		
 		/////////////////////////////////////
 		// Line Before Button
@@ -255,7 +261,14 @@ public class TruthTrees {
 
 		treeMenu.add(addLineBeforeButton);
 		addLineBeforeButton.setAccelerator(KeyStroke.getKeyStroke('B', InputEvent.CTRL_DOWN_MASK));
-		addLineBeforeButton.addActionListener(event -> treePanel.addLineBefore());
+		addLineBeforeButton.addActionListener(event -> {
+			try {
+				treePanel.addLineBefore();
+			}
+			catch(UserError er) {
+				showError(er.getMessage());
+			}
+		});
 		
 		/////////////////////////////////////
 		// Delete Button
