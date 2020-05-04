@@ -156,11 +156,13 @@ public class BranchLine {
 						}
 						curTotalSet.add(curBranchSet);
 					}
-					if (selectedLines.size() > 0 &&
-							!((Decomposable)statement).verifyDecomposition(curTotalSet,
-							parent.getConstants(),
-							parent.getConstantsBefore(selectedLines.iterator().next()))) {
-						throw new UserError("Invalid decomposition of statement \"" + statement.toString() + "\"");
+					try {
+						if (!selectedLines.isEmpty())
+							((Decomposable)statement).verifyDecomposition(curTotalSet, parent.getConstants(),
+									parent.getConstantsBefore(selectedLines.iterator().next()));
+					}
+					catch(UserError er) {
+						throw new UserError("Invalid decomposition of statement \"" + statement.toString() + "\"\n" + er.getMessage());
 					}
 				}
 				if (!usedLines.equals(selectedLines)) // extra lines that were unused
@@ -218,21 +220,26 @@ public class BranchLine {
 				{
 					List<List<Statement>> currentDecomp = new ArrayList<List<Statement>>();
 					currentDecomp.add(branchMap.get(curBranch));
-					if (!((Decomposable) statement).verifyDecomposition(currentDecomp,
+					try {
+					((Decomposable) statement).verifyDecomposition(currentDecomp,
 							curBranch.getConstants(),
-							curBranch.getConstantsBefore(selectedLines.iterator().next())))
-					{
-						throw new UserError("Invalid decomposition of statement \"" + statement.toString() + "\"");
+							curBranch.getConstantsBefore(selectedLines.iterator().next()));
+					}
+					catch(UserError er) {
+						throw new UserError("Invalid decomposition of statement \"" + statement.toString() + "\"\n" + er.getMessage());
 					}
 				}
 				if (branchMap.size() == 0)
 				{
 					List<List<Statement>> currentDecomp = Collections.emptyList();
 					Set<String> constants = Collections.emptySet();
-					if (!((Decomposable) statement).verifyDecomposition(currentDecomp,constants,constants))
+					try {
+						((Decomposable) statement).verifyDecomposition(currentDecomp,constants,constants);
+					}
+					catch(UserError er) {
 						throw new UserError("Statement \"" + statement.toString() + "\" has not been decomposed!");
-					else
-						return;
+					}
+					return;
 				}
 				
 				//EDIT: Fixed this for open case

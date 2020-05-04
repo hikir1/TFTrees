@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import perl.aaron.TruthTrees.BranchLine;
+import perl.aaron.TruthTrees.util.UserError;
 
 public class Negation extends LogicalOperator {
 	
@@ -41,15 +41,14 @@ public class Negation extends LogicalOperator {
 		return ((Negation)other).getNegand().equals(statements.get(0));
 	}
 
-	public boolean verifyDecomposition(List<List<Statement>> branches, Set<String> constants, Set<String> constantsBefore) {
+	public void verifyDecomposition(List<List<Statement>> branches, Set<String> constants, Set<String> constantsBefore) throws UserError {
 		if (statements.get(0) instanceof Conjunction)
 		{
-			System.out.println("Negation of a conjunction");
 			Conjunction con = (Conjunction) statements.get(0);
 			ArrayList<Statement> negatedConjuncts = new ArrayList<Statement>(con.getOperands().size());
 			for (Statement s : con.getOperands())
 				negatedConjuncts.add(new Negation(s));
-			return new Disjunction(negatedConjuncts).verifyDecomposition(branches, constants, constantsBefore);
+			new Disjunction(negatedConjuncts).verifyDecomposition(branches, constants, constantsBefore);
 		}
 		else if (statements.get(0) instanceof Disjunction)
 		{
@@ -58,7 +57,7 @@ public class Negation extends LogicalOperator {
 			ArrayList<Statement> negatedDisjuncts = new ArrayList<Statement>(dis.getOperands().size());
 			for (Statement s : dis.getOperands())
 				negatedDisjuncts.add(new Negation(s));
-			return new Conjunction(negatedDisjuncts).verifyDecomposition(branches, constants, constantsBefore);
+			new Conjunction(negatedDisjuncts).verifyDecomposition(branches, constants, constantsBefore);
 		}
 		else if (statements.get(0) instanceof Conditional)
 		{
@@ -67,7 +66,7 @@ public class Negation extends LogicalOperator {
 			ArrayList<Statement> conjuncts = new ArrayList<Statement>(2);
 			conjuncts.add(con.getOperands().get(0));
 			conjuncts.add(new Negation(con.getOperands().get(1)));
-			return new Conjunction(conjuncts).verifyDecomposition(branches, constants, constantsBefore);
+			new Conjunction(conjuncts).verifyDecomposition(branches, constants, constantsBefore);
 		}
 		else if (statements.get(0) instanceof Biconditional)
 		{
@@ -80,8 +79,19 @@ public class Negation extends LogicalOperator {
 			branch1.add(branches.get(0));
 			List<List<Statement>> branch2 = new ArrayList<List<Statement>>();
 			branch2.add(branches.get(1));
-			return 	(con1.verifyDecomposition(branch1, constants, constantsBefore) && con2.verifyDecomposition(branch2, constants, constantsBefore)) ||
-					(con1.verifyDecomposition(branch2, constants, constantsBefore) && con2.verifyDecomposition(branch1, constants, constantsBefore));
+			try {
+				con1.verifyDecomposition(branch1, constants, constantsBefore);
+				con2.verifyDecomposition(branch2, constants, constantsBefore);
+			}
+			catch(UserError e1) {
+				try {
+					con1.verifyDecomposition(branch2, constants, constantsBefore);
+					con2.verifyDecomposition(branch1, constants, constantsBefore);
+				}
+				catch(UserError e2) {
+					throw new UserError(e1.getMessage() + " and " + e2.getMessage());
+				}
+			}
 		}
 		else if (statements.get(0) instanceof Negation) // double negation decomposition
 		{

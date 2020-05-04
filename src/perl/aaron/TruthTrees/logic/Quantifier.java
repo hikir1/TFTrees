@@ -3,6 +3,8 @@ package perl.aaron.TruthTrees.logic;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import perl.aaron.TruthTrees.util.UserError;
+
 public abstract class Quantifier extends Statement implements Decomposable {
 
 	protected Variable var;
@@ -30,17 +32,13 @@ public abstract class Quantifier extends Statement implements Decomposable {
 	}
 
 	@Override
-	public Binding determineBinding(Statement unbound) {
-		if (unbound.getClass().equals(this.getClass()))
-		{
-			Quantifier unboundQ = (Quantifier) unbound;
-			if (var.equals(unboundQ.var))
-			{
-				return statement.determineBinding(unboundQ.statement);
-			}
-			else return null;
-		}
-		else return null;
+	public Binding determineBinding(Statement unbound) throws UserError {
+		if (!unbound.getClass().equals(this.getClass()))
+			throw new UserError(this + " does not match " + unbound);
+		Quantifier unboundQ = (Quantifier) unbound;
+		if (!var.equals(unboundQ.var))
+			throw new UserError(var + " does not match " + unboundQ.var);
+		return statement.determineBinding(unboundQ.statement);
 	}
 	
 	@Override

@@ -3,6 +3,8 @@ package perl.aaron.TruthTrees.logic;
 import java.util.Collections;
 import java.util.List;
 
+import perl.aaron.TruthTrees.util.UserError;
+
 public abstract class LogicalOperator extends Statement implements Decomposable {
 	
 	protected List<Statement> statements;
@@ -16,37 +18,25 @@ public abstract class LogicalOperator extends Statement implements Decomposable 
 	}
 
 	@Override
-	public Binding determineBinding(Statement unbound)
+	public Binding determineBinding(Statement unbound) throws UserError
 	{
-		if (unbound.getClass().equals(this.getClass()))
+		if (!unbound.getClass().equals(this.getClass()))
+			throw new UserError(this + " does not match " + unbound);
+		LogicalOperator unboundOp = (LogicalOperator) unbound;
+		if (unboundOp.statements.size() != statements.size())
+			throw new UserError(this + " does not match " + unbound + ". Incompatible number of operands.");
+		Binding b = Binding.EMPTY_BINDING; //TODO: get rid of this
+		for (int i = 0; i < statements.size(); i++)
 		{
-			LogicalOperator unboundOp = (LogicalOperator) unbound;
-			if (unboundOp.statements.size() == statements.size())
-			{
-				Binding b = null;
-				for (int i = 0; i < statements.size(); i++)
-				{
-					Binding curBinding = statements.get(i).determineBinding(unboundOp.statements.get(i));
-					if (curBinding == null)
-					{
-						System.out.println("Invalid binding between\n\t" + statements.get(i).toString() + "\n\t" + unboundOp.statements.get(i).toString());
-						return null;
-					}
-					if (b == null || b.equals(Binding.EMPTY_BINDING))
-					{
-						b = curBinding;
-					}
-					else if ((!b.equals(curBinding) && !b.equals(Binding.EMPTY_BINDING)) || curBinding == null)
-					{
-						System.out.println("Different bindings: " + b.toString() + ", " + curBinding.toString());
-						return null;
-					}
-				}
-				return b;
+			Binding curBinding = statements.get(i).determineBinding(unboundOp.statements.get(i));
+			if (curBinding != Binding.EMPTY_BINDING) {
+				if (b == Binding.EMPTY_BINDING)
+					b = curBinding;
+				else if (!b.equals(curBinding))
+					throw new UserError("Different bindings: " + b + ", " + curBinding);
 			}
-			else return null;
 		}
-		else return null;
+		return b;
 	}
 
 }

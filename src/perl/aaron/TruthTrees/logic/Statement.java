@@ -2,6 +2,8 @@ package perl.aaron.TruthTrees.logic;
 
 import java.util.Set;
 
+import perl.aaron.TruthTrees.util.UserError;
+
 public abstract class Statement {
 	/**
 	 * Returns the statement as a string
@@ -20,9 +22,7 @@ public abstract class Statement {
 	public boolean equals(Object other)
 	{
 		if (other instanceof Statement)
-		{
 			return equals((Statement) other);
-		}
 		return false;
 	}
 	
@@ -56,5 +56,6 @@ public abstract class Statement {
 	 * @param unbound A statement containing an unbound variable that will be bound
 	 * @return The Binding that makes the statements equivalent or null if there is no such binding
 	 */
-	public abstract Binding determineBinding(Statement unbound);
+	public abstract Binding determineBinding(Statement unbound) throws UserError;
+		
 }

@@ -3,6 +3,9 @@ package perl.aaron.TruthTrees.logic;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import perl.aaron.TruthTrees.util.UserError;
 
 public class ExistentialQuantifier extends Quantifier {
 
@@ -20,51 +23,41 @@ public class ExistentialQuantifier extends Quantifier {
 	public String toStringParen() {
 		return toString();
 	}
+	
+	private String decompsToString(final List<Statement> decomps) {
+		return decomps.stream().map(Statement::toString).collect(Collectors.joining(", "));
+	}
 
 	@Override
-	public boolean verifyDecomposition(List<List<Statement>> branches, Set<String> constants, Set<String> constantsBefore) {
+	public void verifyDecomposition(List<List<Statement>> branches, Set<String> constants, Set<String> constantsBefore) throws UserError {
 
-		System.out.println("Constants before: " + constantsBefore.toString());
 		if (branches.size() == 1) // Single intantiation with new constant
 		{
-			System.out.println("Instantiated with a new constant");
 			if (branches.get(0).size() != 1) // There should be only 1 statement
-				return false;
+				throw new UserError("Too many decompositions for " + this + ": " + decompsToString(branches.get(0)));
 			Binding b = branches.get(0).get(0).determineBinding(statement);
-			if ( b != null && !constantsBefore.contains( b.getConstant().toString() ) )
-				return true;
-			else
-				return false;
+			if (constantsBefore.contains( b.getConstant().toString()))
+				throw new UserError("Cannot reuse " + b.getConstant());
 		}
 		else if (branches.size() > 1)
 		{
-			System.out.println("Instantiated with all old constants as well as a new one");
-			Set<String> constantsInstatiated = new LinkedHashSet<String>();
+			Set<String> constantsInstantiated = new LinkedHashSet<String>();
 			for (List<Statement> curBranch : branches)
 			{
 				if (curBranch.size() != 1) // There should be exactly 1 statement per branch
-					return false;
-				Binding b = curBranch.get(0).determineBinding(statement);
-				if (b != null)
-				{
-					constantsInstatiated.add(b.getConstant().toString());
-				}
-				else return false; // One of these bindings is incorrect
+					throw new UserError("Too many decompositions for " + this + " in branch: " + decompsToString(branches.get(0)));
+				final Binding b = curBranch.get(0).determineBinding(statement);
+				constantsInstantiated.add(b.getConstant().toString());
 			}
-			System.out.println("Constants instatiated: " + constantsInstatiated.toString());
 			// Check if every constant has been instantiated as well as a new constant
-			if (constantsInstatiated.size() == constantsBefore.size() + 1 &&
-					constantsInstatiated.containsAll(constantsBefore))
-			{
-				return true;
-			}
-			else return false; // Not every constant has been instantiated
-				
+			if (!constantsInstantiated.containsAll(constantsBefore))
+				throw new UserError("Not every constant has been instantiated:\nConstants before: "
+						+ constantsBefore + "\nConstants instantiated: " + constantsInstantiated);
+			if (constantsInstantiated.size() != constantsBefore.size() + 1)
+				throw new UserError("Exactly one new constant must be instantiated");
 		}
 		else
-		{
-			return false;
-		}
+			throw new UserError("Not decomposed!");
 	}
 
 }

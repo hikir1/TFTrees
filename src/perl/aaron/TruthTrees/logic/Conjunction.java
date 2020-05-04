@@ -6,6 +6,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import perl.aaron.TruthTrees.util.UserError;
+
 public class Conjunction extends LogicalOperator {
 	/**
 	 * Creates a Conjunction of the provided statements
@@ -30,31 +32,15 @@ public class Conjunction extends LogicalOperator {
 		return statementString + statementsAL.get(statementsAL.size()-1).toStringParen();
 	}
 
-	public boolean verifyDecomposition(List< List<Statement> > branches, Set<String> constants, Set<String> constantsBefore) {
+	public void verifyDecomposition(List<List<Statement>> branches, Set<String> constants, Set<String> constantsBefore) throws UserError {
 		if (branches.size() != 1) // There should be only 1 branch
-			return false;
-		System.out.println(branches.toString());
-		List<Statement> decomposedList = branches.get(0);
-		if (decomposedList.size() != statements.size()) // One decomposed statement per conjunct
-			return false;
-		boolean[] conjuncts = new boolean[statements.size()]; 	// Every conjunct must match up to a statement...
-		for (Statement curStatement : decomposedList)			// ... and every statement must match up to a conjunct
-		{
-			boolean satisfied = false;
-			for (int i = 0; i < statements.size(); i++) // try to map a conjunct to the current statement
-			{
-				if (conjuncts[i]) continue; 				// skip already used conjuncts 
-				if (statements.get(i).equals(curStatement)) // the current statement is equal to this conjunct
-				{
-					satisfied = true;		// branch satisfied
-					conjuncts[i] = true; 	// flag this conjunct to avoid duplicate use
-					break;
-				}
-			}
-			if (!satisfied) // no conjunct matched this statement
-				return false;
-		}
-		return true;
+			throw new UserError("Conjunction decomposition should not produce branches");
+		var statements = new ArrayList<>(this.statements);
+		if (branches.get(0).size() != statements.size()) // One decomposed statement per conjunct
+			throw new UserError("Conjunction decomposition should produce " + branches.get(0).size() + " statements. " + statements.size() + " given.");
+		for (Statement curStatement : branches.get(0))			// ... and every statement must match up to a conjunct
+			if (!statements.remove(curStatement))
+				throw new UserError("No conjunct matches " + curStatement);
 	}
 
 	public boolean equals(Statement other) {
@@ -76,9 +62,7 @@ public class Conjunction extends LogicalOperator {
 	public Set<String> getVariables() {
 		Set<String> union = new LinkedHashSet<String>();
 		for (Statement curStatement : statements)
-		{
 			union.addAll(curStatement.getVariables());
-		}
 		return union;
 	}
 
@@ -86,9 +70,7 @@ public class Conjunction extends LogicalOperator {
 	public Set<String> getConstants() {
 		Set<String> union = new LinkedHashSet<String>();
 		for (Statement curStatement : statements)
-		{
 			union.addAll(curStatement.getConstants());
-		}
 		return union;
 	}
 }
