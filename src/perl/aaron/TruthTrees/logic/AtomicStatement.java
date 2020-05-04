@@ -1,14 +1,10 @@
 package perl.aaron.TruthTrees.logic;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import perl.aaron.TruthTrees.BranchLine;
-
-public class AtomicStatement extends Statement implements Composable {
+public class AtomicStatement extends Statement {
 	private String _symbol;
 	/**
 	 * Creates an atomic statement with a given symbol
@@ -73,65 +69,5 @@ public class AtomicStatement extends Statement implements Composable {
 		if (unbound.equals(this)) return Binding.EMPTY_BINDING;
 		else return null;
 	}
-	
-	@Override
-	public String verifyComposition(Set<BranchLine> selectedBranchLines) {
-		
-		
-		try {
-			throw new Exception();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		if (selectedBranchLines.size() == 2) {
-			
-			ArrayList<Statement> selectedStatements = new ArrayList<Statement>();
-			Iterator<BranchLine> itr = selectedBranchLines.iterator();
-			while (itr.hasNext()) {
-				selectedStatements.add(itr.next().getStatement());
-			}
-			
-			for (int i = 0; i < selectedStatements.size(); i++) {
-				
-				if (selectedStatements.get(i) instanceof Conditional) {
-					List<Statement> operands = ((Conditional)selectedStatements.get(i)).getOperands();
-					
-					// MODUS PONENS
-					if (operands.get(1).toString().equals(toString()) && operands.get(0).toString().equals(selectedStatements.get(i%1).toString())) {
-						return "composable";
-					}
-					
-					// MODUS TOLLENS
-					//Negation negFirstOperand = new Negation (operands.get(0));
-					Negation negSecondOperand = new Negation (operands.get(1));
-					System.out.println(operands.get(0).toString() + " " + toString());
-					System.out.println(negSecondOperand.toString() + " " + selectedStatements.get(i%1).toString());
-					
-					
-					if (operands.get(0).toString().equals(toString()) && negSecondOperand.toString().equals(selectedStatements.get(i%1).toString())) {
-						return "composable";
-					}
-				}			
-			}
-			
-			return "Statement \"" + toString() + "\" cannot be composed like this";
-			
-		}
-		
-		System.out.println(selectedBranchLines.size());
-		if (selectedBranchLines.size() != 0) {
-			return "Statement \"" + toString() + "\" cannot be composed like this";
-			
-		}
-	
-		
-		return "X";
-
-	}
-	
-
 	
 }

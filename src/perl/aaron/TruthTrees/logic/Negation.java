@@ -7,7 +7,7 @@ import java.util.Set;
 
 import perl.aaron.TruthTrees.BranchLine;
 
-public class Negation extends LogicalOperator implements Composable{
+public class Negation extends LogicalOperator {
 	
 	/**
 	 * Creates a Negation of a given statement
@@ -134,13 +134,5 @@ public class Negation extends LogicalOperator implements Composable{
 	public Set<String> getConstants() {
 		return statements.get(0).getConstants();
 	}
-
-	@Override
-	public String verifyComposition(Set<BranchLine> selectedBranchLines) {
-		return ((Composable)getNegand()).verifyComposition(selectedBranchLines);
-
-	}
-
-
 
 }
