@@ -119,7 +119,7 @@ public class TruthTrees {
 
 		fileMenu.add(newButton);
 		newButton.setAccelerator(KeyStroke.getKeyStroke('N', InputEvent.CTRL_DOWN_MASK));
-		newButton.addActionListener(event -> FileManager.newFile()); 
+		newButton.addActionListener(event -> createNewInstance()); 
 
 		///////////////////////////////
 		// Save Button

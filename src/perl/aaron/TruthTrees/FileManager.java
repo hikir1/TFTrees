@@ -63,11 +63,6 @@ public class FileManager {
 		return files;
 	}
 
-	public static void newFile()
-	{
-		TruthTrees.createNewInstance();
-	}
-
 	public static void loadFromFile(TreePanel parent)
 			throws NoneResult,
 				FileFormatException,
