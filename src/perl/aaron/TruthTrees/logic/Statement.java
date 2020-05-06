@@ -2,6 +2,7 @@ package perl.aaron.TruthTrees.logic;
 
 import java.util.Set;
 
+import perl.aaron.TruthTrees.logic.negation.Negation;
 import perl.aaron.TruthTrees.util.UserError;
 
 public abstract class Statement {
@@ -10,6 +11,8 @@ public abstract class Statement {
 	 * @return The statement string
 	 */
 	public abstract String toString();
+	
+	public abstract Negation negated();
 	
 	/**
 	 * Determines equality of two Statements

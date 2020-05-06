@@ -66,8 +66,18 @@ public class Equality extends Statement implements Decomposable {
 
 	
 	@Override
-	public Binding determineBinding(Statement unbound) {
-		// TODO Implement this
+	public Binding determineBinding(Statement unbound) throws UserError {
+		if (!(unbound instanceof Equality))
+			throw new UserError(this + " doesn't match " + unbound);
+		Equality unboundEqu = (Equality) unbound;
+		Binding b1 = obj1.determineBinding(unboundEqu.obj1);
+		Binding b2 = obj2.determineBinding(unboundEqu.obj2);
+		if (b1 == Binding.EMPTY_BINDING || b1.equals(b2))
+			return b2;
+		if (b2 == Binding.EMPTY_BINDING)
+			return b1;
+		throw new UserError("Different bindings: " + b1 + ", " + b2);
+		
 	}
 	
 }
