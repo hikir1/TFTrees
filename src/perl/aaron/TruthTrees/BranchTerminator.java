@@ -5,8 +5,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import perl.aaron.TruthTrees.logic.Decomposable;
+import perl.aaron.TruthTrees.logic.Negation;
 import perl.aaron.TruthTrees.logic.Statement;
-import perl.aaron.TruthTrees.logic.negation.Negation;
 import perl.aaron.TruthTrees.util.UserError;
 
 public class BranchTerminator extends BranchLine {

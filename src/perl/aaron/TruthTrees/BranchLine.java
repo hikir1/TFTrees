@@ -15,8 +15,8 @@ import perl.aaron.TruthTrees.graphics.TreePanel;
 import perl.aaron.TruthTrees.logic.AtomicStatement;
 //import perl.aaron.TruthTrees.logic.Composable;
 import perl.aaron.TruthTrees.logic.Decomposable;
+import perl.aaron.TruthTrees.logic.Negation;
 import perl.aaron.TruthTrees.logic.Statement;
-import perl.aaron.TruthTrees.logic.negation.Negation;
 import perl.aaron.TruthTrees.util.UserError;
 
 /**
