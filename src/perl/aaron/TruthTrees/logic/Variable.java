@@ -3,8 +3,6 @@ package perl.aaron.TruthTrees.logic;
 import java.util.Collections;
 import java.util.Set;
 
-import perl.aaron.TruthTrees.util.UserError;
-
 public class Variable extends LogicObject {
 	
 	private String name;
@@ -41,10 +39,10 @@ public class Variable extends LogicObject {
 	}
 
 	@Override
-	public Binding determineBinding(LogicObject unbound) throws UserError {
+	public Binding determineBinding(LogicObject unbound) {
 		if (this.equals(unbound))
 			return Binding.EMPTY_BINDING;
-		throw new UserError(this + " does not match " + unbound);
+		else return null;
 	}
 
 }

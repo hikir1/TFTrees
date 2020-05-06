@@ -1,10 +1,9 @@
 package perl.aaron.TruthTrees.logic;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import perl.aaron.TruthTrees.util.UserError;
 
 public class Equality extends Statement implements Decomposable {
 	
@@ -18,11 +17,13 @@ public class Equality extends Statement implements Decomposable {
 	}
 
 	@Override
-	public void verifyDecomposition(List<List<Statement>> branches, Set<String> branchConstants,
-			Set<String> constantsBefore)  throws UserError {
-		if(!branches.isEmpty())
-			throw new UserError("Equality decomposition should not produce branches.");
-		// TODO: create more rules
+	public boolean verifyDecomposition(List<List<Statement>> branches, Set<String> branchConstants,
+			Set<String> constantsBefore) {
+		if (branches.size() == 0)
+		{
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -68,6 +69,7 @@ public class Equality extends Statement implements Decomposable {
 	@Override
 	public Binding determineBinding(Statement unbound) {
 		// TODO Implement this
+		return null;
 	}
 	
 }

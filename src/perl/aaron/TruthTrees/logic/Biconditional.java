@@ -1,14 +1,9 @@
 package perl.aaron.TruthTrees.logic;
 
-import static perl.aaron.TruthTrees.Symbols.AND;
-import static perl.aaron.TruthTrees.Symbols.IFF;
-import static perl.aaron.TruthTrees.Symbols.NEG;
-import static perl.aaron.TruthTrees.Symbols.OR;
-
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
-import perl.aaron.TruthTrees.util.UserError;
 
 public class Biconditional extends BinaryOperator {
 
@@ -16,20 +11,17 @@ public class Biconditional extends BinaryOperator {
 		super(a, b);
 	}
 
-	public void verifyDecomposition(List<List<Statement>> branches, Set<String> constants, Set<String> constantsBefore) throws UserError {
+	public boolean verifyDecomposition(List<List<Statement>> branches, Set<String> constants, Set<String> constantsBefore) {
 		if (branches.size() != 2)
-			throw new UserError("Biconditionals should decompose into 2 branches. " + branches.size() + " given.");
-		List<Statement> b1 = branches.get(0), b2 = branches.get(1);
-		if(b1.size() != 1 || b2.size() != 1)
-			throw new UserError("Each branch should contain one decomposed statement.");
-		Statement decomp1 = b1.get(0), decomp2 = b2.get(0);
+			return false;
 		Conjunction AandB = new Conjunction(statements.get(0),statements.get(1));
 		Conjunction NotAandNotB = new Conjunction(new Negation(statements.get(0)), new Negation(statements.get(1)));
-		if (!decomp1.equals(AandB) || !decomp2.equals(NotAandNotB))
-			if(!decomp1.equals(NotAandNotB) || !decomp2.equals(AandB))
-				throw new UserError("One branch should contain the conjunction of the operands,\n" 
-						+ "and the other, the conjunction of the negation thereof.\n"
-						+ "A " + IFF + " B <=> (A " + AND + " B) " + OR + " (" + NEG +"A " + AND + " " + NEG + "B)");
+		List<List<Statement>> branch1 = new ArrayList<List<Statement>>();
+		branch1.add(branches.get(0));
+		List<List<Statement>> branch2 = new ArrayList<List<Statement>>();
+		branch2.add(branches.get(1));
+		return 	(AandB.verifyDecomposition(branch1, constants, constantsBefore) && NotAandNotB.verifyDecomposition(branch2, constants, constantsBefore)) ||
+				(AandB.verifyDecomposition(branch2, constants, constantsBefore) && NotAandNotB.verifyDecomposition(branch1, constants, constantsBefore));
 	}
 
 	public String toString() {

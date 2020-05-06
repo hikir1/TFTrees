@@ -5,8 +5,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import perl.aaron.TruthTrees.util.UserError;
-
 public class Predicate extends Statement {
 	private String symbol;
 	private List<LogicObject> arguments;
@@ -66,25 +64,35 @@ public class Predicate extends Statement {
 	}
 
 	@Override
-	public Binding determineBinding(Statement unbound) throws UserError
+	public Binding determineBinding(Statement unbound)
 	{
-		if (!unbound.getClass().equals(this.getClass()))
-			throw new UserError(this + " does not match " + unbound);
-		Predicate unboundPred = (Predicate) unbound;
-		if (arguments.size() != unboundPred.arguments.size())
-			throw new UserError(this + " does not match " + unbound + ". Incompatible number of arguments.");
-		Binding b = Binding.EMPTY_BINDING;
-		for (int i = 0; i < arguments.size(); i++)
+		if (unbound.getClass().equals(this.getClass()))
 		{
-			Binding curBinding = arguments.get(i).determineBinding(unboundPred.arguments.get(i));
-			if (curBinding != Binding.EMPTY_BINDING) {
-				if (b == Binding.EMPTY_BINDING)
-					b = curBinding;
-				else if (!b.equals(curBinding))
-					throw new UserError("Different bindings: " + b + ", " + curBinding);
+			Predicate unboundPred = (Predicate) unbound;
+			if (arguments.size() == unboundPred.arguments.size())
+			{
+				Binding b = null;
+				for (int i = 0; i < arguments.size(); i++)
+				{
+					Binding curBinding = arguments.get(i).determineBinding(unboundPred.arguments.get(i));
+					if (curBinding == null)
+					{
+						return null;
+					}
+					if (b == null || b.equals(Binding.EMPTY_BINDING))
+					{
+						b = curBinding;
+					}
+					else if (!b.equals(curBinding) && !curBinding.equals(Binding.EMPTY_BINDING))
+					{
+						return null;
+					}
+				}
+				return b;
 			}
+			else return null;
 		}
-		return b;
+		else return null;
 	}
 
 }

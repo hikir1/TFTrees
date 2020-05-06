@@ -4,8 +4,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import perl.aaron.TruthTrees.util.UserError;
-
 public class UniversalQuantifier extends Quantifier {
 
 	public UniversalQuantifier(Variable var, Statement statement) {
@@ -23,20 +21,29 @@ public class UniversalQuantifier extends Quantifier {
 	}
 
 	@Override
-	public void verifyDecomposition(List<List<Statement>> branches, Set<String> constants, Set<String> constantsBefore) throws UserError {
-		if (branches.size() != 1) // There should be only 1 branch
-			throw new UserError("Quantifier decomposition should not produce branches");
+	public boolean verifyDecomposition(List<List<Statement>> branches, Set<String> constants, Set<String> constantsBefore) {
+		if (branches.size() != 1) { // There should be only 1 branch
+			return false;
+		}
+		
 		Set<String> instantiatedConstants = new LinkedHashSet<String>();
-		try {
-			for (Statement s : branches.get(0))
-				instantiatedConstants.add(s.determineBinding(statement).getConstant().toString());
-		}
-		catch(UserError e) {
-			throw new UserError("Invalid binding for " + this.var + ":\n" + e.getMessage());
-		}
-		instantiatedConstants.removeAll(constants);
-		if (!instantiatedConstants.isEmpty())
-			throw new UserError("Not all constants used. Constants remaining: " + instantiatedConstants);
+		System.out.println("All constants: " + constants.toString());
+		for (Statement s : branches.get(0))
+		{
+			Binding b = s.determineBinding(statement);
+			if (b != null)
+			{
+				System.out.println("Binding for " + s.toString());
+				System.out.println(b);
+				
+				instantiatedConstants.add(b.getConstant().toString());
+			}
+			else
+			{
+				System.out.println("Invalid binding");
+			}
+		};
+		return instantiatedConstants.equals(constants);
 	}
 
 }

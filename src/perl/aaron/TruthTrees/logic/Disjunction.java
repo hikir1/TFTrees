@@ -6,8 +6,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import perl.aaron.TruthTrees.util.UserError;
-
 public class Disjunction extends LogicalOperator {
 	/**
 	 * Creates a Disjunction of the provided statements
@@ -32,17 +30,31 @@ public class Disjunction extends LogicalOperator {
 		return statementString + statementsAL.get(statementsAL.size()-1).toStringParen();
 	}
 
-	public void verifyDecomposition(List<List<Statement>> branches, Set<String> constants, Set<String> constantsBefore) throws UserError
+	public boolean verifyDecomposition(List<List<Statement>> branches, Set<String> constants, Set<String> constantsBefore)
 	{
 		if (branches.size() != statements.size()) // there must be one branch per disjunct
-			throw new UserError("There must be one branch per disjunct.");
-		var statements = new ArrayList<Statement>(this.statements);
-		for (List<Statement> branch : branches) {
-			if (branch.size() != 1)
-				throw new UserError("Each branch must contain exactly one decomposed statement. " + branch.size() + " given.");
-			if (!statements.remove(branch.get(0)))
-				throw new UserError("No disjunct matches " + branch.get(0));
+			return false;
+		// boolean arrays in Java default to false
+		boolean disjuncts[] = new boolean[statements.size()]; 	// Every disjunct must match up to a branch...
+		for (List<Statement> curBranch : branches) 				// ... and every branch must match up to a disjunct
+		{
+			boolean satisfied = false;
+			if (curBranch.size() != 1) 					// Every branch must have one and only one statement in it
+				return false;
+			for (int i = 0; i < statements.size(); i++) // try to map a disjunct to the current branch
+			{
+				if (disjuncts[i]) continue; 					// skip already used disjuncts 
+				if (statements.get(i).equals(curBranch.get(0))) // the current branch is equal to this disjunct
+				{
+					satisfied = true;		// branch satisfied
+					disjuncts[i] = true; 	// flag this disjunct to avoid duplicate use
+					break;
+				}
+			}
+			if (!satisfied) // no disjunct matched this branch
+				return false;
 		}
+		return true;
 	}
 
 	public boolean equals(Statement other)

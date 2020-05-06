@@ -5,8 +5,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import perl.aaron.TruthTrees.util.UserError;
-
 public class FunctionSymbol extends LogicObject {
 	
 	private String symbol;
@@ -63,26 +61,35 @@ public class FunctionSymbol extends LogicObject {
 	}
 
 	@Override
-	public Binding determineBinding(LogicObject unbound) throws UserError {
-		if (!(unbound instanceof FunctionSymbol))
-			throw new UserError(this + " does not match " + unbound);
-		FunctionSymbol unboundFunc = (FunctionSymbol) unbound;
-		if (!symbol.equals(unboundFunc.symbol))
-			throw new UserError("Incompatible functions: " + symbol + " & " + unboundFunc.symbol);
-		if (arguments.size() != unboundFunc.arguments.size())
-			throw new UserError("Incompatible numer of arguments: " + arguments.size() + " & " + unboundFunc.arguments.size());
-		Binding b = Binding.EMPTY_BINDING;
-		for (int i = 0; i < arguments.size(); i++)
+	public Binding determineBinding(LogicObject unbound) {
+		if (unbound instanceof FunctionSymbol)
 		{
-			Binding curBinding = arguments.get(i).determineBinding(unboundFunc.arguments.get(i));
-			if (curBinding != Binding.EMPTY_BINDING) {
-				if (b == Binding.EMPTY_BINDING)
-					b = curBinding;
-				else if (!b.equals(curBinding))
-					throw new UserError("Different bindings: " + b + ", " + curBinding);
+			FunctionSymbol unboundFunc = (FunctionSymbol) unbound;
+			if (arguments.size() == unboundFunc.arguments.size())
+			{
+				Binding b = null;
+				for (int i = 0; i < arguments.size(); i++)
+				{
+					Binding curBinding = arguments.get(i).determineBinding(unboundFunc.arguments.get(i));
+					if (curBinding == null)
+					{
+						return null;
+					}
+					if (b == null || b.equals(Binding.EMPTY_BINDING))
+					{
+						b = curBinding;
+					}
+					else if ((b != curBinding && !b.equals(Binding.EMPTY_BINDING)) || curBinding == null)
+					{
+						return null;
+					}
+				}
+				return b;
 			}
+			else return null;
+			
 		}
-		return b;
+		else return null;
 	}
 
 }
