@@ -1,7 +1,8 @@
-package perl.aaron.TruthTrees.logic;
+package perl.aaron.TruthTrees.logic.fo;
 
 import java.util.Set;
 
+import perl.aaron.TruthTrees.logic.Binding;
 import perl.aaron.TruthTrees.util.UserError;
 
 /**

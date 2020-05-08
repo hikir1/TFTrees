@@ -1,5 +1,7 @@
 package perl.aaron.TruthTrees.logic;
 
+import perl.aaron.TruthTrees.logic.fo.Constant;
+
 /**
  * A class that represents a binding of a given variable to a given constant
  */

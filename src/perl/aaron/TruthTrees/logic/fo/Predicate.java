@@ -1,10 +1,12 @@
-package perl.aaron.TruthTrees.logic;
+package perl.aaron.TruthTrees.logic.fo;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import perl.aaron.TruthTrees.logic.Binding;
+import perl.aaron.TruthTrees.logic.Statement;
 import perl.aaron.TruthTrees.util.UserError;
 
 public class Predicate extends Statement {

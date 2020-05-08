@@ -1,7 +1,10 @@
-package perl.aaron.TruthTrees.logic;
+package perl.aaron.TruthTrees.logic.fo;
 
 import java.util.Collections;
 import java.util.Set;
+
+import perl.aaron.TruthTrees.logic.Binding;
+import perl.aaron.TruthTrees.logic.Variable;
 
 /**
  * A constant represents a name for exactly one specific object.

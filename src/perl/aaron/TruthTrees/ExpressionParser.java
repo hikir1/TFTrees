@@ -12,6 +12,12 @@ import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 
 import perl.aaron.TruthTrees.logic.*;
+import perl.aaron.TruthTrees.logic.fo.Constant;
+import perl.aaron.TruthTrees.logic.fo.ExistentialQuantifier;
+import perl.aaron.TruthTrees.logic.fo.FunctionSymbol;
+import perl.aaron.TruthTrees.logic.fo.LogicObject;
+import perl.aaron.TruthTrees.logic.fo.Predicate;
+import perl.aaron.TruthTrees.logic.fo.UniversalQuantifier;
 import perl.aaron.TruthTrees.logic.negation.Negation;
 
 

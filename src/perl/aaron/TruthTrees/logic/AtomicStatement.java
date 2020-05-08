@@ -1,18 +1,26 @@
 package perl.aaron.TruthTrees.logic;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
-public class AtomicStatement extends Statement {
-	private String _symbol;
+import perl.aaron.TruthTrees.logic.negation.NegAtomicStatement;
+import perl.aaron.TruthTrees.logic.negation.Negation;
+import perl.aaron.TruthTrees.util.UserError;
+
+public class AtomicStatement extends Statement implements NonDecomposable {
+	private String symbol;
 	/**
 	 * Creates an atomic statement with a given symbol
 	 * @param symbol The character representing the statement
 	 */
 	public AtomicStatement(String symbol)
 	{
-		_symbol = symbol;
+		this.symbol = symbol;
+	}
+	
+	@Override
+	public Negation negated() {
+		return new NegAtomicStatement(symbol);
 	}
 	
 	/**
@@ -21,37 +29,24 @@ public class AtomicStatement extends Statement {
 	 */
 	public String getSymbol()
 	{
-		return _symbol;
+		return symbol;
 	}
 	
 	public String toString()
 	{
-		return _symbol;
+		return symbol;
 	}
 	
 	public String toStringParen()
 	{
-		return _symbol;
+		return symbol;
 	}
 	
-	public boolean equals(Object other)
+	public boolean equals(Statement other)
 	{
 		if (!(other instanceof AtomicStatement))
 			return false;
-		AtomicStatement otherAS = (AtomicStatement) other;
-		return (otherAS.getSymbol().equals(_symbol));
-	}
-	
-	public boolean equals(Statement other) {
-		if (!(other instanceof AtomicStatement))
-			return false;
-		return ((AtomicStatement)other).getSymbol().equals(_symbol);
-	}
-	
-	public boolean verifyDecomposition(List<List<Statement>> branches, Set<String> constants, Set<String> constantsBefore) {
-		
-		return true;
-		
+		return ((AtomicStatement)other).getSymbol().equals(symbol);
 	}
 	
 	@Override
@@ -65,9 +60,9 @@ public class AtomicStatement extends Statement {
 	}
 	
 	@Override
-	public Binding determineBinding(Statement unbound) {
+	public Binding determineBinding(Statement unbound) throws UserError {
 		if (unbound.equals(this)) return Binding.EMPTY_BINDING;
-		else return null;
+		throw new UserError(this + " does not match " + unbound);
 	}
 	
 }

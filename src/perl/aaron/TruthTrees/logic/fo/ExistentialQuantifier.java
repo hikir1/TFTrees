@@ -1,10 +1,12 @@
-package perl.aaron.TruthTrees.logic;
+package perl.aaron.TruthTrees.logic.fo;
 
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import perl.aaron.TruthTrees.logic.Statement;
+import perl.aaron.TruthTrees.logic.Variable;
 import perl.aaron.TruthTrees.util.UserError;
 
 public class ExistentialQuantifier extends Quantifier {

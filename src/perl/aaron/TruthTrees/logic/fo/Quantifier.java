@@ -1,8 +1,11 @@
-package perl.aaron.TruthTrees.logic;
+package perl.aaron.TruthTrees.logic.fo;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import perl.aaron.TruthTrees.logic.Binding;
+import perl.aaron.TruthTrees.logic.Statement;
+import perl.aaron.TruthTrees.logic.Variable;
 import perl.aaron.TruthTrees.util.UserError;
 
 public abstract class Quantifier extends Statement implements Decomposable {

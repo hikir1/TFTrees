@@ -8,7 +8,7 @@ import perl.aaron.TruthTrees.util.UserError;
 public interface SerialDecomposable extends Decomposable {
 	
 	@Override
-	default public void subVerifyDecomposition(final List<List<Statement>> branches, List<Statement> model) throws UserError {
+	default void subVerifyDecomposition(final List<List<Statement>> branches, List<Statement> model) throws UserError {
 		assert branches != null;
 		assert model != null;
 		assert !model.isEmpty() : "model should not be empty";
