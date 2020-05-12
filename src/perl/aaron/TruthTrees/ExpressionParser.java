@@ -18,6 +18,7 @@ import perl.aaron.TruthTrees.logic.fo.FunctionSymbol;
 import perl.aaron.TruthTrees.logic.fo.LogicObject;
 import perl.aaron.TruthTrees.logic.fo.Predicate;
 import perl.aaron.TruthTrees.logic.fo.UniversalQuantifier;
+import perl.aaron.TruthTrees.logic.fo.Variable;
 import perl.aaron.TruthTrees.logic.negation.Negation;
 
 

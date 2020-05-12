@@ -6,32 +6,23 @@ import perl.aaron.TruthTrees.Branch;
 import perl.aaron.TruthTrees.logic.negation.NegConditional;
 import perl.aaron.TruthTrees.logic.negation.Negation;
 
-public class Conditional extends BinaryOperator implements BranchDecomposable {
+public class Conditional extends Statement implements BranchDecomposable {
+	public static final String TYPE_NAME = "Conditional";
+	public static final String SYMBOL = "\u2192";
 	
 	private final List<Statement> decomposition;
+	private final Statement left, right;
 
 	public Conditional(final Statement a, final Statement b)
 	{
-		super(a,b);
+		super(TYPE_NAME, SYMBOL, List.of(a, b));
+		assert a != null;
+		assert b != null;
+		left = a;
+		right = b;
 		decomposition = List.of(a.negated(), b);
 	}
-	public String toString() {
-		return  statements.get(0).toStringParen()+ " \u2192 " +statements.get(1).toStringParen();
-	}
-//	public void verifyDecomposition(List<List<Statement>> branches, Set<String> constants, Set<String> constantsBefore) throws UserError {
-//		if (branches.size() != 2) // conditionals decompose into 2 branches (implication to a disjunction)
-//			throw new UserError("Conditionals should decompose into 2 branches. " + branches.size() + " given.");
-//		if (branches.get(0).size() != 1 || branches.get(1).size() != 1) // each branch should have 1 statement
-//			throw new UserError("Each branch should contain 1 statement.");
-//		Statement antecedentNeg = new Negation(statements.get(0)); // a -> b <=> ~a v b
-//		Statement consequent = statements.get(1);
-//		Statement a = branches.get(0).get(0);
-//		Statement b = branches.get(1).get(0);
-//		if((!antecedentNeg.equals(a) || !consequent.equals(b)) &&
-//				(!antecedentNeg.equals(b) || !consequent.equals(a)))
-//			throw new UserError("One branch should contain the negated anticedent, and the other, the consequent.\n"
-//					+ "A " + IMPLIES + " B <=> " + NEG + "A " + OR + " B");
-//	}
+	
 	@Override
 	public List<Statement> getModelDecomposition(final Branch b) {
 		return decomposition;
@@ -39,16 +30,16 @@ public class Conditional extends BinaryOperator implements BranchDecomposable {
 	
 	@Override
 	public Negation negated() {
-		assert statements != null;
-		assert statements.size() == 2;
-		return new NegConditional(statements.get(0), statements.get(1));
+		return new NegConditional(left, right);
 	}
 	
-	public boolean equals(final Statement other) {
+	// need to override equals() because not commutative
+	// no need to override hashcode because still valid
+	@Override
+	public boolean equals(final Object other) {
 		if (!(other instanceof Conditional))
 			return false;
-		List<Statement> otherStatements = ((Conditional) other).getOperands();
-		return (statements.get(0).equals(otherStatements.get(0))) && (statements.get(1).equals(otherStatements.get(1)));
+		return statements.equals(((Conditional)other).statements);
 	}
-
+	
 }

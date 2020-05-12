@@ -5,7 +5,6 @@ import java.util.Set;
 
 import perl.aaron.TruthTrees.logic.Binding;
 import perl.aaron.TruthTrees.logic.Statement;
-import perl.aaron.TruthTrees.logic.Variable;
 import perl.aaron.TruthTrees.util.UserError;
 
 public abstract class Quantifier extends Statement implements Decomposable {

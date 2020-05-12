@@ -1,92 +1,51 @@
 package perl.aaron.TruthTrees.logic.fo;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
-import perl.aaron.TruthTrees.logic.Binding;
+import perl.aaron.TruthTrees.logic.NonDecomposable;
 import perl.aaron.TruthTrees.logic.Statement;
-import perl.aaron.TruthTrees.util.UserError;
+import perl.aaron.TruthTrees.logic.negation.Negation;
+import perl.aaron.TruthTrees.logic.negation.fo.NegPredicate;
 
-public class Predicate extends Statement {
-	private String symbol;
-	private List<LogicObject> arguments;
+public class Predicate extends Statement implements NonDecomposable{
+	public static final String TYPE_NAME = "Predicate";
+	
+	private final List<LogicObject> arguments;
 
-	public Predicate(String symbol, List<LogicObject> arguments)
-	{
-		this.symbol = symbol;
-		this.arguments = new ArrayList<LogicObject>(arguments);
+	public Predicate(String symbol, List<LogicObject> arguments) {
+		super(TYPE_NAME, symbol, List.of());
+		assert symbol != null;
+		assert arguments != null;
+		this.arguments = List.copyOf(arguments);
 	}
 	
 	@Override
-	public String toString()
-	{
-		String argString = "";
-		for (int i = 0; i < arguments.size(); i++)
-		{
-			if (i > 0)
-				argString += ", ";
-			argString += arguments.get(i).toString();
-		}
-		return symbol + "(" + argString + ")";
-	}
-	
-	public String toStringParen()
-	{
-		return toString();
-	}
-
-	@Override
-	public boolean equals(Statement other) {
-		if (other instanceof Predicate)
-		{
-			Predicate otherPredicate = (Predicate) other;
-			return symbol.equals(otherPredicate.symbol) && arguments.equals(otherPredicate.arguments);
-		}
-		return false;
-	}
-
-	@Override
-	public Set<String> getVariables() {
-		Set<String> union = new LinkedHashSet<String>();
-		for (LogicObject arg : arguments)
-		{
-			union.addAll(arg.getVariables());
-		}
-		return union;
+	public Negation negated() {
+		return new NegPredicate(symbol, arguments);
 	}
 	
 	@Override
-	public Set<String> getConstants() {
-		Set<String> union = new LinkedHashSet<String>();
-		for (LogicObject arg : arguments)
-		{
-			union.addAll(arg.getConstants());
-		}
-		return union;
+	public String symString() {
+		return arguments.stream().map(Object::toString).collect(Collectors.joining(", ", symbol + "(", ")"));
 	}
-
+	
 	@Override
-	public Binding determineBinding(Statement unbound) throws UserError
-	{
-		if (!unbound.getClass().equals(this.getClass()))
-			throw new UserError(this + " does not match " + unbound);
-		Predicate unboundPred = (Predicate) unbound;
-		if (arguments.size() != unboundPred.arguments.size())
-			throw new UserError(this + " does not match " + unbound + ". Incompatible number of arguments.");
-		Binding b = Binding.EMPTY_BINDING;
-		for (int i = 0; i < arguments.size(); i++)
-		{
-			Binding curBinding = arguments.get(i).determineBinding(unboundPred.arguments.get(i));
-			if (curBinding != Binding.EMPTY_BINDING) {
-				if (b == Binding.EMPTY_BINDING)
-					b = curBinding;
-				else if (!b.equals(curBinding))
-					throw new UserError("Different bindings: " + b + ", " + curBinding);
-			}
-		}
-		return b;
+	public String symStringParen() {
+		return symString();
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof Predicate))
+			return false;
+		var pred = (Predicate) other;
+		return pred.symbol.equals(symbol) && pred.arguments.equals(arguments);
+	}
+	
+	@Override
+	public int hashCode() {
+		return symbol.hashCode() ^ arguments.hashCode();
 	}
 
 }

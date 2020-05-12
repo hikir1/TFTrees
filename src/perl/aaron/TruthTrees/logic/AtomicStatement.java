@@ -1,21 +1,19 @@
 package perl.aaron.TruthTrees.logic;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 
 import perl.aaron.TruthTrees.logic.negation.NegAtomicStatement;
 import perl.aaron.TruthTrees.logic.negation.Negation;
-import perl.aaron.TruthTrees.util.UserError;
 
 public class AtomicStatement extends Statement implements NonDecomposable {
-	private String symbol;
+	public static final String TYPE_NAME = "Atomic Statment";
 	/**
 	 * Creates an atomic statement with a given symbol
 	 * @param symbol The character representing the statement
 	 */
 	public AtomicStatement(String symbol)
 	{
-		this.symbol = symbol;
+		super(TYPE_NAME, symbol, List.of());
 	}
 	
 	@Override
@@ -23,46 +21,16 @@ public class AtomicStatement extends Statement implements NonDecomposable {
 		return new NegAtomicStatement(symbol);
 	}
 	
-	/**
-	 * Returns the statement's symbol
-	 * @return The character representing the statement
-	 */
-	public String getSymbol()
+	@Override
+	public String symString()
 	{
 		return symbol;
 	}
 	
-	public String toString()
+	@Override
+	public String symStringParen()
 	{
 		return symbol;
-	}
-	
-	public String toStringParen()
-	{
-		return symbol;
-	}
-	
-	public boolean equals(Statement other)
-	{
-		if (!(other instanceof AtomicStatement))
-			return false;
-		return ((AtomicStatement)other).getSymbol().equals(symbol);
-	}
-	
-	@Override
-	public Set<String> getVariables() {
-		return Collections.emptySet();
-	}
-	
-	@Override
-	public Set<String> getConstants() {
-		return Collections.emptySet();
-	}
-	
-	@Override
-	public Binding determineBinding(Statement unbound) throws UserError {
-		if (unbound.equals(this)) return Binding.EMPTY_BINDING;
-		throw new UserError(this + " does not match " + unbound);
 	}
 	
 }

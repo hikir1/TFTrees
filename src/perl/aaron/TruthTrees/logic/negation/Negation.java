@@ -1,64 +1,41 @@
 package perl.aaron.TruthTrees.logic.negation;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
-import perl.aaron.TruthTrees.logic.LogicalOperator;
 import perl.aaron.TruthTrees.logic.Statement;
 
-public abstract class Negation extends LogicalOperator {
+public abstract class Negation extends Statement {
+	public static final String SYMBOL = "\u00AC";
 	
-	protected final Statement appearance;
+	protected abstract Statement getInner();
 	
 	/**
 	 * Creates a Negation of a given statement
 	 * @param proposition The Statement to be negated
 	 */
-	public Negation(List<Statement> operands, Statement appearance)
+	public Negation(final String name, final String innerSymbol, final List<Statement> statements)
 	{
-		statements = Collections.unmodifiableList(operands);
-		this.appearance = appearance;
+		super(name, innerSymbol, statements);
 	}
 	
 	@Override
-	public Negation negated() {
-		assert statements != null;
-		assert statements.size() == 2;
-		return new DoubleNeg(appearance);
+	public final Negation negated() {
+		return new DoubleNeg(getInner());
 	}
 	
-	/**
-	 * Returns the negated statement
-	 * @return The negated statement
-	 */
-	public Statement getNegand()
-	{
-		return appearance;
+	// to be overridden by subclasses
+	protected String innerSymStringParen() {
+		return super.symStringParen();
 	}
 	
-	public String toString() {
-		return "\u00AC"+appearance.toStringParen();
-	}
-	
-	public String toStringParen() {
-		return toString();
-	}
-
-	public boolean equals(final Statement other) { //TODO: fix this!!!??? (not for conditional)
-		if (!other.getClass().equals(this.getClass()))
-			return false;
-		return ((Negation)other).statements.equals(statements); // doesnt work out of order
+	@Override
+	public final String symString() {
+		return SYMBOL + innerSymStringParen();
 	}
 
 	@Override
-	public Set<String> getVariables() {
-		return statements.get(0).getVariables();
-	}
-
-	@Override
-	public Set<String> getConstants() {
-		return statements.get(0).getConstants();
+	public final String symStringParen() {
+		return symString();
 	}
 
 }

@@ -1,9 +1,9 @@
-package perl.aaron.TruthTrees.logic;
+package perl.aaron.TruthTrees.logic.fo;
 
 import java.util.Collections;
 import java.util.Set;
 
-import perl.aaron.TruthTrees.logic.fo.LogicObject;
+import perl.aaron.TruthTrees.logic.Binding;
 import perl.aaron.TruthTrees.util.UserError;
 
 public class Variable extends LogicObject {

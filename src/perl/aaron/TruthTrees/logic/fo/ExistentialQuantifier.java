@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import perl.aaron.TruthTrees.logic.Statement;
-import perl.aaron.TruthTrees.logic.Variable;
 import perl.aaron.TruthTrees.util.UserError;
 
 public class ExistentialQuantifier extends Quantifier {
