@@ -2,13 +2,13 @@ package perl.aaron.TruthTrees.logic.negation;
 
 import java.util.List;
 
-import perl.aaron.TruthTrees.Branch;
+import perl.aaron.TruthTrees.logic.AComplexStatement;
 import perl.aaron.TruthTrees.logic.Biconditional;
 import perl.aaron.TruthTrees.logic.BranchDecomposable;
 import perl.aaron.TruthTrees.logic.Conjunction;
 import perl.aaron.TruthTrees.logic.Statement;
 
-public class NegBiconditional extends Negation implements BranchDecomposable {
+public class NegBiconditional extends AComplexStatement implements ComplexNegation, BranchDecomposable {
 	public static final String TYPE_NAME = "Negated Biconditional";
 	
 	private final List<Statement> decomposition;
@@ -24,12 +24,12 @@ public class NegBiconditional extends Negation implements BranchDecomposable {
 	}
 	
 	@Override
-	public List<Statement> getModelDecomposition(final Branch b) {
+	public List<Statement> getModelDecomposition() {
 		return decomposition;
 	}
 	
 	@Override
-	protected Statement getInner() {
+	public Statement getInner() {
 		return new Biconditional(left, right);
 	}
 	

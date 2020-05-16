@@ -15,7 +15,7 @@ import perl.aaron.TruthTrees.graphics.TreePanel;
 import perl.aaron.TruthTrees.logic.AtomicStatement;
 //import perl.aaron.TruthTrees.logic.Composable;
 import perl.aaron.TruthTrees.logic.Decomposable;
-import perl.aaron.TruthTrees.logic.Statement;
+import perl.aaron.TruthTrees.logic.AStatement;
 import perl.aaron.TruthTrees.logic.negation.Negation;
 import perl.aaron.TruthTrees.util.UserError;
 
@@ -26,7 +26,7 @@ import perl.aaron.TruthTrees.util.UserError;
  */
 public class BranchLine {
 	protected Branch parent;
-	protected Statement statement;
+	protected AStatement statement;
 	protected Set<Branch> selectedBranches; // holds the parent of the split that decomposes this line
 	protected Set<BranchLine> selectedLines;
 	protected BranchLine decomposedFrom;
@@ -65,12 +65,12 @@ public class BranchLine {
 		return isPremise;
 	}
 	
-	public void setStatement(Statement statement)
+	public void setStatement(AStatement statement)
 	{
 		this.statement = statement;
 	}
 	
-	public Statement getStatement()
+	public AStatement getStatement()
 	{
 		return statement;
 	}
@@ -142,10 +142,10 @@ public class BranchLine {
 				Set<BranchLine> usedLines = new LinkedHashSet<BranchLine>();
 				for (Branch curRootBranch : selectedBranches)
 				{
-					List<List<Statement>> curTotalSet = new ArrayList<List<Statement>>();
+					List<List<AStatement>> curTotalSet = new ArrayList<List<AStatement>>();
 					for (Branch curBranch : curRootBranch.getBranches())
 					{
-						List<Statement> curBranchSet = new ArrayList<Statement>();
+						List<AStatement> curBranchSet = new ArrayList<AStatement>();
 						for (BranchLine curLine : selectedLines)
 						{
 							if (curLine.getParent() == curBranch)
@@ -173,7 +173,7 @@ public class BranchLine {
 			else // non-branching decomposition (conjunction)
 			{
 				// A map of leaf branches to a list of statements in that branch and up that are selected
-				Map<Branch, List<Statement>> branchMap = new LinkedHashMap<Branch, List<Statement>>();
+				Map<Branch, List<AStatement>> branchMap = new LinkedHashMap<Branch, List<AStatement>>();
 				Set<Branch> selectedBranches = new LinkedHashSet<Branch>();
 				// Add all branches that contain selected lines
 				for (BranchLine curLine : selectedLines)
@@ -182,7 +182,7 @@ public class BranchLine {
 				}
 				for (BranchLine curLine : selectedLines)
 				{
-					List<Statement> curList = null;
+					List<AStatement> curList = null;
 					// Check if this branch is in the map and add the statement to it
 					if (branchMap.containsKey(curLine.getParent()))
 						curList = branchMap.get(curLine.getParent());
@@ -201,7 +201,7 @@ public class BranchLine {
 								}
 								else
 								{
-									List<Statement> newList = new ArrayList<Statement>();
+									List<AStatement> newList = new ArrayList<AStatement>();
 									newList.add(curLine.getStatement());
 									branchMap.put(curBranch, newList);
 								}
@@ -209,7 +209,7 @@ public class BranchLine {
 						}
 						if (!foundChildren)
 						{
-							curList = new ArrayList<Statement>();
+							curList = new ArrayList<AStatement>();
 							branchMap.put(curLine.getParent(), curList);
 						}
 					}
@@ -218,7 +218,7 @@ public class BranchLine {
 				}
 				for (Branch curBranch : branchMap.keySet())
 				{
-					List<List<Statement>> currentDecomp = new ArrayList<List<Statement>>();
+					List<List<AStatement>> currentDecomp = new ArrayList<List<AStatement>>();
 					currentDecomp.add(branchMap.get(curBranch));
 					try {
 					((Decomposable) statement).verifyDecomposition(currentDecomp,
@@ -231,7 +231,7 @@ public class BranchLine {
 				}
 				if (branchMap.size() == 0)
 				{
-					List<List<Statement>> currentDecomp = Collections.emptyList();
+					List<List<AStatement>> currentDecomp = Collections.emptyList();
 					Set<String> constants = Collections.emptySet();
 					try {
 						((Decomposable) statement).verifyDecomposition(currentDecomp,constants,constants);

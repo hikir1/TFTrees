@@ -1,85 +1,117 @@
 package perl.aaron.TruthTrees.logic.fo;
 
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import perl.aaron.TruthTrees.logic.Binding;
+import perl.aaron.TruthTrees.logic.Disjunction;
+import perl.aaron.TruthTrees.logic.SerialDecomposable;
 import perl.aaron.TruthTrees.logic.Statement;
-import perl.aaron.TruthTrees.util.UserError;
+import perl.aaron.TruthTrees.logic.negation.fo.Inequality;
 
-public class Equality extends Statement implements Decomposable {
+public class Equality extends AEquality implements SerialDecomposable {
+	public static final String TYPE_NAME = "Equality";
+	public static final String SYMBOL = "=";
 	
-	LogicObject obj1;
-	LogicObject obj2;
+	private final Set<LogicObject> uniqueArguments;
 	
-	public Equality(LogicObject obj1, LogicObject obj2)
-	{
-		this.obj1 = obj1;
-		this.obj2 = obj2;
-	}
-
-	@Override
-	public void verifyDecomposition(List<List<Statement>> branches, Set<String> branchConstants,
-			Set<String> constantsBefore)  throws UserError {
-		if(!branches.isEmpty())
-			throw new UserError("Equality decomposition should not produce branches.");
-		// TODO: create more rules
-	}
-
-	@Override
-	public String toString() {
-		return obj1.toString() + " = " + obj2.toString();
+	public Equality(List<LogicObject> arguments, Map<LogicObject,Set<APredicate>> atomicPredicates) {
+		super(TYPE_NAME, SYMBOL, arguments, atomicPredicates);
+		assert arguments != null;
+		uniqueArguments = new HashSet<LogicObject>(arguments);
 	}
 	
 	@Override
-	public String toStringParen() {
-		return "(" + toString() + ")";
+	protected Equality newInstance(List<LogicObject> arguments) {
+		return new Equality(arguments, atomicPredicates);
 	}
-
+	
+	
+	// redundancy does not effect equivalency of equations
+	// ex: a = a = b is the same as a = b
 	@Override
-	public boolean equals(Statement other) {
-		if (other instanceof Equality)
-		{
-			Equality otherEquality = (Equality) other;
-			return (obj1 == otherEquality.obj1 && obj2 == otherEquality.obj2);
-		}
-		else
-		{
+	public boolean equals(Object other) {
+		if (!(other instanceof Equality))
 			return false;
+		return uniqueArguments.equals(((Equality)other).uniqueArguments);
+	}
+	
+	@Override
+	public int hashCode() {
+		return symbol.hashCode() ^ uniqueArguments.hashCode();
+	}
+	
+	// TODO override replace and make exceptions for equations that already exist
+	//	to prevent infinite loop
+	
+	@Override
+	public List<Statement> getModelDecomposition() {
+		Set<LogicObject> arguments = Set.copyOf(this.arguments);
+		Set<APredicate> currentPredicates, modelPredicates = new HashSet<>();
+		for (LogicObject equArg: arguments) {
+			currentPredicates = atomicPredicates.get(equArg);
+			for (APredicate predicate: currentPredicates) {
+				for (List<LogicObject> argList: replaceArgs(predicate.arguments, equArg, arguments)) {
+					APredicate option = predicate.newInstance(argList);
+					if (option instanceof Equality)
+						// Prevent infinite recursive decomposition by skipping Equality if already exists
+						// option.arguments could be empty if tautology
+						if (((Equality)option).uniqueArguments.size() == 1 || atomicPredicates.get(argList.get(0)).contains(option))
+							continue;
+					modelPredicates.add(option);
+				}
+			}
 		}
+		return new ArrayList<Statement>(modelPredicates);
 	}
 
 	@Override
-	public Set<String> getVariables() {
-		Set<String> vars = new LinkedHashSet<String>();
-		vars.addAll(obj1.getVariables());
-		vars.addAll(obj2.getVariables());
-		return vars;
-	}
-
-	@Override
-	public Set<String> getConstants() {
-		Set<String> vars = new LinkedHashSet<String>();
-		vars.addAll(obj1.getConstants());
-		vars.addAll(obj2.getConstants());
-		return vars;
-	}
-
-	
-	@Override
-	public Binding determineBinding(Statement unbound) throws UserError {
-		if (!(unbound instanceof Equality))
-			throw new UserError(this + " doesn't match " + unbound);
-		Equality unboundEqu = (Equality) unbound;
-		Binding b1 = obj1.determineBinding(unboundEqu.obj1);
-		Binding b2 = obj2.determineBinding(unboundEqu.obj2);
-		if (b1 == Binding.EMPTY_BINDING || b1.equals(b2))
-			return b2;
-		if (b2 == Binding.EMPTY_BINDING)
-			return b1;
-		throw new UserError("Different bindings: " + b1 + ", " + b2);
-		
+	public Statement negated() {
+		assert arguments.size() >= 2;
+		List<Statement> ineqs = new ArrayList<>(arguments.size() * (arguments.size() - 1) / 2);
+		for (int i = 0; i < arguments.size(); i++)
+			for (int j = i + 1; j < arguments.size(); j++)
+				ineqs.add(new Inequality(arguments.get(i), arguments.get(j), atomicPredicates));
+		return new Disjunction(ineqs);
 	}
 	
+	private static Set<List<LogicObject>> replaceArgs(final List<LogicObject> arguments, final LogicObject current, final Set<LogicObject> replacements) {
+		assert arguments != null;
+		assert current != null;
+		assert replacements != null;
+		if (arguments.isEmpty())
+			return Set.of();
+		Set<List<LogicObject>> argCombos = new HashSet<>();
+		getOptions(arguments.get(0), current, replacements).forEach(opt -> argCombos.add(List.of(opt)));
+		arguments.listIterator(1).forEachRemaining(arg -> {
+			var prevArgCombos = Set.copyOf(argCombos);
+			argCombos.clear();
+			for (var option: getOptions(arg, current, replacements)) {
+				var temp = prevArgCombos.stream().map(LinkedList::new).collect(Collectors.toUnmodifiableList());
+				temp.forEach(optlist -> optlist.add(option));
+				argCombos.addAll(temp);
+			}
+		});
+		return argCombos;
+	}
+	
+	private static Set<LogicObject> getOptions(final LogicObject innerObject, final LogicObject current, final Set<LogicObject> replacements) {
+		assert innerObject != null;
+		assert current != null;
+		assert replacements != null;
+		if (innerObject instanceof Variable)
+			return Set.of(innerObject);
+		if (innerObject.equals(current))
+			return replacements;
+		if(!(innerObject instanceof FunctionSymbol))
+			return Set.of(innerObject);
+		var func = (FunctionSymbol) innerObject;
+		return replaceArgs(func.getArguments(), current, replacements).stream()
+				.map(args -> (LogicObject)new FunctionSymbol(func.getSymbol(), args))
+				.collect(Collectors.toUnmodifiableSet());
+	}
 }

@@ -2,11 +2,11 @@ package perl.aaron.TruthTrees.logic.negation;
 
 import java.util.List;
 
-import perl.aaron.TruthTrees.Branch;
+import perl.aaron.TruthTrees.logic.AComplexStatement;
 import perl.aaron.TruthTrees.logic.SerialDecomposable;
 import perl.aaron.TruthTrees.logic.Statement;
 
-public class DoubleNeg extends Negation implements SerialDecomposable {
+public class DoubleNeg extends AComplexStatement implements ComplexNegation, SerialDecomposable {
 	public static final String TYPE_NAME = "Double Negation";
 	
 	private final List<Statement> decomposition;
@@ -20,12 +20,12 @@ public class DoubleNeg extends Negation implements SerialDecomposable {
 	}
 	
 	@Override
-	protected Statement getInner() {
+	public Statement getInner() {
 		return negand;
 	}
 
 	@Override
-	public List<Statement> getModelDecomposition(final Branch sourceBranch) {
+	public List<Statement> getModelDecomposition() {
 		return decomposition;
 	}
 

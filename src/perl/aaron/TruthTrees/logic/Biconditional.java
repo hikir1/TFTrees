@@ -2,11 +2,9 @@ package perl.aaron.TruthTrees.logic;
 
 import java.util.List;
 
-import perl.aaron.TruthTrees.Branch;
 import perl.aaron.TruthTrees.logic.negation.NegBiconditional;
-import perl.aaron.TruthTrees.logic.negation.Negation;
 
-public class Biconditional extends Statement implements SerialDecomposable {
+public class Biconditional extends ACommutativeStatement implements SerialDecomposable {
 	public static final String TYPE_NAME = "Biconditional";
 	public static final String SYMBOL = "\u2194";
 	
@@ -23,12 +21,12 @@ public class Biconditional extends Statement implements SerialDecomposable {
 	}
 	
 	@Override
-	public List<Statement> getModelDecomposition(Branch sourceBranch) {
+	public List<Statement> getModelDecomposition() {
 		return decomposition;
 	}
 	
 	@Override
-	public Negation negated() {
+	public Statement negated() {
 		return new NegBiconditional(left, right);
 	}
 

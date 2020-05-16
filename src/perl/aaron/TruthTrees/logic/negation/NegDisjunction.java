@@ -3,12 +3,12 @@ package perl.aaron.TruthTrees.logic.negation;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import perl.aaron.TruthTrees.Branch;
+import perl.aaron.TruthTrees.logic.AComplexStatement;
 import perl.aaron.TruthTrees.logic.Disjunction;
 import perl.aaron.TruthTrees.logic.SerialDecomposable;
 import perl.aaron.TruthTrees.logic.Statement;
 
-public class NegDisjunction extends Negation implements SerialDecomposable {
+public class NegDisjunction extends AComplexStatement implements ComplexNegation, SerialDecomposable {
 	public static final String TYPE_NAME = "Negated Disjunction";
 	
 	private final List<Statement> decomposition;
@@ -24,12 +24,12 @@ public class NegDisjunction extends Negation implements SerialDecomposable {
 	}
 
 	@Override
-	public List<Statement> getModelDecomposition(Branch sourceBranch) {
+	public List<Statement> getModelDecomposition() {
 		return decomposition;
 	}
 	
 	@Override
-	protected Statement getInner() {
+	public Statement getInner() {
 		return new Disjunction(statements);
 	}
 

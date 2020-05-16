@@ -140,7 +140,7 @@ public class ExpressionParser {
 		}
 	}
 	
-	private static Statement recurseStatement(String subExpression)
+	private static AStatement recurseStatement(String subExpression)
 	{	
 		int operatorSet = -1;
 		
@@ -217,7 +217,7 @@ public class ExpressionParser {
 				
 				Variable var = (Variable) parseObject(varString);
 			
-				Statement statement = recurseStatement(statementString);
+				AStatement statement = recurseStatement(statementString);
 				
 				if (var == null || statement == null) return null;
 				
@@ -236,7 +236,7 @@ public class ExpressionParser {
 				String statementString = subExpression.substring(end);
 				
 				Variable var = (Variable) parseObject(varString);
-				Statement statement = recurseStatement(statementString);
+				AStatement statement = recurseStatement(statementString);
 				
 				if (var == null || statement == null) return null;
 				
@@ -247,11 +247,11 @@ public class ExpressionParser {
 		
 		Vector<String> operandStrings = splitZeroDepth(subExpression, operators.get(operatorSet));
 		
-		Vector<Statement> operands = new Vector<Statement>();
+		Vector<AStatement> operands = new Vector<AStatement>();
 		
 		for (String curOperandString : operandStrings)
 		{
-			Statement curOperand = recurseStatement(curOperandString);
+			AStatement curOperand = recurseStatement(curOperandString);
 			if (curOperand == null)
 				return null;
 			operands.add(curOperand);
@@ -280,9 +280,9 @@ public class ExpressionParser {
 		return null;
 	}
 	
-	public static Statement parseExpression(String expression)
+	public static AStatement parseExpression(String expression)
 	{
-		Statement statement = recurseStatement(expression.replaceAll("\\s", ""));
+		AStatement statement = recurseStatement(expression.replaceAll("\\s", ""));
 		if (statement != null)
 		{
 			if (statement.getVariables().size() != 0)

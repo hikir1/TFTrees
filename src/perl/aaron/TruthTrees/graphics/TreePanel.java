@@ -46,7 +46,7 @@ import perl.aaron.TruthTrees.Branch;
 import perl.aaron.TruthTrees.BranchLine;
 import perl.aaron.TruthTrees.BranchTerminator;
 import perl.aaron.TruthTrees.ExpressionParser;
-import perl.aaron.TruthTrees.logic.Statement;
+import perl.aaron.TruthTrees.logic.AStatement;
 import perl.aaron.TruthTrees.util.History;
 import perl.aaron.TruthTrees.util.MutOption;
 import perl.aaron.TruthTrees.util.NonNull;
@@ -55,8 +55,8 @@ import perl.aaron.TruthTrees.util.UserError;
 
 class Global {
 	static String var;
-	static Statement s1;
-	static Statement s2;
+	static AStatement s1;
+	static AStatement s2;
 }
 
 class RadioPanel extends JFrame {
@@ -291,7 +291,7 @@ public class TreePanel extends JPanel {
 	 *
 	 * @param s The premise that is added
 	 */
-	private void addPremise(final Statement s) { // TODO: worry about removing first premise?
+	private void addPremise(final AStatement s) { // TODO: worry about removing first premise?
 		BranchLine newLine = addLine(premises.get());
 		newLine.setIsPremise(true);
 		if (s != null) {
@@ -493,14 +493,14 @@ public class TreePanel extends JPanel {
 		return addBranch(parent, addFirstLine, null);
 	}
 
-	public Branch addBranch(final Branch parent, final boolean addFirstLine, final Statement s) {
+	public Branch addBranch(final Branch parent, final boolean addFirstLine, final AStatement s) {
 		final Branch newBranch = addBranchNoMove(parent, addFirstLine, s);
 		moveComponents();
 		repaint();
 		return newBranch;
 	}
 	
-	public Branch addBranchNoMove(final Branch parent, final boolean addFirstLine, final Statement s) {
+	public Branch addBranchNoMove(final Branch parent, final boolean addFirstLine, final AStatement s) {
 		final Branch newBranch = new Branch(parent);
 		newBranch.setFontMetrics(getFontMetrics(getFont()));
 		makeButtonsForBranch(newBranch);
@@ -735,7 +735,7 @@ public class TreePanel extends JPanel {
 	 *
 
 	 */
-	private void addLine(final Branch b, final Statement s) {
+	private void addLine(final Branch b, final AStatement s) {
 		addLine(b, false, true, true, s);
 	}
 
@@ -777,7 +777,7 @@ public class TreePanel extends JPanel {
 	 * @return the BranchLine that was added
 	 */
 	private BranchLine  addLine(final Branch b, final boolean isTerminator, final boolean isClose,
-			final boolean wasNotTyped, final Statement s) {
+			final boolean wasNotTyped, final AStatement s) {
 		final BranchLine newLine;
 		if (wasNotTyped) {
 			newLine = b.addStatement(s);
@@ -942,7 +942,7 @@ public class TreePanel extends JPanel {
 			@Override
 			public void focusLost(FocusEvent e) {
 				line.typing = false;
-				Statement newStatement = ExpressionParser.parseExpression(newField.getText());
+				AStatement newStatement = ExpressionParser.parseExpression(newField.getText());
 				if (newStatement != null) {
 
 					line.setStatement(newStatement);
@@ -981,7 +981,7 @@ public class TreePanel extends JPanel {
 	 * @param s the Statement added to the Branch
 	 * @return the BranchLine (which contains Statement s) added to Branch b
 	 */
-	public BranchLine addStatement(Branch b, Statement s) {
+	public BranchLine addStatement(Branch b, AStatement s) {
 		BranchLine newLine = addLine(b);
 		newLine.setStatement(s);
 		reverseLineMap.get(newLine).setText(s.toString());

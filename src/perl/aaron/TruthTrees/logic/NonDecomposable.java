@@ -2,10 +2,9 @@ package perl.aaron.TruthTrees.logic;
 
 import java.util.List;
 
-import perl.aaron.TruthTrees.Branch;
 import perl.aaron.TruthTrees.util.UserError;
 
-public interface NonDecomposable extends Decomposable {
+public interface NonDecomposable extends Statement {
 
 	@Override
 	default void subVerifyDecomposition(final List<List<Statement>> branches, final List<Statement> model) throws UserError {
@@ -17,8 +16,7 @@ public interface NonDecomposable extends Decomposable {
 	}
 	
 	@Override
-	default List<Statement> getModelDecomposition(Branch sourceBranch) {
+	default List<Statement> getModelDecomposition() {
 		return List.of();
 	}
-	
 }

@@ -2,11 +2,9 @@ package perl.aaron.TruthTrees.logic;
 
 import java.util.List;
 
-import perl.aaron.TruthTrees.Branch;
 import perl.aaron.TruthTrees.logic.negation.NegConditional;
-import perl.aaron.TruthTrees.logic.negation.Negation;
 
-public class Conditional extends Statement implements BranchDecomposable {
+public class Conditional extends AComplexStatement implements BranchDecomposable {
 	public static final String TYPE_NAME = "Conditional";
 	public static final String SYMBOL = "\u2192";
 	
@@ -24,22 +22,13 @@ public class Conditional extends Statement implements BranchDecomposable {
 	}
 	
 	@Override
-	public List<Statement> getModelDecomposition(final Branch b) {
+	public List<Statement> getModelDecomposition() {
 		return decomposition;
 	}
 	
 	@Override
-	public Negation negated() {
+	public Statement negated() {
 		return new NegConditional(left, right);
-	}
-	
-	// need to override equals() because not commutative
-	// no need to override hashcode because still valid
-	@Override
-	public boolean equals(final Object other) {
-		if (!(other instanceof Conditional))
-			return false;
-		return statements.equals(((Conditional)other).statements);
 	}
 	
 }

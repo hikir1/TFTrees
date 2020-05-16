@@ -28,7 +28,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import perl.aaron.TruthTrees.graphics.TreePanel;
-import perl.aaron.TruthTrees.logic.Statement;
+import perl.aaron.TruthTrees.logic.AStatement;
 import perl.aaron.TruthTrees.util.FileFormatException;
 import perl.aaron.TruthTrees.util.NoneResult;
 
@@ -133,7 +133,7 @@ public class FileManager {
 		else
 		{
 			String content = curElement.getAttribute("content");
-			Statement newStatement = ExpressionParser.parseExpression(content);
+			AStatement newStatement = ExpressionParser.parseExpression(content);
 			newLine = panel.addStatement(curBranch, newStatement);
 		}
 		lines.add(newLine);

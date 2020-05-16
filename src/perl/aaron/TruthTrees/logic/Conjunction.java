@@ -2,11 +2,9 @@ package perl.aaron.TruthTrees.logic;
 
 import java.util.List;
 
-import perl.aaron.TruthTrees.Branch;
 import perl.aaron.TruthTrees.logic.negation.NegConjunction;
-import perl.aaron.TruthTrees.logic.negation.Negation;
 
-public class Conjunction extends Statement implements SerialDecomposable {
+public class Conjunction extends ACommutativeStatement implements SerialDecomposable {
 	public static final String TYPE_NAME = "Conjunction";
 	public static final String SYMBOL = "\u2227";
 	
@@ -20,13 +18,13 @@ public class Conjunction extends Statement implements SerialDecomposable {
 	}
 	
 	@Override
-	public List<Statement> getModelDecomposition(final Branch b) {
+	public List<Statement> getModelDecomposition() {
 		// statements is already unmodifiable
 		return statements;
 	}
 	
 	@Override
-	public Negation negated() {
+	public Statement negated() {
 		return new NegConjunction(statements);
 	}
 

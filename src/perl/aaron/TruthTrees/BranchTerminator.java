@@ -5,7 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import perl.aaron.TruthTrees.logic.Decomposable;
-import perl.aaron.TruthTrees.logic.Statement;
+import perl.aaron.TruthTrees.logic.AStatement;
 import perl.aaron.TruthTrees.logic.negation.Negation;
 import perl.aaron.TruthTrees.util.UserError;
 
@@ -27,7 +27,7 @@ public class BranchTerminator extends BranchLine {
 	
 	public void setIsPremise(boolean isPremise) {}
 	public boolean isPremise() { return false; }
-	public void setStatement(Statement s) {}
+	public void setStatement(AStatement s) {}
 	public void setDecomposedFrom(BranchLine decomposedFrom) {}
 	public BranchLine getDecomposedFrom() { return null; }
 	
@@ -39,8 +39,8 @@ public class BranchTerminator extends BranchLine {
 				throw new UserError("Invalid number of supporting statements for branch termination");
 			ArrayList<BranchLine> selectedList = new ArrayList<BranchLine>();
 			selectedList.addAll(selectedLines);
-			Statement atomic;
-			Statement negatedStatement;
+			AStatement atomic;
+			AStatement negatedStatement;
 			if (!(selectedList.get(0).getStatement() instanceof Decomposable))
 			{
 				atomic = selectedList.get(0).getStatement();
@@ -66,7 +66,7 @@ public class BranchTerminator extends BranchLine {
 			// Check to make sure all lines above this are decomposed
 			Branch curBranch = this.parent;
 			Set<Negation> negations = new LinkedHashSet<Negation>();
-			Set<Statement> atomics = new LinkedHashSet<Statement>();
+			Set<AStatement> atomics = new LinkedHashSet<AStatement>();
 			while (curBranch != null)
 			{
 				for (int i = 0; i < curBranch.numLines(); i++)
@@ -90,7 +90,7 @@ public class BranchTerminator extends BranchLine {
 				}
 				curBranch = curBranch.getRoot();
 			}
-			for (Statement curAtomic : atomics)
+			for (AStatement curAtomic : atomics)
 			{
 				if (negations.contains(new Negation(curAtomic)))
 					throw new UserError("There exists an atomic statement and its negation in this branch!");
