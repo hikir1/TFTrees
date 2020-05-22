@@ -1,15 +1,12 @@
 package perl.aaron.TruthTrees.logic.fo;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import perl.aaron.TruthTrees.logic.AStatement;
 
-public abstract class APredicate extends AStatement {
+public abstract class APredicate extends AStatement implements PredicateType {
 	
 	protected final List<LogicObject> arguments;
-	
-	protected abstract APredicate newInstance(List<LogicObject> arguments);
 	
 	public APredicate(final String typeName, final String symbol, final List<LogicObject> arguments) {
 		super(typeName, symbol);
@@ -18,13 +15,8 @@ public abstract class APredicate extends AStatement {
 	}
 	
 	@Override
-	public String symString() {
-		return arguments.stream().map(Object::toString).collect(Collectors.joining(", ", symbol + "(", ")"));
-	}
-	
-	@Override
-	public String symStringParen() {
-		return symString();
+	public List<LogicObject> getArguments() {
+		return arguments;
 	}
 	
 	@Override

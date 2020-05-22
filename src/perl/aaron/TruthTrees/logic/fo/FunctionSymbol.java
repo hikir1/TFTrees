@@ -3,7 +3,10 @@ package perl.aaron.TruthTrees.logic.fo;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class FunctionSymbol extends LogicObject {
+import perl.aaron.TruthTrees.logic.ComplexSymbolString;
+import perl.aaron.TruthTrees.logic.SymbolString;
+
+public class FunctionSymbol extends LogicObject implements ComplexSymbolString {
 	public static final String TYPE_NAME = "Function";
 	
 	private final List<LogicObject> arguments;
@@ -16,6 +19,11 @@ public class FunctionSymbol extends LogicObject {
 	
 	List<LogicObject> getArguments() {
 		// already immutable
+		return arguments;
+	}
+	
+	@Override
+	public List<? extends SymbolString> getSymbolStrings() {
 		return arguments;
 	}
 	

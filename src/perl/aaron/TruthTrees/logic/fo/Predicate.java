@@ -14,7 +14,7 @@ public class Predicate extends APredicate implements NonDecomposable {
 	}
 	
 	@Override
-	public Predicate newInstance(final List<LogicObject> arguments) {
+	public Predicate withArgs(final List<LogicObject> arguments) {
 		return new Predicate(symbol, arguments);
 	}
 	

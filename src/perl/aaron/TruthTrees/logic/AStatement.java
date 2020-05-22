@@ -13,12 +13,10 @@ public abstract class AStatement extends ASymbolString implements Statement {
 	
 	public final void verifyDecomposition(final List<List<Statement>> branches, final Branch sourceBranch) throws UserError {
 		assert branches != null;
-		assert sourceBranch != null;		
+		assert sourceBranch != null;
 
-		final var model = getModelDecomposition();
-		assert model != null : "getModelDecomposition() for '" + this + "' should not return null";
 		try {
-			subVerifyDecomposition(branches, model);
+			subVerifyDecomposition(branches);
 		}
 		catch(UserError e) {
 			throw new UserError("Invalid decomposition of " + this + ":\n" + e.getMessage());

@@ -11,23 +11,23 @@ import java.util.stream.Collectors;
 import perl.aaron.TruthTrees.logic.Disjunction;
 import perl.aaron.TruthTrees.logic.SerialDecomposable;
 import perl.aaron.TruthTrees.logic.Statement;
-import perl.aaron.TruthTrees.logic.negation.fo.Inequality;
+import perl.aaron.TruthTrees.logic.negation.fo.Inequation;
 
-public class Equality extends AEquality implements SerialDecomposable {
+public class Equation extends AEquationType implements SerialDecomposable {
 	public static final String TYPE_NAME = "Equality";
 	public static final String SYMBOL = "=";
 	
 	private final Set<LogicObject> uniqueArguments;
 	
-	public Equality(List<LogicObject> arguments, Map<LogicObject,Set<APredicate>> atomicPredicates) {
+	public Equation(List<LogicObject> arguments, Map<LogicObject,Set<PredicateType>> atomicPredicates) {
 		super(TYPE_NAME, SYMBOL, arguments, atomicPredicates);
 		assert arguments != null;
 		uniqueArguments = new HashSet<LogicObject>(arguments);
 	}
 	
 	@Override
-	protected Equality newInstance(List<LogicObject> arguments) {
-		return new Equality(arguments, atomicPredicates);
+	public Equation withArgs(List<LogicObject> arguments) {
+		return new Equation(arguments, atomicPredicates);
 	}
 	
 	
@@ -35,9 +35,9 @@ public class Equality extends AEquality implements SerialDecomposable {
 	// ex: a = a = b is the same as a = b
 	@Override
 	public boolean equals(Object other) {
-		if (!(other instanceof Equality))
+		if (!(other instanceof Equation))
 			return false;
-		return uniqueArguments.equals(((Equality)other).uniqueArguments);
+		return uniqueArguments.equals(((Equation)other).uniqueArguments);
 	}
 	
 	@Override
@@ -51,16 +51,16 @@ public class Equality extends AEquality implements SerialDecomposable {
 	@Override
 	public List<Statement> getModelDecomposition() {
 		Set<LogicObject> arguments = Set.copyOf(this.arguments);
-		Set<APredicate> currentPredicates, modelPredicates = new HashSet<>();
+		Set<PredicateType> currentPredicates, modelPredicates = new HashSet<>();
 		for (LogicObject equArg: arguments) {
 			currentPredicates = atomicPredicates.get(equArg);
-			for (APredicate predicate: currentPredicates) {
-				for (List<LogicObject> argList: replaceArgs(predicate.arguments, equArg, arguments)) {
-					APredicate option = predicate.newInstance(argList);
-					if (option instanceof Equality)
+			for (PredicateType predicate: currentPredicates) {
+				for (List<LogicObject> argList: replaceArgs(predicate.getArguments(), equArg, arguments)) {
+					PredicateType option = predicate.withArgs(argList);
+					if (option instanceof Equation)
 						// Prevent infinite recursive decomposition by skipping Equality if already exists
 						// option.arguments could be empty if tautology
-						if (((Equality)option).uniqueArguments.size() == 1 || atomicPredicates.get(argList.get(0)).contains(option))
+						if (((Equation)option).uniqueArguments.size() == 1 || atomicPredicates.get(argList.get(0)).contains(option))
 							continue;
 					modelPredicates.add(option);
 				}
@@ -75,7 +75,7 @@ public class Equality extends AEquality implements SerialDecomposable {
 		List<Statement> ineqs = new ArrayList<>(arguments.size() * (arguments.size() - 1) / 2);
 		for (int i = 0; i < arguments.size(); i++)
 			for (int j = i + 1; j < arguments.size(); j++)
-				ineqs.add(new Inequality(arguments.get(i), arguments.get(j), atomicPredicates));
+				ineqs.add(new Inequation(arguments.get(i), arguments.get(j), atomicPredicates));
 		return new Disjunction(ineqs);
 	}
 	

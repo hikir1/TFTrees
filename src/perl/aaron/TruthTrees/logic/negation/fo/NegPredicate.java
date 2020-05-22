@@ -27,8 +27,13 @@ public class NegPredicate extends APredicate implements Negation, NonDecomposabl
 	}
 	
 	@Override
-	public APredicate newInstance(List<LogicObject> arguments) {
+	public APredicate withArgs(List<LogicObject> arguments) {
 		return new NegPredicate(symbol, arguments);
+	}
+
+	@Override
+	public String symString() {
+		return Negation.super.symString();
 	}
 	
 }

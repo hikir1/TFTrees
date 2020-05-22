@@ -5,7 +5,7 @@ import java.util.List;
 
 import perl.aaron.TruthTrees.util.UserError;
 
-public interface BranchDecomposable extends Statement {
+public interface BranchDecomposable extends ModelDecomposable {
 	
 	@Override
 	default void subVerifyDecomposition(final List<List<Statement>> branches, List<Statement> model) throws UserError {
