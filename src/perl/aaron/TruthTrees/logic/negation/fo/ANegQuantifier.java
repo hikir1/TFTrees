@@ -32,6 +32,11 @@ public abstract class ANegQuantifier extends AQuantifier implements Negation, Se
 	} // TODO: ensure no class overrides symString or paren equivalent
 	
 	@Override
+	public String symString() {
+		return Negation.super.symString();
+	}
+	
+	@Override
 	public final List<Statement> getModelDecomposition() {
 		return decomposition;
 	}

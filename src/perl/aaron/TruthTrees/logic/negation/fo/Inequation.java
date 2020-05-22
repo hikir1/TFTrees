@@ -8,7 +8,6 @@ import perl.aaron.TruthTrees.logic.NonDecomposable;
 import perl.aaron.TruthTrees.logic.Statement;
 import perl.aaron.TruthTrees.logic.fo.AEquationType;
 import perl.aaron.TruthTrees.logic.fo.Equation;
-import perl.aaron.TruthTrees.logic.fo.EquationType;
 import perl.aaron.TruthTrees.logic.fo.LogicObject;
 import perl.aaron.TruthTrees.logic.fo.PredicateType;
 import perl.aaron.TruthTrees.logic.negation.Negation;

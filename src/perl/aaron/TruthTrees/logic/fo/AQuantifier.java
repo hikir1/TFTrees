@@ -14,7 +14,7 @@ import perl.aaron.TruthTrees.util.MutOption;
 import perl.aaron.TruthTrees.util.NoneResult;
 import perl.aaron.TruthTrees.util.UserError;
 
-public abstract class AQuantifier extends AStatement {
+public abstract class AQuantifier extends AStatement implements Quantifier {
 
 	protected final Variable variable;
 	protected final Statement statement;
@@ -37,12 +37,14 @@ public abstract class AQuantifier extends AStatement {
 		this.statementsWithConstant = Collections.unmodifiableMap(statementsWithConstant);
 	}
 	
-	// TODO: use Composition?
-	// TODO: make Quantifier interface and move symString() method vvv
+	@Override
+	public Variable getVariable() {
+		return variable;
+	}
 	
 	@Override
-	public String symString() {
-		return symbol + variable.symString() + " " + statement.symStringParen();
+	public Statement getStatement() {
+		return statement;
 	}
 	
 	@Override
