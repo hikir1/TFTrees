@@ -15,11 +15,11 @@ import perl.aaron.TruthTrees.logic.*;
 import perl.aaron.TruthTrees.logic.fo.Constant;
 import perl.aaron.TruthTrees.logic.fo.ExistentialQuantifier;
 import perl.aaron.TruthTrees.logic.fo.FunctionSymbol;
-import perl.aaron.TruthTrees.logic.fo.LogicObject;
+import perl.aaron.TruthTrees.logic.fo.A_LogicObject;
 import perl.aaron.TruthTrees.logic.fo.Predicate;
 import perl.aaron.TruthTrees.logic.fo.UniversalQuantifier;
 import perl.aaron.TruthTrees.logic.fo.Variable;
-import perl.aaron.TruthTrees.logic.negation.Negation;
+import perl.aaron.TruthTrees.logic.negation.I_Negation;
 
 
 public class ExpressionParser {
@@ -109,7 +109,7 @@ public class ExpressionParser {
 		return retVal;
 	}
 	
-	private static LogicObject parseObject(String objectString)
+	private static A_LogicObject parseObject(String objectString)
 	{
 		if (objectString.matches("[a-z][A-Z0-9]*\\(.+\\)"))
 		{
@@ -119,7 +119,7 @@ public class ExpressionParser {
 					objectString.indexOf('(') + 1,
 					objectString.length() - 1);
 			List<String> argStrings = splitZeroDepth(argsString, Collections.singleton(','));
-			List<LogicObject> objs = new ArrayList<LogicObject>();
+			List<A_LogicObject> objs = new ArrayList<A_LogicObject>();
 			for (String curArgString : argStrings)
 			{
 				objs.add(parseObject(curArgString));
@@ -140,7 +140,7 @@ public class ExpressionParser {
 		}
 	}
 	
-	private static AStatement recurseStatement(String subExpression)
+	private static A_Statement recurseStatement(String subExpression)
 	{	
 		int operatorSet = -1;
 		
@@ -174,7 +174,7 @@ public class ExpressionParser {
 			}
 			else if (subExpression.matches(negationPattern + ".+"))
 			{
-				return new Negation(recurseStatement(subExpression.substring(1)));
+				return new I_Negation(recurseStatement(subExpression.substring(1)));
 			}
 			// Equality (not implemented)
 //			else if (subExpression.matches(".+=.+"))
@@ -193,10 +193,10 @@ public class ExpressionParser {
 						subExpression.indexOf('(') + 1,
 						subExpression.length() - 1);
 				List<String> objectStrings = splitZeroDepth(argumentsString, Collections.singleton(','));
-				List<LogicObject> arguments = new ArrayList<LogicObject>();
+				List<A_LogicObject> arguments = new ArrayList<A_LogicObject>();
 				for (String curObjectString : objectStrings)
 				{
-					LogicObject newObj = parseObject(curObjectString);
+					A_LogicObject newObj = parseObject(curObjectString);
 					if (newObj == null) return null;
 					arguments.add(newObj);
 				}
@@ -217,7 +217,7 @@ public class ExpressionParser {
 				
 				Variable var = (Variable) parseObject(varString);
 			
-				AStatement statement = recurseStatement(statementString);
+				A_Statement statement = recurseStatement(statementString);
 				
 				if (var == null || statement == null) return null;
 				
@@ -236,7 +236,7 @@ public class ExpressionParser {
 				String statementString = subExpression.substring(end);
 				
 				Variable var = (Variable) parseObject(varString);
-				AStatement statement = recurseStatement(statementString);
+				A_Statement statement = recurseStatement(statementString);
 				
 				if (var == null || statement == null) return null;
 				
@@ -247,11 +247,11 @@ public class ExpressionParser {
 		
 		Vector<String> operandStrings = splitZeroDepth(subExpression, operators.get(operatorSet));
 		
-		Vector<AStatement> operands = new Vector<AStatement>();
+		Vector<A_Statement> operands = new Vector<A_Statement>();
 		
 		for (String curOperandString : operandStrings)
 		{
-			AStatement curOperand = recurseStatement(curOperandString);
+			A_Statement curOperand = recurseStatement(curOperandString);
 			if (curOperand == null)
 				return null;
 			operands.add(curOperand);
@@ -280,9 +280,9 @@ public class ExpressionParser {
 		return null;
 	}
 	
-	public static AStatement parseExpression(String expression)
+	public static A_Statement parseExpression(String expression)
 	{
-		AStatement statement = recurseStatement(expression.replaceAll("\\s", ""));
+		A_Statement statement = recurseStatement(expression.replaceAll("\\s", ""));
 		if (statement != null)
 		{
 			if (statement.getVariables().size() != 0)

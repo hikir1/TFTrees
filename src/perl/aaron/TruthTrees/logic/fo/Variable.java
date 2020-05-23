@@ -1,6 +1,6 @@
 package perl.aaron.TruthTrees.logic.fo;
 
-public class Variable extends LogicObject {
+public class Variable extends A_LogicObject {
 	
 	public static final String TYPE_NAME = "Variable";
 	

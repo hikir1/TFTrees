@@ -5,10 +5,10 @@ import java.util.Map;
 
 import perl.aaron.TruthTrees.util.Counter;
 
-public abstract class ACommutativeStatement extends AComplexStatement {
-	protected final Map<Statement,Integer> statementCounts;
+public abstract class A_CommutativeStatement extends A_ComplexStatement {
+	protected final Map<I_Statement,Integer> statementCounts;
 	
-	protected ACommutativeStatement(String typeName, String symbol, List<Statement> statements) {
+	protected A_CommutativeStatement(String typeName, String symbol, List<I_Statement> statements) {
 		super(typeName, symbol, statements);
 		statementCounts = Counter.count(statements);
 	}
@@ -17,7 +17,7 @@ public abstract class ACommutativeStatement extends AComplexStatement {
 	public boolean equals(Object other) {
 		if (other == null || !getClass().equals(other.getClass()))
 			return false;
-		return statementCounts.equals(((ACommutativeStatement)other).statementCounts);
+		return statementCounts.equals(((A_CommutativeStatement)other).statementCounts);
 	}
 	
 	@Override

@@ -1,6 +1,6 @@
 package perl.aaron.TruthTrees.logic;
 
-public interface SymbolString {
+public interface I_SymbolString {
 	
 	default String symString() {
 		return getSymbol();

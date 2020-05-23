@@ -3,24 +3,24 @@ package perl.aaron.TruthTrees.logic.negation.fo;
 import java.util.List;
 import java.util.Map;
 
-import perl.aaron.TruthTrees.logic.SerialDecomposable;
-import perl.aaron.TruthTrees.logic.Statement;
+import perl.aaron.TruthTrees.logic.I_Statement;
+import perl.aaron.TruthTrees.logic.fo.A_Quantifier;
 import perl.aaron.TruthTrees.logic.fo.Constant;
-import perl.aaron.TruthTrees.logic.fo.AQuantifier;
 import perl.aaron.TruthTrees.logic.fo.Variable;
-import perl.aaron.TruthTrees.logic.negation.Negation;
+import perl.aaron.TruthTrees.logic.negation.I_Negation;
+import perl.aaron.TruthTrees.util.UserError;
 
-public abstract class ANegQuantifier extends AQuantifier implements Negation, SerialDecomposable {
+public abstract class A_NegQuantifier extends A_Quantifier implements I_Negation {
 	
-	private final List<Statement> decomposition;
+	private final List<I_Statement> decomposition;
 	
-	public ANegQuantifier(
+	public A_NegQuantifier(
 			String typeName,
 			String symbol,
 			Variable v,
-			Statement s,
-			Map<Constant,List<Statement>> statementsWithConstant,
-			List<Statement> decomposition) {
+			I_Statement s,
+			Map<Constant,List<I_Statement>> statementsWithConstant,
+			List<I_Statement> decomposition) {
 		super(typeName, symbol, v, s, statementsWithConstant);
 		assert decomposition != null;
 		this.decomposition = decomposition;
@@ -33,12 +33,12 @@ public abstract class ANegQuantifier extends AQuantifier implements Negation, Se
 	
 	@Override
 	public String symString() {
-		return Negation.super.symString();
+		return I_Negation.super.symString();
 	}
-	
+
 	@Override
-	public final List<Statement> getModelDecomposition() {
-		return decomposition;
+	protected void subVerifyDecomposition(List<List<I_Statement>> branches) throws UserError {
+		verifySerialDecomposition(branches, decomposition);
 	}
 
 }

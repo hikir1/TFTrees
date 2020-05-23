@@ -4,14 +4,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class AEquationType extends APredicate implements EquationType {
-	protected final Map<LogicObject,Set<PredicateType>> atomicPredicates;
+public abstract class A_EquationType extends A_Predicate implements I_EquationType {
+	protected final Map<A_LogicObject,Set<I_PredicateType>> atomicPredicates;
 	
-	public AEquationType(
+	public A_EquationType(
 			final String typeName,
 			final String symbol,
-			final List<LogicObject> arguments,
-			final Map<LogicObject, Set<PredicateType>> atomicPredicates) {
+			final List<A_LogicObject> arguments,
+			final Map<A_LogicObject, Set<I_PredicateType>> atomicPredicates) {
 		super(typeName, symbol, arguments);
 		assert arguments != null;
 		assert arguments.size() >= 2;

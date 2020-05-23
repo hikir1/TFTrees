@@ -3,15 +3,15 @@ package perl.aaron.TruthTrees.logic.negation.fo;
 import java.util.List;
 import java.util.Map;
 
-import perl.aaron.TruthTrees.logic.Statement;
+import perl.aaron.TruthTrees.logic.I_Statement;
 import perl.aaron.TruthTrees.logic.fo.Constant;
 import perl.aaron.TruthTrees.logic.fo.ExistentialQuantifier;
 import perl.aaron.TruthTrees.logic.fo.UniversalQuantifier;
 import perl.aaron.TruthTrees.logic.fo.Variable;
 
-public class NegUniversalQuantifier extends ANegQuantifier {
+public class NegUniversalQuantifier extends A_NegQuantifier {
 
-	public NegUniversalQuantifier(Variable v, Statement s, Map<Constant, List<Statement>> statementsWithConstant) {
+	public NegUniversalQuantifier(Variable v, I_Statement s, Map<Constant, List<I_Statement>> statementsWithConstant) {
 		super(
 				UniversalQuantifier.TYPE_NAME, 
 				UniversalQuantifier.SYMBOL,
@@ -20,7 +20,7 @@ public class NegUniversalQuantifier extends ANegQuantifier {
 	}
 
 	@Override
-	public Statement getInner() {
+	public I_Statement getInner() {
 		return new UniversalQuantifier(variable, statement, statementsWithConstant);
 	}
 

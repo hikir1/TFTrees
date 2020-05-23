@@ -2,31 +2,31 @@ package perl.aaron.TruthTrees.logic.negation;
 
 import java.util.List;
 
-import perl.aaron.TruthTrees.logic.AComplexStatement;
-import perl.aaron.TruthTrees.logic.SerialDecomposable;
-import perl.aaron.TruthTrees.logic.Statement;
+import perl.aaron.TruthTrees.logic.A_ComplexStatement;
+import perl.aaron.TruthTrees.logic.I_Statement;
+import perl.aaron.TruthTrees.util.UserError;
 
-public class DoubleNeg extends AComplexStatement implements ComplexNegation, SerialDecomposable {
+public class DoubleNeg extends A_ComplexStatement implements I_ComplexNegation {
 	public static final String TYPE_NAME = "Double Negation";
 	
-	private final List<Statement> decomposition;
-	private final Statement negand;
+	private final List<I_Statement> decomposition;
+	private final I_Statement negand;
 	
-	public DoubleNeg(final Statement a) {
-		super(TYPE_NAME, Negation.SYMBOL, List.of(a));
+	public DoubleNeg(final I_Statement a) {
+		super(TYPE_NAME, I_Negation.SYMBOL, List.of(a));
 		assert a != null;
 		decomposition = List.of(a);
 		negand = a;
 	}
 	
 	@Override
-	public Statement getInner() {
+	public I_Statement getInner() {
 		return negand;
 	}
 
 	@Override
-	public List<Statement> getModelDecomposition() {
-		return decomposition;
+	protected void subVerifyDecomposition(List<List<I_Statement>> branches) throws UserError {
+		verifySerialDecomposition(branches, decomposition);
 	}
 
 }

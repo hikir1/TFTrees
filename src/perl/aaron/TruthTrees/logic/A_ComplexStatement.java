@@ -3,17 +3,17 @@ package perl.aaron.TruthTrees.logic;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class AComplexStatement extends AStatement implements ComplexStatement {
-	protected final List<Statement> statements;
+public abstract class A_ComplexStatement extends A_Statement implements I_ComplexStatement {
+	protected final List<I_Statement> statements;
 	
-	public AComplexStatement(String typeName, String symbol, List<Statement> statements) {
+	public A_ComplexStatement(String typeName, String symbol, List<I_Statement> statements) {
 		super(typeName, symbol);
 		assert statements != null;
 		this.statements = statements;
 	}
 	
 	@Override
-	public List<Statement> getStatements() {
+	public List<I_Statement> getStatements() {
 		return Collections.unmodifiableList(statements);
 	}
 	
@@ -21,11 +21,12 @@ public abstract class AComplexStatement extends AStatement implements ComplexSta
 	public boolean equals(Object other) {
 		if (other == null || !getClass().equals(other.getClass()))
 			return false;
-		return statements.equals(((AComplexStatement)other).statements);
+		return statements.equals(((A_ComplexStatement)other).statements);
 	}
 	
 	@Override
 	public int hashCode() {
 		return statements.hashCode();
 	}
+	
 }

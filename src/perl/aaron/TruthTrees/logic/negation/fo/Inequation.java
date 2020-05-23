@@ -4,27 +4,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import perl.aaron.TruthTrees.logic.NonDecomposable;
-import perl.aaron.TruthTrees.logic.Statement;
-import perl.aaron.TruthTrees.logic.fo.AEquationType;
+import perl.aaron.TruthTrees.logic.I_Statement;
+import perl.aaron.TruthTrees.logic.fo.A_EquationType;
+import perl.aaron.TruthTrees.logic.fo.A_LogicObject;
 import perl.aaron.TruthTrees.logic.fo.Equation;
-import perl.aaron.TruthTrees.logic.fo.LogicObject;
-import perl.aaron.TruthTrees.logic.fo.PredicateType;
-import perl.aaron.TruthTrees.logic.negation.Negation;
+import perl.aaron.TruthTrees.logic.fo.I_PredicateType;
+import perl.aaron.TruthTrees.logic.negation.I_Negation;
 import perl.aaron.TruthTrees.util.Counter;
 
-public class Inequation extends AEquationType implements Negation, NonDecomposable {
+public class Inequation extends A_EquationType implements I_Negation {
 	public static final String TYPE_NAME = "inequality";
 	public static final String SYMBOL = "\u2260";
 	
-	private final Map<LogicObject,Integer> argumentsCount;
+	private final Map<A_LogicObject,Integer> argumentsCount;
 	
-	public Inequation(LogicObject left, LogicObject right, final Map<LogicObject, Set<PredicateType>> atomicPredicates) {
+	public Inequation(A_LogicObject left, A_LogicObject right, final Map<A_LogicObject, Set<I_PredicateType>> atomicPredicates) {
 		super(TYPE_NAME, SYMBOL, List.of(left, right), atomicPredicates);
 		argumentsCount = Counter.count(arguments);
 	}
 	
-	public Inequation withArgs(List<LogicObject> arguments) {
+	public Inequation withArgs(List<A_LogicObject> arguments) {
 		assert arguments != null;
 		assert arguments.size() == 2;
 		return new Inequation(arguments.get(0), arguments.get(1), atomicPredicates);
@@ -43,7 +42,7 @@ public class Inequation extends AEquationType implements Negation, NonDecomposab
 	}
 
 	@Override
-	public Statement getInner() {
+	public I_Statement getInner() {
 		return new Equation(arguments, atomicPredicates);
 	}
 	

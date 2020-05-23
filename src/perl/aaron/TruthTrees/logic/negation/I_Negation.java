@@ -1,19 +1,19 @@
 package perl.aaron.TruthTrees.logic.negation;
 
-import perl.aaron.TruthTrees.logic.Statement;
+import perl.aaron.TruthTrees.logic.I_Statement;
 
-public interface Negation extends Statement {
+public interface I_Negation extends I_Statement {
 	public static final String SYMBOL = "\u00AC";
 	
-	Statement getInner();
+	I_Statement getInner();
 	
 	@Override
-	default Statement negated() {
+	default I_Statement negated() {
 		return new DoubleNeg(getInner());
 	}
 	
 	default String innerSymStringParen() {
-		return Statement.super.symStringParen();
+		return I_Statement.super.symStringParen();
 	}
 	
 	@Override

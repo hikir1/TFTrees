@@ -7,7 +7,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import perl.aaron.TruthTrees.logic.AStatement;
+import perl.aaron.TruthTrees.logic.A_Statement;
 import perl.aaron.TruthTrees.util.UserError;
 
 /**
@@ -75,7 +75,7 @@ public class Branch {
 	 * @param index The index of the statement to get
 	 * @return The Statement at the given index
 	 */
-	public AStatement getStatement(int index)
+	public A_Statement getStatement(int index)
 	{
 		return lines.get(index).getStatement();
 	}
@@ -133,7 +133,7 @@ public class Branch {
 	 * @param s The Statement to remove
 	 * @return True if s was contained (and removed), false otherwise
 	 */
-	public boolean removeStatement(AStatement s)
+	public boolean removeStatement(A_Statement s)
 	{
 		for (int i = 0; i < lines.size(); i++)
 		{
@@ -151,7 +151,7 @@ public class Branch {
 	 * @param s The Statement to add
 	 * @param index The index to add the Statement at
 	 */
-	public BranchLine addStatement(AStatement s, int index)
+	public BranchLine addStatement(A_Statement s, int index)
 	{
 		BranchLine newLine = new BranchLine(this);
 		newLine.setStatement(s);
@@ -167,7 +167,7 @@ public class Branch {
 	 * Adds a Statement to the end of the list of statements
 	 * @param s The Statement to add
 	 */
-	public BranchLine addStatement(AStatement s)
+	public BranchLine addStatement(A_Statement s)
 	{
 		BranchLine newLine = new BranchLine(this);
 		newLine.setStatement(s);

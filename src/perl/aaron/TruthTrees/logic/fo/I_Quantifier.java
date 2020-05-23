@@ -1,11 +1,11 @@
 package perl.aaron.TruthTrees.logic.fo;
 
-import perl.aaron.TruthTrees.logic.Statement;
+import perl.aaron.TruthTrees.logic.I_Statement;
 
-public interface Quantifier extends Statement {
+public interface I_Quantifier extends I_Statement {
 	
 	Variable getVariable();
-	Statement getStatement();
+	I_Statement getStatement();
 	
 	@Override
 	default String symString() {

@@ -1,10 +1,13 @@
 package perl.aaron.TruthTrees.logic.negation;
 
-import perl.aaron.TruthTrees.logic.AStatement;
-import perl.aaron.TruthTrees.logic.AtomicStatement;
-import perl.aaron.TruthTrees.logic.NonDecomposable;
+import java.util.List;
 
-public class NegAtomicStatement extends AStatement implements Negation, NonDecomposable {
+import perl.aaron.TruthTrees.logic.A_Statement;
+import perl.aaron.TruthTrees.logic.AtomicStatement;
+import perl.aaron.TruthTrees.logic.I_Statement;
+import perl.aaron.TruthTrees.util.UserError;
+
+public class NegAtomicStatement extends A_Statement implements I_Negation {
 	public static final String TYPE_NAME = "Negated " + AtomicStatement.TYPE_NAME;
 	
 	public NegAtomicStatement(final String symbol) {
@@ -12,7 +15,12 @@ public class NegAtomicStatement extends AStatement implements Negation, NonDecom
 	}
 	
 	@Override
-	public AStatement getInner() {
+	public A_Statement getInner() {
 		return new AtomicStatement(symbol);
+	}
+
+	@Override
+	protected void subVerifyDecomposition(List<List<I_Statement>> branches) throws UserError {
+		verifyNoDecomposition(branches);
 	}
 }

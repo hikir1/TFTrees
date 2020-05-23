@@ -5,17 +5,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import perl.aaron.TruthTrees.logic.Statement;
+import perl.aaron.TruthTrees.logic.I_Statement;
 import perl.aaron.TruthTrees.logic.negation.fo.NegUniversalQuantifier;
 import perl.aaron.TruthTrees.util.NoneResult;
 import perl.aaron.TruthTrees.util.UserError;
 
-public class UniversalQuantifier extends AQuantifier {
+public class UniversalQuantifier extends A_Quantifier {
 	
 	public static final String TYPE_NAME = "Universal Quantifier";
 	public static final String SYMBOL = "\u2200";
 
-	public UniversalQuantifier(Variable v, Statement s, Map<Constant, List<Statement>> statementsWithConstant) {
+	public UniversalQuantifier(Variable v, I_Statement s, Map<Constant, List<I_Statement>> statementsWithConstant) {
 		super(TYPE_NAME, SYMBOL, v, s, statementsWithConstant);
 	}
 
@@ -25,13 +25,13 @@ public class UniversalQuantifier extends AQuantifier {
 	}
 	
 	@Override
-	public void subVerifyDecomposition(List<List<Statement>> branches) throws UserError {
+	public void subVerifyDecomposition(List<List<I_Statement>> branches) throws UserError {
 		assert branches != null;
 		if (branches.size() != 1)
 			throw new UserError("Expected one branch, but there are " + branches.size() + ".");
 		final Set<Constant> branchConstants = new HashSet<>(statementsWithConstant.keySet());
 		// its ok if new constants are introduced, but all old constants must be used
-		for (final Statement statement: branches.get(0)) {
+		for (final I_Statement statement: branches.get(0)) {
 			try {
 				final Constant bounded = testEqualsWithConstant(statement);
 				branchConstants.remove(bounded);
