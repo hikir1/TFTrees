@@ -411,66 +411,6 @@ public class Branch {
 		}
 		return false;
 	}
-
-	/**
-	 * Returns the set of all constants in this branch, ancestor branches and descendent branches
-	 * @return The set of all constants in this branch, ancestor branches and descendent branches
-	 */
-	public Set<String> getConstants() {
-		Set<String> constants = new LinkedHashSet<String>();
-		constants.addAll(getConstantsThis());
-		constants.addAll(getConstantsChildren());
-		constants.addAll(getConstantsBefore(null));
-		return constants;
-	}
-	
-	/** 
-	 * Returns the set of all constants in this branch, not including parents or children
-	 * @return The set of all constants in this branch
-	 */
-	public Set<String> getConstantsThis() {
-		Set<String> constants = new LinkedHashSet<String>();
-		for (BranchLine line : lines)
-		{
-			if (line.getStatement() != null)
-				constants.addAll(line.getStatement().getConstants());
-		}
-		return constants;
-	}
-	
-	/**
-	 * Returns the set of all constants in children branches of this branch (including all descendents)
-	 * @return The set of all constants in children branches of this branch
-	 */
-	private Set<String> getConstantsChildren() {
-		Set<String> constants = new LinkedHashSet<String>();
-		for (Branch b : branches)
-		{
-			constants.addAll(b.getConstantsThis());
-			constants.addAll(b.getConstantsChildren());
-		}
-		return constants;
-	}
-
-	/**
-	 * Returns the set of all constants in this branch (and parent branches) before the given line
-	 * @param last The line to stop collecting constants at
-	 * @return The set of all constants in this branch (and parent branches) before the given line
-	 */
-	public Set<String> getConstantsBefore(BranchLine last) {
-		Set<String> constants = new LinkedHashSet<String>();
-		for (BranchLine line : lines)
-		{
-			if (line == last) break;
-			if (line.getStatement() != null)
-				constants.addAll(line.getStatement().getConstants());
-		}
-		if (root != null)
-		{
-			constants.addAll(root.getConstantsBefore(null));
-		}
-		return constants;
-	}
 	
 	public void setDecomposedFrom(BranchLine line)
 	{
